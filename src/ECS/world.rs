@@ -1,4 +1,4 @@
-use std::{cell::{Ref, RefMut}, collections::BTreeSet};
+use std::{cell::{Ref, RefMut, UnsafeCell}, collections::BTreeSet};
 
 use super::*;
 
@@ -17,7 +17,7 @@ pub struct gmWorld{
     next_free: BTreeSet<usize>,
     components: HashMap<&'static str, Rc<RefCell<dyn gmStorageDrop>>>,
     resources: HashMap<&'static str, Rc<RefCell<dyn Any>>>,
-    events: gmWorld_EVENTMAP,
+    events: UnsafeCell<EventMap>,
     commands: Rc<RefCell<Vec<Box<dyn gmCommand>>>>
 }
 impl gmWorld{
@@ -28,7 +28,7 @@ impl gmWorld{
             next_free: BTreeSet::new(),
             components: HashMap::new(),
             resources: HashMap::new(),
-            events: gmWorld_EVENTMAP::new(),
+            events: UnsafeCell::new(EventMap::new()),
             commands: Rc::new(RefCell::new(Vec::new()))
         }
     }
@@ -60,11 +60,20 @@ impl gmWorld{
     }
 
     pub fn fetchEventReader<'a, T>(&'a self) -> EventReader<'a, T> where T: gmEvent + 'static{
-        self.events.getEventReader()
+        // SAFETY: Right now the entirety of the engine is single-threaded
+        // So we don't have to worry about two systems on sepparate threads
+        // colliding when they send a new event
+        //
+        // This is because `EventMap` initializes a new queue for an event 
+        // if the queue for the current frame doesn't yet exist
+        // THAT, requires a mutable borrow
+        //
+        // TODO: Remove the Unsafe
+        unsafe{self.events.get().as_mut().unwrap().get_reader()}
     }
-
     pub fn fetchEventWriter<'a, T>(&'a self) -> EventWriter<'a, T> where T: gmEvent + 'static{
-        self.events.getEventWriter()
+        // SAFETY: Same as above
+        unsafe{self.events.get().as_mut().unwrap().get_writer()}
     }
 
     pub fn registerComp<T>(&mut self) where T: gmComp + 'static{
@@ -93,10 +102,10 @@ impl gmWorld{
     }
 
     pub fn registerEvent<T>(&mut self) where T: gmEvent + 'static{
-        self.events.registerEvent::<T>();
+        self.events.get_mut().register::<T>();
     }
     pub fn unRegisterEvent<T>(&mut self) where T: gmEvent + 'static{
-        self.events.unRegisterEvent::<T>();
+        self.events.get_mut().deregister::<T>();
     }
 
     pub fn createGmObj(&mut self) -> gmObjBuilder{
@@ -139,6 +148,6 @@ impl gmWorld{
 
     pub fn endTick(&mut self){
         self.commandsExec();
-        self.events.switchNClear();
+        self.events.get_mut().swap_buffers();
     }
 }
