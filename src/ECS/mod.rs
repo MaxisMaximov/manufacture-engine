@@ -10,7 +10,6 @@ use std::ops::{Deref, DerefMut};
 pub mod comp;
 pub mod storage;
 pub mod system;
-pub mod vars;
 pub mod world;
 pub mod resource;
 pub mod builders;

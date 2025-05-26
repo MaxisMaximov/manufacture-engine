@@ -1,7 +1,6 @@
 use super::*;
 
 use comp::gmComp;
-use vars::*;
 
 pub trait gmStorage<T: gmComp>: Any{
     fn new() -> Self;

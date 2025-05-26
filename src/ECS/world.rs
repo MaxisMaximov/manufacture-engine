@@ -2,8 +2,7 @@ use std::{cell::{Ref, RefMut, UnsafeCell}, collections::BTreeSet};
 
 use super::*;
 
-use events::gmEvent;
-use vars::*;
+use events::*;
 use resource::*;
 use comp::*;
 use builders::gmObjBuilder;

@@ -5,7 +5,6 @@ pub use super::{
     comp::*,
     storage::*,
     system::*,
-    vars::*,
     world::*,
     resource::*,
     builders::*,

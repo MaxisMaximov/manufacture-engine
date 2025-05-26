@@ -2,7 +2,6 @@ use super::*;
 
 use comp::*;
 use storage::*;
-use vars::*;
 use world::*;
 
 #[must_use]
