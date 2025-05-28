@@ -89,7 +89,7 @@ pub type ReadStorage<'a, T: gmComp> = StorageRef<'a, T, Fetch<'a, T::COMP_STORAG
 #[allow(type_alias_bounds)]
 pub type WriteStorage<'a, T: gmComp> = StorageRef<'a, T, FetchMut<'a, T::COMP_STORAGE>>;
 
-trait QueryData{
+pub(super) trait QueryData{
     type Item<'b>;
 
     fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a>;
@@ -103,6 +103,15 @@ impl<'a, D: QueryData> Query<'a, D>{
         Self{
             data: D::fetch(World)
         }
+    }
+}
+
+// Empty impl as a way to not require `Query` from `gmSystem` trait yet
+impl QueryData for (){
+    type Item<'b> = ();
+
+    fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a> {
+
     }
 }
 

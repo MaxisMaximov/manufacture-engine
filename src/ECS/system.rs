@@ -4,6 +4,7 @@ use world::*;
 
 pub trait gmSystem<'a>{
     type sysData: gmSystemData<'a>;
+    type QUERY: fetch::QueryData;
     const sysDepends: &'static [&'static str];
     fn new() -> Self;
     fn SYS_ID() -> &'static str;
