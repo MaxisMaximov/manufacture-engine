@@ -3,6 +3,7 @@ use std::collections::VecDeque;
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
+use super::world::gmWorld;
 use super::*;
 
 use comp::gmComp;
@@ -87,3 +88,44 @@ pub type EventWriter<'a, T: gmEvent> = FetchMut<'a, VecDeque<T>>;
 pub type ReadStorage<'a, T: gmComp> = StorageRef<'a, T, Fetch<'a, T::COMP_STORAGE>>;
 #[allow(type_alias_bounds)]
 pub type WriteStorage<'a, T: gmComp> = StorageRef<'a, T, FetchMut<'a, T::COMP_STORAGE>>;
+
+trait QueryData{
+    type Item<'b>;
+
+    fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a>;
+}
+
+pub struct Query<'a, C: QueryData>{
+    data: C::Item<'a>
+}
+impl<'a, D: QueryData> Query<'a, D>{
+    pub fn fetch(World: &'a gmWorld) -> Self{
+        Self{
+            data: D::fetch(World)
+        }
+    }
+}
+
+impl<A: QueryData, B: QueryData> QueryData for (A, B){
+    type Item<'b> = (A::Item<'b>, B::Item<'b>);
+
+    fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World))
+    }
+}
+
+impl<T:gmComp> QueryData for &T{
+    type Item<'b> = ReadStorage<'b, T>;
+
+    fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a> {
+        World.fetch()
+    }
+}
+
+impl<T: gmComp> QueryData for &mut T{
+    type Item<'b> = WriteStorage<'b, T>;
+
+    fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a> {
+        World.fetchMut()
+    }
+}
