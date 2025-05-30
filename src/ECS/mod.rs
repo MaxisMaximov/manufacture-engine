@@ -22,6 +22,7 @@ pub mod fetch;
 
 pub mod prelude;
 
+#[cfg(tests)]
 pub mod tests{
     use super::*;
 

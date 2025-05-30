@@ -4,7 +4,7 @@ use super::*;
 use fetch::*;
 
 pub trait gmEvent{
-    fn EVENT_ID() -> &'static str;
+    fn EVENT_ID() -> &'static str where Self:Sized;
 }
 
 /// # Event Map
@@ -81,7 +81,7 @@ impl EventMap{
     /// 
     /// Panics if the requested Event is not registered
     pub fn get_writer<'a, T: gmEvent + 'static>(&'a mut self) -> EventWriter<'a, T>{
-        // CHeck if the Event is valid
+        // Check if the Event is valid
         if !self.registry.contains(T::EVENT_ID()){
             panic!("ERROR: Attempted to fetch unregistered event: {}", T::EVENT_ID())
         }

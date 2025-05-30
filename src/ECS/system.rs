@@ -2,21 +2,33 @@ use super::*;
 
 use world::*;
 
-pub trait gmSystem<'a>{
-    type sysData: gmSystemData<'a>;
+pub trait gmSystem{
+    #[cfg(not(query_data))]
+    type sysData<'a>: gmSystemData<'a>;
+    #[cfg(query_data)]
     type QUERY: fetch::QueryData;
+
     const sysDepends: &'static [&'static str];
+
     fn new() -> Self;
     fn SYS_ID() -> &'static str;
-    fn execute(&mut self, IN_data: Self::sysData);
+
+    #[cfg(not(query_data))]
+    fn execute<'a>(&mut self, IN_data: Self::sysData<'a>);
+    #[cfg(query_data)]
+    fn execute<'a>(&mut self, IN_data: Self::QUERY);
 }
 
-pub trait gmSysRun<'a>{
-    fn executeNow(&mut self, IN_world: &'a mut gmWorld);
+pub trait gmSysRun{
+    fn executeNow<'a>(&mut self, IN_world: &'a mut gmWorld);
 }
-impl<'a, T> gmSysRun<'a> for T where T:gmSystem<'a>{
-    fn executeNow(&mut self, IN_world: &'a mut gmWorld) {
+impl<T> gmSysRun for T where T:gmSystem{
+    fn executeNow<'a>(&mut self, IN_world: &'a mut gmWorld) {
+        #[cfg(not(query_data))]
         self.execute(T::sysData::fetch(IN_world));
+
+        #[cfg(query_data)]
+        self.execute(T::QUERY::fetch(IN_world))
     }
 }
 

@@ -18,12 +18,12 @@ impl gmDispatcher{
         }
     }
 
-    pub fn withSys<T>(mut self) -> Self where T: for<'a> gmSystem<'a> + 'static{
+    pub fn withSys<T>(mut self) -> Self where T: gmSystem + 'static{
         self.addSys::<T>();
         self
     }
 
-    pub fn addSys<T>(&mut self) where T: for<'a> gmSystem<'a> + 'static{
+    pub fn addSys<T>(&mut self) where T: gmSystem + 'static{
         // Check if the system is registered already
         if self.systems.contains_key(T::SYS_ID()){
             panic!("ERROR: Attempted to override an existing system: {}", T::SYS_ID())

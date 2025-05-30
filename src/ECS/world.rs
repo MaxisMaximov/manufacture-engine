@@ -47,7 +47,8 @@ impl gmWorld{
         )
     }
 
-    pub fn fetch_query<'a, T: system::gmSystem<'a>>(&'a self) -> Query<'a, T::QUERY>{
+    #[cfg(query_data)]
+    pub fn fetch_query<'a, T: system::gmSystem>(&'a self) -> Query<'a, T::QUERY>{
         Query::fetch(self)
     }
 

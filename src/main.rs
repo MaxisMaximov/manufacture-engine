@@ -2,7 +2,7 @@
 #![warn(unused_crate_dependencies)]
 
 pub mod ECS;
-pub mod manufacture;
+// pub mod manufacture;
 
 // START HERE
 fn main() {
@@ -13,7 +13,7 @@ fn main() {
     let mut WORLD = ECS::world::gmWorld::new();
     let mut DISPATCHER = ECS::dispatcher::gmDispatcher::new();
 
-    manufacture::init::init(&mut WORLD, &mut DISPATCHER);
+    // manufacture::init::init(&mut WORLD, &mut DISPATCHER);
 
     loop {
         DISPATCHER.dispatch(&mut WORLD);
