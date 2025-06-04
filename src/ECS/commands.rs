@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use super::*;
-use comp::gmComp;
+use comp::Component;
 use prefab::gmPrefab;
 use storage::gmStorage;
 use world::gmWorld;
@@ -35,11 +35,11 @@ impl gmCommand for cmd_DespawnGmObj{
     }
 }
 
-pub struct cmd_addComp<T: gmComp>{
+pub struct cmd_addComp<T: Component>{
     pub gmObj: usize,
     pub comp: T
 }
-impl<T: gmComp + Clone> gmCommand for cmd_addComp<T>{
+impl<T: Component + Clone> gmCommand for cmd_addComp<T>{
     fn CMD_ID(&self) -> &'static str {
         "cmd_addComp"
     }
@@ -49,11 +49,11 @@ impl<T: gmComp + Clone> gmCommand for cmd_addComp<T>{
     }
 }
 
-pub struct cmd_removeComp<T: gmComp>{
+pub struct cmd_removeComp<T: Component>{
     pub gmObj: usize,
     pub _phantom: PhantomData<T>
 }
-impl<T: gmComp> gmCommand for cmd_removeComp<T>{
+impl<T: Component> gmCommand for cmd_removeComp<T>{
     fn CMD_ID(&self) -> &'static str {
         "cmd"
     }

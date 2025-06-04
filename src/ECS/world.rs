@@ -32,17 +32,17 @@ impl gmWorld{
         }
     }
 
-    pub fn fetch<'a, T>(&'a self) -> ReadStorage<'a, T> where T: gmComp + 'static{
+    pub fn fetch<'a, T>(&'a self) -> ReadStorage<'a, T> where T: Component + 'static{
         ReadStorage::new(
             Fetch::new(
-                Ref::map(self.components.get(T::COMP_ID()).expect(&format!("ERROR: Tried to fetch an unregistered component: {}", T::COMP_ID())).as_ref().borrow(), |idkfa| &idkfa.downcast::<T>().inner)
+                Ref::map(self.components.get(T::ID).expect(&format!("ERROR: Tried to fetch an unregistered component: {}", T::ID)).as_ref().borrow(), |idkfa| &idkfa.downcast::<T>().inner)
             )
         )
     }
-    pub fn fetchMut<'a, T>(&'a self) -> WriteStorage<'a, T> where T: gmComp + 'static{
+    pub fn fetchMut<'a, T>(&'a self) -> WriteStorage<'a, T> where T: Component + 'static{
         WriteStorage::new(
             FetchMut::new(
-                RefMut::map(self.components.get(T::COMP_ID()).expect(&format!("ERROR: Tried to fetch an unregistered component: {}", T::COMP_ID())).as_ref().borrow_mut(), |idkfa| &mut idkfa.downcast_mut::<T>().inner)
+                RefMut::map(self.components.get(T::ID).expect(&format!("ERROR: Tried to fetch an unregistered component: {}", T::ID)).as_ref().borrow_mut(), |idkfa| &mut idkfa.downcast_mut::<T>().inner)
             )
         )
     }
@@ -75,18 +75,18 @@ impl gmWorld{
         unsafe{self.events.get().as_mut().unwrap().get_writer()}
     }
 
-    pub fn registerComp<T>(&mut self) where T: gmComp + 'static{
+    pub fn registerComp<T>(&mut self) where T: Component + 'static{
         use std::collections::hash_map::Entry;
-        match self.components.entry(T::COMP_ID()){
-            Entry::Occupied(_) => panic!("ERROR: Attempted to override an existing component: {}", T::COMP_ID()),
+        match self.components.entry(T::ID){
+            Entry::Occupied(_) => panic!("ERROR: Attempted to override an existing component: {}", T::ID),
             Entry::Vacant(ENTRY) => ENTRY.insert(
                     Rc::new(
                         RefCell::new(
-                            gmStorageContainer::<T>{inner: T::COMP_STORAGE::new()})))
+                            gmStorageContainer::<T>{inner: T::STORAGE::new()})))
         };
     }
-    pub fn unRegisterComp<T>(&mut self) where T: gmComp + 'static{
-        self.components.remove(T::COMP_ID());
+    pub fn unRegisterComp<T>(&mut self) where T: Component + 'static{
+        self.components.remove(T::ID);
     }
 
     pub fn registerRes<T>(&mut self) where T: gmRes + 'static{

@@ -1,8 +1,8 @@
 use super::*;
 
-use comp::gmComp;
+use comp::Component;
 
-pub trait gmStorage<T: gmComp>: Any{
+pub trait gmStorage<T: Component>: Any{
     fn new() -> Self;
     fn get(&self, IN_id: &usize) -> Option<&T>;
     fn get_mut(&mut self, IN_id: &usize) -> Option<&mut T>;
@@ -16,19 +16,19 @@ pub trait gmStorageDrop: Any{
 }
 
 impl dyn gmStorageDrop{
-    pub fn downcast<T: gmComp>(&self) -> &gmStorageContainer<T>{
+    pub fn downcast<T: Component>(&self) -> &gmStorageContainer<T>{
         unsafe {&*(self as *const dyn gmStorageDrop as *const gmStorageContainer<T>)}
     }
-    pub fn downcast_mut<T: gmComp>(&mut self) -> &mut gmStorageContainer<T>{
+    pub fn downcast_mut<T: Component>(&mut self) -> &mut gmStorageContainer<T>{
         unsafe {&mut *(self as *mut dyn gmStorageDrop as *mut gmStorageContainer<T>)}
     }
 }
 
 // Necessary abstraction for `gmStorageDrop` to be used
-pub struct gmStorageContainer<T:gmComp>{
-    pub inner: T::COMP_STORAGE
+pub struct gmStorageContainer<T:Component>{
+    pub inner: T::STORAGE
 }
-impl<T: gmComp + 'static> gmStorageDrop for gmStorageContainer<T>{
+impl<T: Component + 'static> gmStorageDrop for gmStorageContainer<T>{
     fn drop(&mut self, IN_id: &usize) {
         self.inner.remove(IN_id);
     }
@@ -39,7 +39,7 @@ pub struct denseVecStorage<T>{
     pub proxyMap: HashMap<usize, usize>,
     pub inner: Vec<denseVecEntry<T>>
 }
-impl<T: gmComp + 'static> gmStorage<T> for denseVecStorage<T>{
+impl<T: Component + 'static> gmStorage<T> for denseVecStorage<T>{
 
     fn new() -> Self {
         Self{

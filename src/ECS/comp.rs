@@ -1,8 +1,7 @@
-use super::*;
+use super::storage::gmStorage;
+use std::any::Any;
 
-use storage::*;
-
-pub trait gmComp: Any + Sized{
-    type COMP_STORAGE: gmStorage<Self> + Any;
-    fn COMP_ID() -> &'static str;
+pub trait Component: Any + Sized{
+    type STORAGE: gmStorage<Self>;
+    const ID: &'static str;
 }

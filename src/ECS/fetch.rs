@@ -6,7 +6,7 @@ use std::ops::{Deref, DerefMut};
 use super::world::gmWorld;
 use super::*;
 
-use comp::gmComp;
+use comp::Component;
 use events::gmEvent;
 
 pub struct Fetch<'a, T>{
@@ -54,11 +54,11 @@ impl<'a, T> DerefMut for FetchMut<'a, T>{
 // And they all 3 implement Derefs, however Ref/Mut use it for safety stuff, Fetch/Mut and StorageRef only use it to give direct access to the storage/resource
 // So in the end they both don't provide anything useful other than type clarity to what's a component and what's a resource fetch
 // Also I'm not sure if Deref³ is a good idea for performance
-pub struct StorageRef<'a, T: gmComp, D>{
+pub struct StorageRef<'a, T: Component, D>{
     data: D,
     _phantom: PhantomData<&'a T>
 } 
-impl<'a, T: gmComp, D> StorageRef<'a, T, D>{
+impl<'a, T: Component, D> StorageRef<'a, T, D>{
     pub fn new(IN_data: D) -> Self{
         Self{
             data: IN_data,
@@ -66,14 +66,14 @@ impl<'a, T: gmComp, D> StorageRef<'a, T, D>{
         }
     }
 }
-impl<'a, T: gmComp, D> Deref for StorageRef<'a, T, D>{
+impl<'a, T: Component, D> Deref for StorageRef<'a, T, D>{
     type Target = D;
 
     fn deref(&self) -> &Self::Target {
         &self.data
     }
 }
-impl<'a, T: gmComp, D> DerefMut for StorageRef<'a, T, D>{
+impl<'a, T: Component, D> DerefMut for StorageRef<'a, T, D>{
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.data
     }
@@ -85,9 +85,9 @@ pub type EventReader<'a, T: gmEvent> = Fetch<'a, VecDeque<T>>;
 pub type EventWriter<'a, T: gmEvent> = FetchMut<'a, VecDeque<T>>;
 
 #[allow(type_alias_bounds)]
-pub type ReadStorage<'a, T: gmComp> = StorageRef<'a, T, Fetch<'a, T::COMP_STORAGE>>;
+pub type ReadStorage<'a, T: Component> = StorageRef<'a, T, Fetch<'a, T::STORAGE>>;
 #[allow(type_alias_bounds)]
-pub type WriteStorage<'a, T: gmComp> = StorageRef<'a, T, FetchMut<'a, T::COMP_STORAGE>>;
+pub type WriteStorage<'a, T: Component> = StorageRef<'a, T, FetchMut<'a, T::STORAGE>>;
 
 pub(super) trait QueryData{
     type Item<'b>;
@@ -123,7 +123,7 @@ impl<A: QueryData, B: QueryData> QueryData for (A, B){
     }
 }
 
-impl<T:gmComp> QueryData for &T{
+impl<T:Component> QueryData for &T{
     type Item<'b> = ReadStorage<'b, T>;
 
     fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a> {
@@ -131,7 +131,7 @@ impl<T:gmComp> QueryData for &T{
     }
 }
 
-impl<T: gmComp> QueryData for &mut T{
+impl<T: Component> QueryData for &mut T{
     type Item<'b> = WriteStorage<'b, T>;
 
     fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a> {

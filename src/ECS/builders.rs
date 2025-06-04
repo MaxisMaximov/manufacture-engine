@@ -17,7 +17,7 @@ impl<'a> gmObjBuilder<'a>{
         }
     }
 
-    pub fn addComp<T>(self, IN_comp: T) -> Self where T:gmComp{
+    pub fn addComp<T>(self, IN_comp: T) -> Self where T:Component{
         self.worldRef.fetchMut::<T>().insert(self.gmObjID, IN_comp);
         self
     }
