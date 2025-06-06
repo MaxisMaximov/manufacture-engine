@@ -114,6 +114,18 @@ impl<'a, D: QueryData> Query<'a, D>{
         }
     }
 }
+impl<'a, C:QueryData> Deref for Query<'a, C>{
+    type Target = C::Item<'a>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.data
+    }
+}
+impl<'a, C: QueryData> DerefMut for Query<'a, C>{
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.data
+    }
+}
 
 impl<T:Component> QueryData for &T{
     type Item<'b> = ReadStorage<'b, T>;
