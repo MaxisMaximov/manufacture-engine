@@ -8,7 +8,7 @@ use super::world::gmWorld;
 use super::*;
 
 use comp::Component;
-use events::gmEvent;
+use events::Event;
 use resource::gmRes;
 use commands::gmCommand;
 
@@ -18,8 +18,8 @@ pub type FetchMut<'a, C: Component> = RefMut<'a, C::STORAGE>;
 pub type FetchRes<'a, R: gmRes> = Ref<'a, R>;
 pub type FetchResMut<'a, R: gmRes> = RefMut<'a, R>;
 
-pub type EventReader<'a, E: gmEvent> = Ref<'a, VecDeque<E>>;
-pub type EventWriter<'a, E: gmEvent> = RefMut<'a, VecDeque<E>>;
+pub type EventReader<'a, E: Event> = Ref<'a, VecDeque<E>>;
+pub type EventWriter<'a, E: Event> = RefMut<'a, VecDeque<E>>;
 
 pub type CommandWriter<'a> = RefMut<'a, Vec<Box<dyn gmCommand>>>;
 

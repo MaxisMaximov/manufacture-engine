@@ -3,8 +3,16 @@ use std::{cell::{Ref, RefMut}, collections::{HashSet, VecDeque}};
 use super::*;
 use fetch::*;
 
-pub trait gmEvent{
-    fn EVENT_ID() -> &'static str where Self:Sized;
+pub trait Event{
+    const ID: &'static str;
+}
+pub trait EventWrapper{
+    fn id(&self) -> &'static str;
+}
+impl<T: Event> EventWrapper for T{
+    fn id(&self) -> &'static str {
+        T::ID
+    }
 }
 
 /// # Event Map
@@ -29,22 +37,22 @@ impl EventMap{
     }
 
     /// Register an event
-    pub fn register<T: gmEvent>(&mut self){
-        if self.registry.contains(T::EVENT_ID()){
+    pub fn register<T: Event>(&mut self){
+        if self.registry.contains(T::ID){
             // Events CANNOT share IDs because systems expect a specific type
             // This ain't OOP, we can't replace one struct with another and expect it to go the same
-            panic!("ERROR: Conflicting Event IDs: {}", T::EVENT_ID())
+            panic!("ERROR: Conflicting Event IDs: {}", T::ID)
         }
-        self.registry.insert(T::EVENT_ID());
+        self.registry.insert(T::ID);
     }
     /// Deregister an event
     /// 
     /// This also clears the respective Event's Queues from both buffers
-    pub fn deregister<T: gmEvent>(&mut self){
-        self.registry.remove(T::EVENT_ID());
+    pub fn deregister<T: Event>(&mut self){
+        self.registry.remove(T::ID);
         // Remove those events from the Map as they're no longer valid
-        self.active_buffer.remove(T::EVENT_ID());
-        self.alt_buffer.remove(T::EVENT_ID());
+        self.active_buffer.remove(T::ID);
+        self.alt_buffer.remove(T::ID);
     }
 
     pub(super) fn swap_buffers(&mut self){
@@ -55,21 +63,21 @@ impl EventMap{
     /// Get a Reader for an Event
     /// 
     /// Panics if the requested Event is not registered
-    pub fn get_reader<'a, T: gmEvent + 'static>(&'a mut self) -> EventReader<'a, T>{
+    pub fn get_reader<'a, T: Event + 'static>(&'a mut self) -> EventReader<'a, T>{
         // Check if the Event is valid
-        if !self.registry.contains(T::EVENT_ID()){
-            panic!("ERROR: Attempted to fetch unregistered event: {}", T::EVENT_ID())
+        if !self.registry.contains(T::ID){
+            panic!("ERROR: Attempted to fetch unregistered event: {}", T::ID)
         }
 
         // If we don't have this key in buffer yet, initialize it
         // This is a hacky workaround to return a "valid" `EventReader`
         // even if the queue for that event is empty
-        if !self.alt_buffer.contains_key(T::EVENT_ID()){
-            self.alt_buffer.insert(T::EVENT_ID(), RefCell::new(Box::new(VecDeque::<T>::new())));
+        if !self.alt_buffer.contains_key(T::ID){
+            self.alt_buffer.insert(T::ID, RefCell::new(Box::new(VecDeque::<T>::new())));
         }
 
         // We have checks for valid ID and a backup Queue, so we can safely unwrap
-        let queue = self.alt_buffer.get(T::EVENT_ID()).unwrap();
+        let queue = self.alt_buffer.get(T::ID).unwrap();
 
         Ref::map(
             queue.borrow(), 
@@ -78,19 +86,19 @@ impl EventMap{
     /// Get a Writer for an Event
     /// 
     /// Panics if the requested Event is not registered
-    pub fn get_writer<'a, T: gmEvent + 'static>(&'a mut self) -> EventWriter<'a, T>{
+    pub fn get_writer<'a, T: Event + 'static>(&'a mut self) -> EventWriter<'a, T>{
         // Check if the Event is valid
-        if !self.registry.contains(T::EVENT_ID()){
-            panic!("ERROR: Attempted to fetch unregistered event: {}", T::EVENT_ID())
+        if !self.registry.contains(T::ID){
+            panic!("ERROR: Attempted to fetch unregistered event: {}", T::ID)
         }
 
         // If there's a valid event but no queue, set up a new one
-        if !self.active_buffer.contains_key(T::EVENT_ID()){
-            self.active_buffer.insert(T::EVENT_ID(), RefCell::new(Box::new(VecDeque::<T>::new())));
+        if !self.active_buffer.contains_key(T::ID){
+            self.active_buffer.insert(T::ID, RefCell::new(Box::new(VecDeque::<T>::new())));
         }
 
         // We have checks for valid ID and a backup Queue, so we can safely unwrap
-        let queue = self.active_buffer.get(T::EVENT_ID()).unwrap();
+        let queue = self.active_buffer.get(T::ID).unwrap();
 
         RefMut::map(
             queue.borrow_mut(),

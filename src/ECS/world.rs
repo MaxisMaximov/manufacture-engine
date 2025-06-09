@@ -77,7 +77,7 @@ impl gmWorld{
             |idkfa| idkfa.downcast_mut::<T>().unwrap())
     }
 
-    pub fn fetchEventReader<'a, T>(&'a self) -> EventReader<'a, T> where T: gmEvent + 'static{
+    pub fn fetchEventReader<'a, T>(&'a self) -> EventReader<'a, T> where T: Event + 'static{
         // SAFETY: Right now the entirety of the engine is single-threaded
         // So we don't have to worry about two systems on sepparate threads
         // colliding when they send/receive a new event
@@ -89,7 +89,7 @@ impl gmWorld{
         // TODO: Remove the Unsafe
         unsafe{self.events.get().as_mut().unwrap().get_reader()}
     }
-    pub fn fetchEventWriter<'a, T>(&'a self) -> EventWriter<'a, T> where T: gmEvent + 'static{
+    pub fn fetchEventWriter<'a, T>(&'a self) -> EventWriter<'a, T> where T: Event + 'static{
         // SAFETY: Same as above
         unsafe{self.events.get().as_mut().unwrap().get_writer()}
     }
@@ -118,10 +118,10 @@ impl gmWorld{
         self.resources.remove(T::RES_ID());
     }
 
-    pub fn registerEvent<T>(&mut self) where T: gmEvent + 'static{
+    pub fn registerEvent<T>(&mut self) where T: Event + 'static{
         self.events.get_mut().register::<T>();
     }
-    pub fn unRegisterEvent<T>(&mut self) where T: gmEvent + 'static{
+    pub fn unRegisterEvent<T>(&mut self) where T: Event + 'static{
         self.events.get_mut().deregister::<T>();
     }
 
