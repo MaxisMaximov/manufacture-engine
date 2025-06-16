@@ -168,4 +168,11 @@ impl gmWorld{
         self.commandsExec();
         self.events.get_mut().swap_buffers();
     }
+
+    pub fn validateToken(&self, Token: &mut entity::Token) -> bool{
+        match self.gmObjs.get(&Token.id()){
+            Some(GMOBJ) => GMOBJ.hash == Token.hash(),
+            None => false,
+        }
+    }
 }

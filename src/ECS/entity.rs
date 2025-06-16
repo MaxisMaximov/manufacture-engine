@@ -1,3 +1,4 @@
+use crate::ECS::world::gmWorld;
 
 /// # Entity struct
 /// Identifies a single Entity within the World
@@ -44,4 +45,25 @@ pub struct Token{
     id: usize,
     hash: u32,
     valid: bool
+}
+impl Token{
+    /// Read the tracked Entity's ID
+    pub fn id(&self) -> usize{
+        self.id
+    }
+    /// Read the tracked Entity's Hash
+    pub fn hash(&self) -> u32{
+        self.hash
+    }
+    /// Read if the Token is valid
+    pub fn valid(&self) -> bool{
+        self.valid
+    }
+    /// Check if the Token is still valid within the World
+    /// 
+    /// Updates it's own `valid` flag and returns it
+    pub fn validate(&mut self, World: &gmWorld) -> bool{
+        self.valid = World.validateToken(self);
+        self.valid
+    }
 }
