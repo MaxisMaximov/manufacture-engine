@@ -9,7 +9,7 @@ use builders::gmObjBuilder;
 use storage::*;
 use fetch::*;
 use entity::*;
-use commands::gmCommand;
+use commands::*;
 
 pub struct gmWorld{
     gmObjs: BTreeMap<usize, Entity>,
@@ -17,7 +17,7 @@ pub struct gmWorld{
     components: HashMap<&'static str, RefCell<Box<dyn StorageWrapper>>>,
     resources: HashMap<&'static str, RefCell<Box<dyn ResourceWrapper>>>,
     events: UnsafeCell<EventMap>,
-    commands: RefCell<Vec<Box<dyn gmCommand>>>
+    commands: RefCell<Vec<Box<dyn CommandWrapper>>>
 }
 impl gmWorld{
 
@@ -158,7 +158,7 @@ impl gmWorld{
         loop{
             let idkfa = self.commands.borrow_mut().pop();
             match idkfa{
-                Some(COMMAND) => COMMAND.execute(self),
+                Some(mut COMMAND) => COMMAND.execute(self),
                 None => break,
             }
         }

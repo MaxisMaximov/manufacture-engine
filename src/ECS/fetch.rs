@@ -10,7 +10,7 @@ use super::*;
 use comp::Component;
 use events::Event;
 use resource::Resource;
-use commands::gmCommand;
+use commands::CommandWrapper;
 
 pub type Fetch<'a, C: Component> = Ref<'a, C::STORAGE>;
 pub type FetchMut<'a, C: Component> = RefMut<'a, C::STORAGE>;
@@ -21,7 +21,7 @@ pub type FetchResMut<'a, R: Resource> = RefMut<'a, R>;
 pub type EventReader<'a, E: Event> = Ref<'a, VecDeque<E>>;
 pub type EventWriter<'a, E: Event> = RefMut<'a, VecDeque<E>>;
 
-pub type CommandWriter<'a> = RefMut<'a, Vec<Box<dyn gmCommand>>>;
+pub type CommandWriter<'a> = RefMut<'a, Vec<Box<dyn CommandWrapper>>>;
 
 /// # Query fetch trait
 /// Required for `Query` to know what to fetch from the World
