@@ -10,7 +10,7 @@ use std::any::Any;
 /// 
 /// ## WARNING
 /// Make sure your Component ID does not collide with other IDs from other plugins
-pub trait Component: Any + Sized{
+pub trait Component: Sized + 'static{
     type STORAGE: Storage<Self>;
     const ID: &'static str;
 }

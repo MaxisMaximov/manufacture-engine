@@ -3,7 +3,7 @@ use std::{cell::{Ref, RefMut}, collections::{HashSet, VecDeque}};
 use super::*;
 use fetch::*;
 
-pub trait Event{
+pub trait Event: 'static{
     const ID: &'static str;
 }
 pub trait EventWrapper{

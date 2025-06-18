@@ -1,5 +1,3 @@
-use super::*;
-
 /// # System Resource trait
 /// Defines a Resource that can be shared between systems
 /// 
@@ -7,7 +5,7 @@ use super::*;
 /// 
 /// ## WARNING
 /// Make sure your Resource ID does not collide with other IDs from other plugins
-pub trait Resource: Any{
+pub trait Resource: 'static{
     const ID: &'static str;
 
     fn new() -> Self;

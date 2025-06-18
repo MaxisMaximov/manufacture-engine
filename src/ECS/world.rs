@@ -31,7 +31,7 @@ impl gmWorld{
         }
     }
 
-    pub fn fetch<'a, T>(&'a self) -> Fetch<'a, T> where T: Component + 'static{
+    pub fn fetch<'a, T>(&'a self) -> Fetch<'a, T> where T: Component{
         // Check if we have such component in the first place
         if !self.components.contains_key(T::ID){
             // There's no way to signify missing components yet, so we panic for now
@@ -43,7 +43,7 @@ impl gmWorld{
             self.components.get(T::ID).unwrap().borrow(), 
             |idkfa| &**idkfa.downcast_ref::<T>().unwrap())
     }
-    pub fn fetchMut<'a, T>(&'a self) -> FetchMut<'a, T> where T: Component + 'static{
+    pub fn fetchMut<'a, T>(&'a self) -> FetchMut<'a, T> where T: Component{
         // Same as above
         if !self.components.contains_key(T::ID){
             panic!("ERROR: Tried to fetch an unregistered component: {}", T::ID)
@@ -54,7 +54,7 @@ impl gmWorld{
             |idkfa| &mut **idkfa.downcast_mut::<T>().unwrap())
     }
 
-    pub fn fetchRes<'a, T>(&'a self) -> FetchRes<'a, T> where T: Resource + 'static{
+    pub fn fetchRes<'a, T>(&'a self) -> FetchRes<'a, T> where T: Resource{
         // Check if we have such Resource registered already
         if !self.resources.contains_key(T::ID){
             // Same as with Component fetch
@@ -65,7 +65,7 @@ impl gmWorld{
             self.resources.get(T::ID).unwrap().borrow(), 
             |idkfa| idkfa.downcast_ref::<T>().unwrap())
     }
-    pub fn fetchResMut<'a, T>(&'a self) -> FetchResMut<'a, T> where T: Resource + 'static{
+    pub fn fetchResMut<'a, T>(&'a self) -> FetchResMut<'a, T> where T: Resource{
         // Same as above
         if !self.resources.contains_key(T::ID){
             panic!("ERROR: Tried to fetch an unregistered resource: {}", T::ID)
@@ -76,7 +76,7 @@ impl gmWorld{
             |idkfa| idkfa.downcast_mut::<T>().unwrap())
     }
 
-    pub fn fetchEventReader<'a, T>(&'a self) -> EventReader<'a, T> where T: Event + 'static{
+    pub fn fetchEventReader<'a, T>(&'a self) -> EventReader<'a, T> where T: Event{
         // SAFETY: Right now the entirety of the engine is single-threaded
         // So we don't have to worry about two systems on sepparate threads
         // colliding when they send/receive a new event
@@ -88,12 +88,12 @@ impl gmWorld{
         // TODO: Remove the Unsafe
         unsafe{self.events.get().as_mut().unwrap().get_reader()}
     }
-    pub fn fetchEventWriter<'a, T>(&'a self) -> EventWriter<'a, T> where T: Event + 'static{
+    pub fn fetchEventWriter<'a, T>(&'a self) -> EventWriter<'a, T> where T: Event{
         // SAFETY: Same as above
         unsafe{self.events.get().as_mut().unwrap().get_writer()}
     }
 
-    pub fn registerComp<T>(&mut self) where T: Component + 'static{
+    pub fn registerComp<T>(&mut self) where T: Component{
         if !self.components.contains_key(T::ID){
             panic!("ERROR: Attempted to override an existing component: {}", T::ID)
         }
@@ -102,25 +102,25 @@ impl gmWorld{
             T::ID, 
             RefCell::new(Box::new(StorageContainer::<T>::new())));
     }
-    pub fn unRegisterComp<T>(&mut self) where T: Component + 'static{
+    pub fn unRegisterComp<T>(&mut self) where T: Component{
         self.components.remove(T::ID);
     }
 
-    pub fn registerRes<T>(&mut self) where T: Resource + 'static{
+    pub fn registerRes<T>(&mut self) where T: Resource{
         if !self.resources.contains_key(T::ID){
             panic!("ERROR: Attempted to override an existing resource: {}", T::ID)
         }
 
         self.resources.insert(T::ID, RefCell::new(Box::new(T::new())));
     }
-    pub fn unRegisterRes<T>(&mut self) where T: Resource + 'static{
+    pub fn unRegisterRes<T>(&mut self) where T: Resource{
         self.resources.remove(T::ID);
     }
 
-    pub fn registerEvent<T>(&mut self) where T: Event + 'static{
+    pub fn registerEvent<T>(&mut self) where T: Event{
         self.events.get_mut().register::<T>();
     }
-    pub fn unRegisterEvent<T>(&mut self) where T: Event + 'static{
+    pub fn unRegisterEvent<T>(&mut self) where T: Event{
         self.events.get_mut().deregister::<T>();
     }
 

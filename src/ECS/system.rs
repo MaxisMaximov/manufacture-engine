@@ -14,7 +14,7 @@ use fetch::{QueryData, Query};
 /// 
 /// ## WARNING
 /// Make sure your System ID does not collide with Systems fro other plugins
-pub trait System{
+pub trait System: 'static{
     type QUERY: QueryData;
     const ID: &'static str;
     const DEPENDS: &'static [&'static str];
