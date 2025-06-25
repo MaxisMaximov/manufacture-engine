@@ -1,4 +1,4 @@
-use super::world::gmWorld;
+use super::world::World;
 
 /// # Command trait
 /// Defines a command that does an operation on the whole World
@@ -10,7 +10,7 @@ use super::world::gmWorld;
 pub trait Command: 'static{
     const ID: &'static str = "idkfa";
     /// Execute the Command on specified World
-    fn execute(&mut self, World: &mut gmWorld);
+    fn execute(&mut self, World: &mut World);
 }
 
 /// # Command trait Wrapper
@@ -20,7 +20,7 @@ pub trait Command: 'static{
 /// and execute method for executing the command on the specified World
 pub trait CommandWrapper{
     fn id(&self) -> &'static str;
-    fn execute(&mut self, World: &mut gmWorld);
+    fn execute(&mut self, World: &mut World);
 }
 
 impl<T: Command> CommandWrapper for T{
@@ -30,7 +30,7 @@ impl<T: Command> CommandWrapper for T{
     }
 
     /// Execute the Command on the specified World
-    fn execute(&mut self, World: &mut gmWorld) {
+    fn execute(&mut self, World: &mut World) {
         Command::execute(self, World);
     }
 }

@@ -1,6 +1,6 @@
 use super::comp::Component;
 use super::storage::Storage;
-use super::world::gmWorld;
+use super::world::World;
 
 /// # Entity struct
 /// Identifies a single Entity within the World
@@ -64,8 +64,8 @@ impl Token{
     /// Check if the Token is still valid within the World
     /// 
     /// Updates it's own `valid` flag and returns it
-    pub fn validate(&mut self, World: &gmWorld) -> bool{
-        self.valid = World.validateToken(self);
+    pub fn validate(&mut self, World: &World) -> bool{
+        self.valid = World.validate_token(self);
         self.valid
     }
 }
@@ -75,12 +75,12 @@ impl Token{
 #[must_use]
 pub struct EntityBuilder<'a>{
     pub(super) entity: usize,
-    pub(super) world_ref: &'a mut gmWorld
+    pub(super) world_ref: &'a mut World
 }
 impl<'a> EntityBuilder<'a>{
     /// Add a specified component to the current Entity
     pub fn with<T: Component>(self, Comp: T) -> Self{
-        self.world_ref.fetchMut::<T>().insert(self.entity, Comp);
+        self.world_ref.fetch_mut::<T>().insert(self.entity, Comp);
         self
     }
 

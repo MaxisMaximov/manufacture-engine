@@ -37,7 +37,7 @@ impl gmDispatchStage{
         }
     }
 
-    pub fn dispatch(&mut self, IN_world: &mut gmWorld){
+    pub fn dispatch(&mut self, IN_world: &mut World){
         for SYS in self.inner.iter_mut(){
             SYS.execute(IN_world);
         }

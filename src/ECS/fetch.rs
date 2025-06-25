@@ -4,7 +4,7 @@ use std::collections::VecDeque;
 use std::ops::{Deref, DerefMut};
 
 
-use super::world::gmWorld;
+use super::world::World;
 
 use super::comp::Component;
 use super::events::Event;
@@ -32,7 +32,7 @@ pub trait QueryData{
     type Item<'b>;
 
     /// Fetch the data from the world
-    fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a>;
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a>;
 }
 
 /// # World Query
@@ -41,7 +41,7 @@ pub struct Query<'a, D: QueryData>{
     data: D::Item<'a>
 }
 impl<'a, D: QueryData> Query<'a, D>{
-    pub fn fetch(World: &'a gmWorld) -> Self{
+    pub fn fetch(World: &'a World) -> Self{
         Self{
             data: D::fetch(World)
         }
@@ -64,15 +64,15 @@ impl<'a, D: QueryData> DerefMut for Query<'a, D>{
 impl<T:Component> QueryData for &T{
     type Item<'b> = Fetch<'b, T>;
 
-    fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a> {
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
         World.fetch::<T>()
     }
 }
 impl<T: Component> QueryData for &mut T{
     type Item<'b> = FetchMut<'b, T>;
 
-    fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a> {
-        World.fetchMut::<T>()
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        World.fetch_mut::<T>()
     }
 }
 
@@ -80,7 +80,7 @@ impl<T: Component> QueryData for &mut T{
 impl QueryData for (){
     type Item<'b> = ();
 
-    fn fetch<'a>(_World: &'a gmWorld) -> Self::Item<'a>{}
+    fn fetch<'a>(_World: &'a World) -> Self::Item<'a>{}
 }
 impl<A, B> QueryData for (A, B)
 where 
@@ -89,7 +89,7 @@ where
 {
     type Item<'b> = (A::Item<'b>, B::Item<'b>);
 
-    fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a> {
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
         (A::fetch(World), B::fetch(World))
     }
 }
@@ -101,7 +101,7 @@ where
 {
     type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>);
 
-    fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a> {
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
         (A::fetch(World), B::fetch(World), C::fetch(World))
     }
 }
@@ -114,7 +114,7 @@ where
 {
     type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>);
 
-    fn fetch<'a>(World: &'a gmWorld) -> Self::Item<'a> {
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
         (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World))
     }
 }

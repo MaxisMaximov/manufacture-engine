@@ -1,4 +1,4 @@
-use super::world::gmWorld;
+use super::world::World;
 use super::fetch::{QueryData, Query};
 
 /// # System trait
@@ -34,7 +34,7 @@ pub trait SystemWrapper{
     /// Get the underlying system's dependencies
     fn depends(&self) -> &'static [&'static str];
     /// Run the underlying system with specified World
-    fn execute<'a>(&mut self, World: &'a mut gmWorld);
+    fn execute<'a>(&mut self, World: &'a mut World);
 }
 
 impl<T: System> SystemWrapper for T{
@@ -44,7 +44,7 @@ impl<T: System> SystemWrapper for T{
     fn depends(&self) -> &'static [&'static str] {
         T::DEPENDS
     }
-    fn execute<'a>(&mut self, World: &'a mut gmWorld) {
+    fn execute<'a>(&mut self, World: &'a mut World) {
         self.execute(Query::fetch(World));
     }
 }

@@ -9,19 +9,19 @@ use super::fetch::*;
 use super::entity::*;
 use super::commands::CommandWrapper;
 
-pub struct gmWorld{
-    gmObjs: BTreeMap<usize, Entity>,
+pub struct World{
+    entities: BTreeMap<usize, Entity>,
     next_free: BTreeSet<usize>,
     components: HashMap<&'static str, RefCell<Box<dyn StorageWrapper>>>,
     resources: HashMap<&'static str, RefCell<Box<dyn ResourceWrapper>>>,
     events: UnsafeCell<EventMap>,
     commands: RefCell<Vec<Box<dyn CommandWrapper>>>
 }
-impl gmWorld{
+impl World{
 
     pub fn new() -> Self{
         Self{
-            gmObjs: BTreeMap::new(),
+            entities: BTreeMap::new(),
             next_free: BTreeSet::new(),
             components: HashMap::new(),
             resources: HashMap::new(),
@@ -42,7 +42,7 @@ impl gmWorld{
             self.components.get(T::ID).unwrap().borrow(), 
             |idkfa| &**idkfa.downcast_ref::<T>().unwrap())
     }
-    pub fn fetchMut<'a, T>(&'a self) -> FetchMut<'a, T> where T: Component{
+    pub fn fetch_mut<'a, T>(&'a self) -> FetchMut<'a, T> where T: Component{
         // Same as above
         if !self.components.contains_key(T::ID){
             panic!("ERROR: Tried to fetch an unregistered component: {}", T::ID)
@@ -53,7 +53,7 @@ impl gmWorld{
             |idkfa| &mut **idkfa.downcast_mut::<T>().unwrap())
     }
 
-    pub fn fetchRes<'a, T>(&'a self) -> FetchRes<'a, T> where T: Resource{
+    pub fn fetch_res<'a, T>(&'a self) -> FetchRes<'a, T> where T: Resource{
         // Check if we have such Resource registered already
         if !self.resources.contains_key(T::ID){
             // Same as with Component fetch
@@ -64,7 +64,7 @@ impl gmWorld{
             self.resources.get(T::ID).unwrap().borrow(), 
             |idkfa| idkfa.downcast_ref::<T>().unwrap())
     }
-    pub fn fetchResMut<'a, T>(&'a self) -> FetchResMut<'a, T> where T: Resource{
+    pub fn fetch_res_mut<'a, T>(&'a self) -> FetchResMut<'a, T> where T: Resource{
         // Same as above
         if !self.resources.contains_key(T::ID){
             panic!("ERROR: Tried to fetch an unregistered resource: {}", T::ID)
@@ -75,7 +75,7 @@ impl gmWorld{
             |idkfa| idkfa.downcast_mut::<T>().unwrap())
     }
 
-    pub fn fetchEventReader<'a, T>(&'a self) -> EventReader<'a, T> where T: Event{
+    pub fn get_event_reader<'a, T>(&'a self) -> EventReader<'a, T> where T: Event{
         // SAFETY: Right now the entirety of the engine is single-threaded
         // So we don't have to worry about two systems on sepparate threads
         // colliding when they send/receive a new event
@@ -87,13 +87,13 @@ impl gmWorld{
         // TODO: Remove the Unsafe
         unsafe{self.events.get().as_mut().unwrap().get_reader()}
     }
-    pub fn fetchEventWriter<'a, T>(&'a self) -> EventWriter<'a, T> where T: Event{
+    pub fn get_event_writer<'a, T>(&'a self) -> EventWriter<'a, T> where T: Event{
         // SAFETY: Same as above
         unsafe{self.events.get().as_mut().unwrap().get_writer()}
     }
 
-    pub fn registerComp<T>(&mut self) where T: Component{
-        if !self.components.contains_key(T::ID){
+    pub fn register_comp<T>(&mut self) where T: Component{
+        if self.components.contains_key(T::ID){
             panic!("ERROR: Attempted to override an existing component: {}", T::ID)
         }
 
@@ -101,43 +101,43 @@ impl gmWorld{
             T::ID, 
             RefCell::new(Box::new(StorageContainer::<T>::new())));
     }
-    pub fn unRegisterComp<T>(&mut self) where T: Component{
+    pub fn deregister_comp<T>(&mut self) where T: Component{
         self.components.remove(T::ID);
     }
 
-    pub fn registerRes<T>(&mut self) where T: Resource{
-        if !self.resources.contains_key(T::ID){
+    pub fn register_res<T>(&mut self) where T: Resource{
+        if self.resources.contains_key(T::ID){
             panic!("ERROR: Attempted to override an existing resource: {}", T::ID)
         }
 
         self.resources.insert(T::ID, RefCell::new(Box::new(T::new())));
     }
-    pub fn unRegisterRes<T>(&mut self) where T: Resource{
+    pub fn deregister_ref<T>(&mut self) where T: Resource{
         self.resources.remove(T::ID);
     }
 
-    pub fn registerEvent<T>(&mut self) where T: Event{
+    pub fn register_event<T>(&mut self) where T: Event{
         self.events.get_mut().register::<T>();
     }
-    pub fn unRegisterEvent<T>(&mut self) where T: Event{
+    pub fn deregister_event<T>(&mut self) where T: Event{
         self.events.get_mut().deregister::<T>();
     }
 
-    pub fn createGmObj(&mut self) -> EntityBuilder{
+    pub fn spawn(&mut self) -> EntityBuilder{
         EntityBuilder{
             entity: {
-                let next_id = self.next_free.pop_first().unwrap_or(self.gmObjs.len());
-                self.gmObjs.insert(next_id, Entity::new(next_id));
+                let next_id = self.next_free.pop_first().unwrap_or(self.entities.len());
+                self.entities.insert(next_id, Entity::new(next_id));
                 next_id
             },
             world_ref: self,
         }
     }
-    pub fn deleteGmObj(&mut self, IN_id: usize) -> Result<(), ()>{
-        match self.gmObjs.remove(&IN_id){
+    pub fn despawn(&mut self, Id: usize) -> Result<(), ()>{
+        match self.entities.remove(&Id){
             Some(_) => {
-                for COMP in self.components.values_mut(){
-                    COMP.borrow_mut().as_mut().remove(IN_id);
+                for storage in self.components.values_mut(){
+                    storage.borrow_mut().as_mut().remove(Id);
                 }
                 return Ok(())
             }
@@ -145,31 +145,31 @@ impl gmWorld{
         }
     }
     
-    pub fn fetchCommandWriter<'a>(&'a self) -> CommandWriter<'a>{
+    pub fn get_command_writer<'a>(&'a self) -> CommandWriter<'a>{
             RefMut::map(
                 self.commands.borrow_mut(), 
                 |idkfa| idkfa)
     }
 
-    pub fn commandsExec(&mut self){
+    pub fn exec_commands(&mut self){
 
         loop{
             let idkfa = self.commands.borrow_mut().pop();
             match idkfa{
-                Some(mut COMMAND) => COMMAND.execute(self),
+                Some(mut command) => command.execute(self),
                 None => break,
             }
         }
     }
 
-    pub fn endTick(&mut self){
-        self.commandsExec();
+    pub fn end_tick(&mut self){
+        self.exec_commands();
         self.events.get_mut().swap_buffers();
     }
 
-    pub fn validateToken(&self, Token: &mut Token) -> bool{
-        match self.gmObjs.get(&Token.id()){
-            Some(GMOBJ) => GMOBJ.hash == Token.hash(),
+    pub fn validate_token(&self, Token: &mut Token) -> bool{
+        match self.entities.get(&Token.id()){
+            Some(entity) => entity.hash == Token.hash(),
             None => false,
         }
     }

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::system::*;
-use super::world::gmWorld;
+use super::world::World;
 
 mod stage;
 use stage::*;
@@ -61,10 +61,10 @@ impl gmDispatcher{
         self.stages.push(IN_stage);
     }
 
-    pub fn dispatch(&mut self, IN_world: &mut gmWorld){
+    pub fn dispatch(&mut self, IN_world: &mut World){
         for STAGE in self.stages.iter_mut(){
             STAGE.dispatch(IN_world);
         }
-        IN_world.endTick();
+        IN_world.end_tick();
     }
 }
