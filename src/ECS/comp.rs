@@ -1,5 +1,4 @@
 use super::storage::Storage;
-use std::any::Any;
 
 /// # Component trait
 /// A trait identifying Components within the engine

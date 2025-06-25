@@ -1,7 +1,5 @@
-use super::*;
-
-use world::gmWorld;
-use fetch::{QueryData, Query};
+use super::world::gmWorld;
+use super::fetch::{QueryData, Query};
 
 /// # System trait
 /// Defines a System that will be run on the World

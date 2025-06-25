@@ -1,4 +1,3 @@
-use std::any::Any;
 use super::world::gmWorld;
 
 /// # Command trait
@@ -8,7 +7,7 @@ use super::world::gmWorld;
 /// spawn/despawn entities, register new resources/components etc.
 /// 
 /// ID is completely optional for debug purposes
-pub trait Command: Any{
+pub trait Command: 'static{
     const ID: &'static str = "idkfa";
     /// Execute the Command on specified World
     fn execute(&mut self, World: &mut gmWorld);

@@ -1,7 +1,8 @@
-use std::{cell::{Ref, RefMut}, collections::{HashSet, VecDeque}};
+use std::cell::{Ref, RefCell, RefMut};
+use std::collections::{HashMap, HashSet, VecDeque};
+use std::any::Any;
 
-use super::*;
-use fetch::*;
+use super::fetch::{EventReader, EventWriter};
 
 /// # Event trait
 /// Defines an event that systems can send and receive

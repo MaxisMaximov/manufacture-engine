@@ -1,6 +1,7 @@
-use super::*;
-
-use world::*;
+use std::collections::HashMap;
+// Why is this a valid syntax
+use super::super::world::*;
+use super::{System, SystemWrapper};
 
 pub struct gmDispatchStage{
     systems: HashMap<&'static str, ()>,

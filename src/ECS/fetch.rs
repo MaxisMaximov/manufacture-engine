@@ -5,12 +5,11 @@ use std::ops::{Deref, DerefMut};
 
 
 use super::world::gmWorld;
-use super::*;
 
-use comp::Component;
-use events::Event;
-use resource::Resource;
-use commands::CommandWrapper;
+use super::comp::Component;
+use super::events::Event;
+use super::resource::Resource;
+use super::commands::CommandWrapper;
 
 pub type Fetch<'a, C: Component> = Ref<'a, C::STORAGE>;
 pub type FetchMut<'a, C: Component> = RefMut<'a, C::STORAGE>;

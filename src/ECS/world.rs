@@ -1,14 +1,13 @@
-use std::{cell::{Ref, RefMut, UnsafeCell}, collections::BTreeSet};
+use std::cell::{RefCell, Ref, RefMut, UnsafeCell};
+use std::collections::{HashMap, BTreeMap, BTreeSet};
 
-use super::*;
-
-use events::*;
-use resource::*;
-use comp::*;
-use storage::*;
-use fetch::*;
-use entity::*;
-use commands::*;
+use super::events::*;
+use super::resource::*;
+use super::comp::*;
+use super::storage::*;
+use super::fetch::*;
+use super::entity::*;
+use super::commands::CommandWrapper;
 
 pub struct gmWorld{
     gmObjs: BTreeMap<usize, Entity>,
@@ -168,7 +167,7 @@ impl gmWorld{
         self.events.get_mut().swap_buffers();
     }
 
-    pub fn validateToken(&self, Token: &mut entity::Token) -> bool{
+    pub fn validateToken(&self, Token: &mut Token) -> bool{
         match self.gmObjs.get(&Token.id()){
             Some(GMOBJ) => GMOBJ.hash == Token.hash(),
             None => false,
