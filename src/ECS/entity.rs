@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use super::comp::Component;
 use super::storage::Storage;
 use super::world::World;
@@ -5,10 +7,12 @@ use super::world::World;
 /// # Entity struct
 /// Identifies a single Entity within the World
 /// 
-/// Stores it's own ID and Hash for collision checks
+/// Stores it's own ID and Hash for collision checks, 
+/// as well as what components it has on the given frame
 pub struct Entity{
-    pub id: usize,
-    pub hash: u32    
+    id: usize,
+    hash: u32,
+    pub(super) components: HashSet<&'static str>
 }
 impl Entity{
     /// Create a new Entity with given ID
@@ -16,6 +20,7 @@ impl Entity{
         Self{
             id: Id,
             hash: rand::random(),
+            components: HashSet::new()
         }
     }
     /// Get a Token for this Entity
@@ -27,12 +32,16 @@ impl Entity{
         }
     }
     /// Read this Entity's ID
-    fn id(&self) -> usize{
+    pub fn id(&self) -> usize{
         self.id
     }
     /// Read this Entity's Hash
-    fn hash(&self) -> u32{
+    pub fn hash(&self) -> u32{
         self.hash
+    }
+    /// Read what components this Entity has
+    pub fn components(&self) -> &HashSet<&'static str>{
+        &self.components
     }
 }
 

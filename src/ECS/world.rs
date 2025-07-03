@@ -169,7 +169,7 @@ impl World{
 
     pub fn validate_token(&self, Token: &mut Token) -> bool{
         match self.entities.get(&Token.id()){
-            Some(entity) => entity.hash == Token.hash(),
+            Some(entity) => entity.hash() == Token.hash(),
             None => false,
         }
     }
