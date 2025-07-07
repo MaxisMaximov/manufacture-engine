@@ -1,26 +1,31 @@
+use crate::ECS::fetch::{Request, RequestData};
+
 use super::world::World;
 use super::fetch::{QueryData, Query};
 
 /// # System trait
 /// Defines a System that will be run on the World
 /// 
-/// `QUERY` is the components the system wants from the Word
+/// `QUERY` is the query for components the System wants from the Word
 /// 
-/// `ID` is what the system will be identified by for future overrides
+/// `REQUEST` are the System resources the System wants from the World, like Resources, Event Readers/Writers and Command Writer
+/// 
+/// `ID` is what the System will be identified by for future overrides
 /// 
 /// `DEPENDS` are the other Systems that must be run before the System can be
 /// 
 /// ## WARNING
-/// Make sure your System ID does not collide with Systems fro other plugins
+/// Make sure your System's ID does not collide with Systems fro other plugins
 pub trait System: 'static{
     type QUERY: QueryData;
+    type REQUEST: RequestData;
     const ID: &'static str;
     const DEPENDS: &'static [&'static str];
 
-    /// Create a new instance of this system
+    /// Create a new instance of this System
     fn new() -> Self;
-    /// Run the system
-    fn execute(&mut self, Data: Query<'_, Self::QUERY>);
+    /// Run the System
+    fn execute(&mut self, Query: Query<'_, Self::QUERY>, Request: Request<'_, Self::REQUEST>);
 }
 
 /// # System trait Wrapper
@@ -31,9 +36,9 @@ pub trait System: 'static{
 pub trait SystemWrapper{
     /// Get the underlying System's ID
     fn id(&self) -> &'static str;
-    /// Get the underlying system's dependencies
+    /// Get the underlying System's dependencies
     fn depends(&self) -> &'static [&'static str];
-    /// Run the underlying system with specified World
+    /// Run the underlying System with specified World
     fn execute<'a>(&mut self, World: &'a mut World);
 }
 
@@ -45,6 +50,6 @@ impl<T: System> SystemWrapper for T{
         T::DEPENDS
     }
     fn execute<'a>(&mut self, World: &'a mut World) {
-        self.execute(Query::fetch(World));
+        self.execute(Query::fetch(World), Request::fetch(World));
     }
 }
