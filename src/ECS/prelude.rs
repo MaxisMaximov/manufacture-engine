@@ -6,6 +6,5 @@ pub use super::{
     resource::Resource,
     dispatcher::gmDispatcher,
     events::Event,
-    fetch::Query,
     commands::Command
 };

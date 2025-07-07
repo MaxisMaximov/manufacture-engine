@@ -1,0 +1,118 @@
+use std::ops::{Deref, DerefMut};
+
+use crate::ECS;
+use ECS::world::World;
+use ECS::resource::Resource;
+use ECS::events::Event;
+use super::{FetchRes, FetchResMut};
+use super::{EventReader, EventWriter};
+
+/// # Request fetch trait
+/// Required for `Request` to know what system resources to fetch from the World
+/// 
+/// It is implemented by default on `&` and `&mut` Resource references, 
+/// Event Readers and Writers, the Command Writer, as well as Tuples up to 4 elements
+/// 
+/// The return type `Item` is typically the type the trait gets implemented on
+pub trait RequestData{
+    type Item<'b>;
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a>;
+}
+
+/// # System resource Request
+/// Struct that requests desired system resources from the World
+pub struct Request<'a, D: RequestData>{
+    data: D::Item<'a>
+}
+impl<'a, D: RequestData> Request<'a, D>{
+    pub fn fetch(World: &'a World) -> Self{
+        Self{
+            data: D::fetch(World),
+        }
+    }
+}
+impl<'a, D: RequestData> Deref for Request<'a, D>{
+    type Target = D::Item<'a>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.data
+    }
+}
+impl<'a, D: RequestData> DerefMut for Request<'a, D>{
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.data
+    }
+}
+
+impl<T: Resource> RequestData for &T{
+    type Item<'b> = FetchRes<'b, T>;
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        World.fetch_res()
+    }
+}
+impl<T: Resource> RequestData for &mut T{
+    type Item<'b> = FetchResMut<'b, T>;
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        World.fetch_res_mut()
+    }
+}
+
+impl<E: Event> RequestData for EventReader<'_, E>{
+    type Item<'b> = EventReader<'b, E>;
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        World.get_event_reader()
+    }
+}
+impl<E: Event> RequestData for EventWriter<'_, E>{
+    type Item<'b> = EventWriter<'b, E>;
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        World.get_event_writer()
+    }
+}
+
+impl RequestData for (){
+    type Item<'b> = ();
+
+    fn fetch<'a>(_World: &'a World) -> Self::Item<'a>{}
+}
+impl<A, B> RequestData for (A, B)
+where 
+    A: RequestData, 
+    B: RequestData
+{
+    type Item<'b> = (A::Item<'b>, B::Item<'b>);
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World))
+    }
+}
+impl<A, B, C> RequestData for (A, B, C)
+where 
+    A: RequestData,
+    B: RequestData,
+    C: RequestData
+{
+    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>);
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World), C::fetch(World))
+    }
+}
+impl<A, B, C, D> RequestData for (A, B, C, D)
+where 
+    A: RequestData,
+    B: RequestData,
+    C: RequestData,
+    D: RequestData
+{
+    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>);
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World))
+    }
+}

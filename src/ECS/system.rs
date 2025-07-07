@@ -1,7 +1,6 @@
-use crate::ECS::fetch::{Request, RequestData};
-
 use super::world::World;
-use super::fetch::{QueryData, Query};
+use super::fetch::query::{QueryData, Query};
+use super::fetch::request::{Request, RequestData};
 
 /// # System trait
 /// Defines a System that will be run on the World
