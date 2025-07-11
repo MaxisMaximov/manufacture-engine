@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use super::system::*;
 use super::world::World;
@@ -66,5 +66,25 @@ impl gmDispatcher{
             STAGE.dispatch(IN_world);
         }
         IN_world.end_tick();
+    }
+}
+
+pub struct Dispatcher{
+    registry: HashMap<&'static str, usize>,
+    stages: Vec<Vec<Box<dyn SystemWrapper>>>
+}
+impl Dispatcher{
+    pub fn new() -> Self{
+        Self{
+            registry: HashMap::new(),
+            stages: Vec::new(),
+        }
+    }
+    pub fn dispatch(&mut self, World: &mut World){
+        for stage in self.stages.iter_mut(){
+            for system in stage.iter_mut(){
+                system.execute(World);
+            }
+        }
     }
 }
