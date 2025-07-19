@@ -90,6 +90,7 @@ impl Dispatcher{
     }
 }
 
+#[must_use]
 pub struct DispatcherBuilder{
     registry: HashMap<&'static str, usize>,
     stages: Vec<Vec<Box<dyn SystemWrapper>>>
@@ -103,8 +104,13 @@ impl DispatcherBuilder{
     }
 
     pub fn with<S: System>(mut self) -> Self{
+        self.add::<S>();
+        self
+    }
+
+    pub fn add<S: System>(&mut self){
         if self.registry.contains_key(S::ID){
-            panic!("ERROR: System {} already exists\nOverrides are not yet supported, if that's what you wanted to do", S::ID);
+            panic!("ERROR: System {} already exists\nIf you wish to override this system, use `.overrides()` instead", S::ID);
         }
 
         // Check what stage the system should ideally be in
@@ -133,8 +139,20 @@ impl DispatcherBuilder{
                 self.registry.insert(S::ID, pos_stage);
             }
         }
+    }
 
+    fn with_override<S: System>(mut self) -> Self{
+        self.overrides::<S>();
         self
+    }
+
+    fn overrides<S: System>(&mut self){
+        if let Some(stage_id) = self.registry.remove(S::ID) {
+            let stage = self.stages.get_mut(stage_id).unwrap();
+            stage.retain(|system| system.id() != S::ID);
+        }else{
+            panic!("ERROR: Attempted to override non-existing system: {}", S::ID)
+        };
     }
 
     fn build(self) -> Dispatcher{
