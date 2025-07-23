@@ -117,34 +117,54 @@ impl DispatcherBuilder{
         // Check what stage the system should ideally be in
         let mut ideal_stage = 0;
         for dep in S::DEPENDS{
-            if let Some(dep_stage) = self.registry.get(dep){
-                // We found the dependency, check if it's later than the ideal stage
-                ideal_stage = std::cmp::max(ideal_stage, *dep_stage)
-            }else{
-                match S::DEPRESOLVE{
-                    DependResolve::Null => {},
-                    DependResolve::RemoveSelf => return,
-                    DependResolve::Panic => 
-                        panic!("ERROR: System {}'s dependency {} does not exist", S::ID, dep)
-                }
+            // Check dependency type
+            match dep{
+                DepType::Required(_) => {
+                    // We have the required dependency, see what stage it's at
+                    if let Some(dep_stage) = self.registry.get(dep.value()) {
+                        ideal_stage = std::cmp::max(ideal_stage, *dep_stage);
+                        continue
+                    }
+                },
+                DepType::Optional(_) => {
+                    if let Some(dep_stage) = self.registry.get(dep.value()){
+                        ideal_stage = std::cmp::max(ideal_stage, *dep_stage);
+                    }
+                    // We don't care if the dependency exists or not, we can move on even if we don't have it
+                    continue
+                },
+                DepType::Incompatible(_) => {
+                    // We only need to check if we *don't* have the dependency
+                    // If we do, we break out of the loop
+                    if !self.registry.contains_key(dep.value()){
+                        continue
+                    }
+                },
+            }
+            // If we got here, something went wrong, check what the system wants to do
+            match S::DEPRESOLVE{
+                DepResolution::Null => {},
+                DepResolution::RemoveSelf => return,
+                DepResolution::Panic => 
+                    panic!("ERROR: System {}'s dependency system {} does not exist", S::ID, dep.value())
             }
         }
 
         // Find a suitable stage starting from Ideal one
         // Ideal stage is the earliest stage the system can be in
-        for pos_stage in ideal_stage..{
-            if let Some(stage) = self.stages.get_mut(pos_stage){
+        for final_stage in ideal_stage..{
+            if let Some(stage) = self.stages.get_mut(final_stage){
                 // If the stage still has room in it, push the system
                 if !stage.len() < 5{
                     stage.push(Box::new(S::new()));
-                    self.registry.insert(S::ID, pos_stage);
+                    self.registry.insert(S::ID, final_stage);
                     break;
                 }
             // If we've gone over all stages and found no suitable stage, make a new one
             }else{
                 self.stages.push(Vec::new());
                 self.stages.last_mut().unwrap().push(Box::new(S::new()));
-                self.registry.insert(S::ID, pos_stage);
+                self.registry.insert(S::ID, final_stage);
             }
         }
     }
