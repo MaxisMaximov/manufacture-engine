@@ -158,6 +158,7 @@ impl DispatcherBuilder{
         if let Some(stage_id) = self.registry.remove(S::ID) {
             let stage = self.stages.get_mut(stage_id).unwrap();
             stage.retain(|system| system.id() != S::ID);
+            self.add::<S>();
         }else{
             panic!("ERROR: Attempted to override non-existing system: {}", S::ID)
         };
