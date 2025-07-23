@@ -109,6 +109,7 @@ impl DispatcherBuilder{
     }
 
     pub fn add<S: System>(&mut self){
+        // First check if we already registered the system
         if self.registry.contains_key(S::ID){
             panic!("ERROR: System {} already exists\nIf you wish to override this system, use `.overrides()` instead", S::ID);
         }
@@ -117,13 +118,20 @@ impl DispatcherBuilder{
         let mut ideal_stage = 0;
         for dep in S::DEPENDS{
             if let Some(dep_stage) = self.registry.get(dep){
-                ideal_stage = ideal_stage.max(*dep_stage)
+                // We found the dependency, check if it's later than the ideal stage
+                ideal_stage = std::cmp::max(ideal_stage, *dep_stage)
             }else{
-                panic!("ERROR: System {}'s dependency {} does not exist", S::ID, dep)
+                match S::DEPRESOLVE{
+                    DependResolve::Null => {},
+                    DependResolve::RemoveSelf => return,
+                    DependResolve::Panic => 
+                        panic!("ERROR: System {}'s dependency {} does not exist", S::ID, dep)
+                }
             }
         }
 
-        // We iterate over stages starting from the ideal one
+        // Find a suitable stage starting from Ideal one
+        // Ideal stage is the earliest stage the system can be in
         for pos_stage in ideal_stage..{
             if let Some(stage) = self.stages.get_mut(pos_stage){
                 // If the stage still has room in it, push the system
@@ -132,7 +140,7 @@ impl DispatcherBuilder{
                     self.registry.insert(S::ID, pos_stage);
                     break;
                 }
-            // If we've reached the end of Stage vec and found no suitable stage, make a new one
+            // If we've gone over all stages and found no suitable stage, make a new one
             }else{
                 self.stages.push(Vec::new());
                 self.stages.last_mut().unwrap().push(Box::new(S::new()));
