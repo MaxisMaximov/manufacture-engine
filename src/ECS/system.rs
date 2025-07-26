@@ -1,5 +1,5 @@
 use super::world::World;
-use super::dispatcher::RunOrder;
+use super::dispatcher::{RunOrder, SystemType};
 use super::fetch::query::{QueryData, Query};
 use super::fetch::request::{Request, RequestData};
 
@@ -22,6 +22,7 @@ pub trait System: 'static{
     const ID: &'static str;
     const DEPENDS: &'static [&'static str];
     const RUNORD: &'static [RunOrder];
+    const TYPE: SystemType;
 
     /// Create a new instance of this System
     fn new() -> Self;

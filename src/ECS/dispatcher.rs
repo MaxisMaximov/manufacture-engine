@@ -139,3 +139,9 @@ impl RunOrder{
         }
     }
 }
+
+pub enum SystemType{
+    Preprocessor,
+    Normal,
+    Postprocessor
+}
