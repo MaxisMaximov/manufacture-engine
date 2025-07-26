@@ -4,7 +4,7 @@ pub use super::{
     system::System,
     world::World,
     resource::Resource,
-    dispatcher::gmDispatcher,
+    dispatcher::Dispatcher,
     events::Event,
     commands::Command
 };
