@@ -158,22 +158,8 @@ impl StageManagerBuilder{
             stages: Vec::new(),
         }
     }
-        pub fn with<S: System>(mut self) -> Self{
-        self.add::<S>();
-        self
-    }
-    pub fn add<S: System>(&mut self){
-        // First check if we already registered the system
-        if self.registry.contains_key(S::ID){
-            panic!("ERROR: System {} already exists\nIf you wish to override this system, use `.overrides()` instead", S::ID);
-        }
-
-        // Check if system's dependencies exist
-        for dep in S::DEPENDS{
-            if !self.registry.contains_key(dep){
-                panic!("ERROR: System {}'s dependency system {} does not exist", S::ID, dep)
-            }
-        }
+    pub fn add<S: System>(&mut self) -> usize{
+        // We don't do any checks as the DispatcherBuilder already does that for us
         
         // Check what stage the system should ideally be in
         let mut min_stage = 0;
@@ -205,27 +191,23 @@ impl StageManagerBuilder{
                 if !stage.len() < 5{
                     stage.push(Box::new(S::new()));
                     self.registry.insert(S::ID, final_stage);
-                    break;
+                    return final_stage
                 }
-            // If we've rached the end of stages and found no suitable stage, make a new one
+            // If we've reached the end of stages and found no suitable stage, make a new one
             }else{
                 self.stages.push(Vec::new());
                 self.stages.last_mut().unwrap().push(Box::new(S::new()));
                 self.registry.insert(S::ID, final_stage);
+                return final_stage;
             }
         }
 
-        // If it is still not registered, there must've been no available stage in range
-        if !self.registry.contains_key(S::ID){
-            // As such, we insert a new stage inbetween the possible stages
-            // Since `insert` pushes all elements to the right, we can just insert a new stage at `max_stage`'s position`
-            self.stages.insert(max_stage, Vec::new());
-            self.stages.get_mut(max_stage).unwrap().push(Box::new(S::new()));
-        }
-    }
-    fn with_override<S: System>(mut self) -> Self{
-        self.overrides::<S>();
-        self
+        // If we got here, there must've been no available stage in range
+        // As such, we insert a new stage inbetween the possible stages
+        // Since `insert` pushes all elements to the right, we can just insert a new stage at `max_stage`'s position`
+        self.stages.insert(max_stage, Vec::new());
+        self.stages.get_mut(max_stage).unwrap().push(Box::new(S::new()));
+        return max_stage
     }
     fn overrides<S: System>(&mut self){
         if let Some(stage_id) = self.registry.remove(S::ID) {
