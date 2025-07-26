@@ -60,8 +60,13 @@ impl DispatcherBuilder{
                 panic!("ERROR: System {}'s dependency system {} does not exist", S::ID, dep)
             }
         }
-        
-        let final_stage = self.stages.add::<S>();
+
+        // See where it should go
+        let final_stage = match S::TYPE{
+            SystemType::Preprocessor => self.preproc.add::<S>(),
+            SystemType::Normal => self.stages.add::<S>(),
+            SystemType::Postprocessor => self.postproc.add::<S>(),
+        };
         self.registry.insert(S::ID, final_stage);
     }
 
