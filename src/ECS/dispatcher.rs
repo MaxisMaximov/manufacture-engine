@@ -22,7 +22,7 @@ impl Dispatcher{
 #[must_use]
 pub struct DispatcherBuilder{
     registry: HashSet<&'static str>,
-    dep_graph: Vec<Vec<Box<dyn SystemWrapper>>>
+    dep_graph: Vec<HashMap<&'static str, Box<dyn SystemWrapper>>>
 }
 impl DispatcherBuilder{
     pub fn new() -> Self{
@@ -36,25 +36,64 @@ impl DispatcherBuilder{
             panic!("ERROR: System {} already exists", S::ID)
         }
         self.registry.insert(S::ID);
-        self.dep_graph[0].push(Box::new(S::new()));
+        self.dep_graph[0].insert(S::ID, Box::new(S::new()));
     }
     pub fn build(mut self) -> Dispatcher{
         // Verify dependencies of each system
-        for system in self.dep_graph[0].iter(){
+        for system in self.dep_graph[0].values(){
             for dep in system.depends(){
                 if !self.registry.contains(dep){
                     panic!("ERROR: System {}'s dependency system {} does not exist", system.id(), dep)
                 }
             }
         }
-        // BUILD DEP GRAPH
-        todo!();
+
+        // Build dependency 'graph' and resolve system order
+        // Welcome to indentation hell
+        // Population: Graph Building
+        let mut shifts = HashSet::new();
+        for layer_id in 0..{
+            let layer = self.dep_graph.get(layer_id).unwrap();
+            // Iterate over layer's systems to see which we should shift
+            for system in layer.values(){
+                for order_dep in system.run_order(){
+                    match order_dep{
+                        // If we need this system to run before, we shift the other system to later
+                        RunOrder::Before(id) => {
+                            if layer.contains_key(id){
+                                shifts.insert(id.clone());
+                            }
+                        },
+                        // Equivalent of the other system running before this one
+                        // So we simply shift this one down
+                        RunOrder::After(id) => {
+                            if layer.contains_key(id){
+                                shifts.insert(system.id());
+                            }
+                        },
+                    }
+                }
+            }
+            // No shifts happened, we're done with our graph
+            if shifts.is_empty() {
+                break;
+            }
+            // Push a new layer for the shifts..
+            self.dep_graph.push(HashMap::new());
+            // ..and now move all the systems from current layer to next layer
+            // Also clears the shifts set for next layer
+            for system_id in shifts.drain(){
+                let system = self.dep_graph[layer_id].remove(system_id).unwrap();
+                self.dep_graph[layer_id + 1].insert(system.id(), system);
+            }
+        }
+
         // FINALIZE STAGES
         todo!();
         
         Dispatcher{
-            registry: self.registry,
-            systems: self.dep_graph
+            registry: unimplemented!(),
+            systems: unimplemented!()
         }
     }
 }
