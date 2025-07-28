@@ -21,21 +21,34 @@ impl Dispatcher{
 
 #[must_use]
 pub struct DispatcherBuilder{
-    registry: HashMap<&'static str, Box<dyn SystemWrapper>>
+    registry: HashSet<&'static str>,
+    dep_graph: Vec<Vec<Box<dyn SystemWrapper>>>
 }
 impl DispatcherBuilder{
     pub fn new() -> Self{
         Self{
-            registry: HashMap::new(),
+            registry: HashSet::new(),
+            dep_graph: Vec::new()
         }
     }
     pub fn add<S: System>(&mut self){
-        unimplemented!()
+        if self.registry.contains(S::ID){
+            panic!("ERROR: System {} already exists", S::ID)
+        }
+        self.registry.insert(S::ID);
+        self.dep_graph[0].push(Box::new(S::new()));
     }
     pub fn build(mut self) -> Dispatcher{
+        // VERIFY DEPS
+        todo!();
+        // BUILD DEP GRAPH
+        todo!();
+        // FINALIZE STAGES
+        todo!();
+        
         Dispatcher{
-            registry: todo!(),
-            systems: todo!()
+            registry: self.registry,
+            systems: self.dep_graph
         }
     }
 }
