@@ -21,30 +21,33 @@ impl Dispatcher{
 
 #[must_use]
 pub struct DispatcherBuilder{
-    registry: HashMap<&'static str, Box<dyn SystemWrapper>>,
+    registry: HashSet<&'static str>,
+    systems: HashMap<&'static str, Box<dyn SystemWrapper>>,
     dep_graph: Vec<HashSet<&'static str>>
 }
 impl DispatcherBuilder{
     pub fn new() -> Self{
         Self{
-            registry: HashMap::new(),
+            registry: HashSet::new(),
+            systems: HashMap::new(),
             dep_graph: Vec::new()
         }
     }
     pub fn add<S: System>(&mut self){
 
-        if self.registry.contains_key(S::ID){
+        if self.systems.contains_key(S::ID){
             panic!("ERROR: System {} already exists", S::ID)
         }
 
-        self.registry.insert(S::ID, Box::new(S::new()));
+        self.registry.insert(S::ID);
+        self.systems.insert(S::ID, Box::new(S::new()));
         self.dep_graph[0].insert(S::ID); // We will resolve everythin in the Build step
     }
     // Verify dependencies of each system
     fn verify_deps(&mut self){
-        for system in self.registry.values(){
+        for system in self.systems.values(){
             for dep in system.depends(){
-                if !self.registry.contains_key(dep){
+                if !self.systems.contains_key(dep){
                     panic!("ERROR: System {}'s dependency system {} does not exist", system.id(), dep)
                 }
             }
@@ -68,7 +71,7 @@ impl DispatcherBuilder{
             // Iterate over layer's systems to see which we should shift
             for system_id in layer.iter(){
                 
-                for order_dep in self.registry.get(system_id).unwrap().run_order(){
+                for order_dep in self.systems.get(system_id).unwrap().run_order(){
 
                     match order_dep{
                         // If we need this system to run before, we shift the other system to later
@@ -113,7 +116,7 @@ impl DispatcherBuilder{
         }
     }
     // Convert layers to stages & split them accordingly
-    fn finalize(&mut self) -> Dispatcher{
+    fn build_stages(&mut self) -> Dispatcher{
         // Init thingies that will be used in the Dispatcher
         let mut registry = HashSet::new();
         let mut stages: Vec<Stage> = Vec::new();
@@ -128,7 +131,7 @@ impl DispatcherBuilder{
 
                 // Take the system Box out of the registry and 
                 // push it to the Dispatcher registry and the stage
-                let system = self.registry.remove(system_id).unwrap();
+                let system = self.systems.remove(system_id).unwrap();
 
                 registry.insert(system_id);
                 stage.push(system);
@@ -157,7 +160,7 @@ impl DispatcherBuilder{
         // But it's for the sake of readibility here
         self.verify_deps();
         self.build_run_order_graph();
-        self.finalize()
+        self.build_stages()
     }
 }
 
@@ -176,6 +179,6 @@ impl RunOrder{
 
 pub enum SystemType{
     Preprocessor,
-    Normal,
+    Logic,
     Postprocessor
 }
