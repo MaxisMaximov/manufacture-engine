@@ -211,6 +211,17 @@ impl DispatcherBuilder{
     }
 }
 
+struct RunOrderGraph{
+    graph: Vec<HashMap<&'static str, &'static [RunOrder]>>
+}
+impl RunOrderGraph{
+    fn new() -> Self{
+        Self{
+            graph: Vec::new(),
+        }
+    }
+}
+
 pub enum RunOrder{
     Before(&'static str),
     After(&'static str),
