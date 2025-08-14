@@ -150,6 +150,47 @@ impl DispatcherBuilder{
     }
 }
 
+struct StagesBuilder{
+    systems: HashMap<&'static str, Box<dyn SystemWrapper>>,
+    graph: RunOrderGraph
+}
+impl StagesBuilder{
+    fn new() -> Self{
+        Self{
+            systems: HashMap::new(),
+            graph: RunOrderGraph::new(),
+        }
+    }
+    fn add<S: System>(&mut self){
+        self.systems.insert(S::ID, Box::new(S::new()));
+        self.graph.add::<S>();
+    }
+    fn build(mut self) -> Vec<Vec<Box<dyn SystemWrapper>>>{
+
+        let mut stages = Vec::new();
+
+        // We don't need to use `.iter()` as the final graph will not be used for anything else, we also own it
+        for layer in self.graph.build(){
+            stages.push(Vec::new());
+            for system_id in layer{
+                // Don't like that I have to use so many unwraps
+                stages.last_mut()
+                    .unwrap()
+                    .push(
+                        self.systems.remove(system_id)
+                        .unwrap()
+                    );
+
+                if stages.last().unwrap().len() == 5{
+                    stages.push(Vec:: new());
+                }
+            }
+        }
+
+        stages
+    }
+}
+
 struct RunOrderGraph{
     graph: Vec<HashMap<&'static str, &'static [RunOrder]>>
 }
