@@ -20,6 +20,7 @@ type Stage = Vec<Box<dyn SystemWrapper>>;
 pub struct Dispatcher{
     registry: HashMap<&'static str, SystemInfo>,
     preproc: Vec<Stage>,
+    singlefires: HashMap<&'static str, Box<dyn SystemWrapper>>,
     logic: Vec<Stage>,
     postproc: Vec<Stage>
 }
@@ -48,11 +49,15 @@ impl Dispatcher{
                     }
                 }
                 // -- Singlefires --
-
+                for trigger in World.take_triggers(){
+                    self.singlefires.get_mut(trigger).unwrap().execute(World);
+                }
                 // -- Event Responders --
 
                 // -- Commands --
-                World.exec_commands();
+                for mut command in World.take_commands(){
+                    command.execute(World);
+                }
             }
 
             // -- POSTPROCESSORS --
@@ -75,6 +80,7 @@ pub struct DispatcherBuilder{
     registry: HashMap<&'static str, SystemInfo>,
     preproc: StagesBuilder,
     logic: StagesBuilder,
+    singlefires: HashMap<&'static str, Box<dyn SystemWrapper>>,
     postproc: StagesBuilder,
 }
 impl DispatcherBuilder{
@@ -84,6 +90,7 @@ impl DispatcherBuilder{
             registry: HashMap::new(),
             preproc: StagesBuilder::new(),
             logic: StagesBuilder::new(),
+            singlefires: HashMap::new(),
             postproc: StagesBuilder::new(),            
         }
     }
@@ -99,6 +106,9 @@ impl DispatcherBuilder{
         match S::TYPE{
             SystemType::Preprocessor => self.preproc.add::<S>(),
             SystemType::Logic => self.logic.add::<S>(),
+            SystemType::Singlefire => {
+                self.singlefires.insert(S::ID, Box::new(S::new()));
+            },
             SystemType::Postprocessor => self.postproc.add::<S>(),
         }
     }
@@ -120,6 +130,7 @@ impl DispatcherBuilder{
         Dispatcher{
             registry: self.registry,
             preproc: self.preproc.build(),
+            singlefires: self.singlefires,
             logic: self.logic.build(),
             postproc: self.postproc.build(),
         }
@@ -306,5 +317,6 @@ impl RunOrder{
 pub enum SystemType{
     Preprocessor,
     Logic,
+    Singlefire,
     Postprocessor
 }
