@@ -94,6 +94,10 @@ impl World{
         unsafe{self.events.get().as_mut().unwrap().get_writer()}
     }
 
+    pub fn get_trigger_writer(&self) -> RefMut<'_, Vec<&'static str>>{
+        self.triggers.borrow_mut()
+    }
+
     pub fn register_comp<T>(&mut self) where T: Component{
         if self.components.contains_key(T::ID){
             panic!("ERROR: Attempted to override an existing component: {}", T::ID)
