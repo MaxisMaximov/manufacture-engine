@@ -32,12 +32,12 @@ impl<T: Event> EventWrapper for T{
 /// Maintains a Registry of Events to prevent illegal overrides and reading/writing non-existent Events
 /// 
 /// Buffers switch at the end of every Tick, clearing the previously Read-Only buffer
-pub struct EventMap{
+pub struct EventBufferMap{
     registry: HashSet<&'static str>,
     active_buffer: HashMap<&'static str, RefCell<Box<dyn Any>>>,
     alt_buffer: HashMap<&'static str, RefCell<Box<dyn Any>>>,
 }
-impl EventMap{
+impl EventBufferMap{
     /// Create a new, empty EventMap
     pub fn new() -> Self{
         Self{

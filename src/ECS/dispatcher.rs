@@ -58,6 +58,7 @@ impl Dispatcher{
                 for mut command in World.take_commands(){
                     command.execute(World);
                 }
+                World.swap_event_buffers();
             }
 
             // -- POSTPROCESSORS --

@@ -14,7 +14,7 @@ pub struct World{
     next_free: BTreeSet<usize>,
     components: HashMap<&'static str, RefCell<Box<dyn StorageWrapper>>>,
     resources: HashMap<&'static str, RefCell<Box<dyn ResourceWrapper>>>,
-    events: UnsafeCell<EventMap>,
+    events: UnsafeCell<EventBufferMap>,
     triggers: RefCell<Vec<&'static str>>,
     commands: RefCell<Vec<Box<dyn CommandWrapper>>>
 }
@@ -26,7 +26,7 @@ impl World{
             next_free: BTreeSet::new(),
             components: HashMap::new(),
             resources: HashMap::new(),
-            events: UnsafeCell::new(EventMap::new()),
+            events: UnsafeCell::new(EventBufferMap::new()),
             triggers: RefCell::new(Vec::new()),
             commands: RefCell::new(Vec::new())
         }
@@ -160,20 +160,8 @@ impl World{
                 |idkfa| idkfa)
     }
 
-    pub fn exec_commands(&mut self){
-
-        loop{
-            let idkfa = self.commands.borrow_mut().pop();
-            match idkfa{
-                Some(mut command) => command.execute(self),
-                None => break,
-            }
-        }
-    }
-
-    pub fn end_tick(&mut self){
-        self.exec_commands();
-        self.events.get_mut().swap_buffers();
+    pub fn swap_event_buffers(&self){
+        unsafe{self.events.get().as_mut().unwrap().swap_buffers()};
     }
 
     pub fn take_triggers(&mut self) -> Vec<&'static str>{
