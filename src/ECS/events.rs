@@ -1,6 +1,5 @@
 use std::cell::{Ref, RefCell, RefMut};
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::any::Any;
 
 use super::fetch::{EventReader, EventWriter};
 
@@ -34,8 +33,8 @@ impl<T: Event> EventWrapper for T{
 /// Buffers switch at the end of every Tick, clearing the previously Read-Only buffer
 pub struct EventBufferMap{
     registry: HashSet<&'static str>,
-    active_buffer: HashMap<&'static str, RefCell<Box<dyn Any>>>,
-    alt_buffer: HashMap<&'static str, RefCell<Box<dyn Any>>>,
+    active_buffer: HashMap<&'static str, RefCell<Box<dyn EventQueue>>>,
+    alt_buffer: HashMap<&'static str, RefCell<Box<dyn EventQueue>>>,
 }
 impl EventBufferMap{
     /// Create a new, empty EventMap
@@ -69,23 +68,18 @@ impl EventBufferMap{
     /// Switch buffers and clear the previous one
     pub(super) fn swap_buffers(&mut self){
         // Clear active buffer to (kinda) free up memory
-        self.active_buffer.clear();
+        for queue in self.active_buffer.values_mut(){
+            queue.borrow_mut().clear();
+        }
         std::mem::swap(&mut self.active_buffer, &mut self.alt_buffer);
     }
     /// Get a Reader for an Event
     /// 
     /// Panics if the requested Event is not registered
-    pub fn get_reader<'a, T: Event + 'static>(&'a mut self) -> EventReader<'a, T>{
+    pub fn get_reader<'a, T: Event + 'static>(&'a self) -> EventReader<'a, T>{
         // Check if the Event is valid
         if !self.registry.contains(T::ID){
             panic!("ERROR: Attempted to fetch unregistered event: {}", T::ID)
-        }
-
-        // If we don't have this key in buffer yet, initialize it
-        // This is a hacky workaround to return a "valid" `EventReader`
-        // even if the queue for that event is empty
-        if !self.alt_buffer.contains_key(T::ID){
-            self.alt_buffer.insert(T::ID, RefCell::new(Box::new(VecDeque::<T>::new())));
         }
 
         // We have checks for valid ID and a backup Queue, so we can safely unwrap
@@ -93,20 +87,15 @@ impl EventBufferMap{
 
         Ref::map(
             queue.borrow(), 
-            |x| x.downcast_ref::<VecDeque<T>>().unwrap())
+            |x| x.downcast_ref::<T>())
     }
     /// Get a Writer for an Event
     /// 
     /// Panics if the requested Event is not registered
-    pub fn get_writer<'a, T: Event + 'static>(&'a mut self) -> EventWriter<'a, T>{
+    pub fn get_writer<'a, T: Event + 'static>(&'a self) -> EventWriter<'a, T>{
         // Check if the Event is valid
         if !self.registry.contains(T::ID){
             panic!("ERROR: Attempted to fetch unregistered event: {}", T::ID)
-        }
-
-        // If there's a valid event but no queue, set up a new one
-        if !self.active_buffer.contains_key(T::ID){
-            self.active_buffer.insert(T::ID, RefCell::new(Box::new(VecDeque::<T>::new())));
         }
 
         // We have checks for valid ID and a backup Queue, so we can safely unwrap
@@ -114,7 +103,9 @@ impl EventBufferMap{
 
         RefMut::map(
             queue.borrow_mut(),
-            |x| x.downcast_mut::<VecDeque<T>>().unwrap())
+            |x| x.downcast_mut::<T>())
+    }
+}
 
 /// # Event queue trait
 /// A tiny rudimentary trait to remove the usage of `UnsafeCell` from World
