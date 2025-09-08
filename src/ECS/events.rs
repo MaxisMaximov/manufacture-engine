@@ -115,5 +115,27 @@ impl EventBufferMap{
         RefMut::map(
             queue.borrow_mut(),
             |x| x.downcast_mut::<VecDeque<T>>().unwrap())
+
+/// # Event queue trait
+/// A tiny rudimentary trait to remove the usage of `UnsafeCell` from World
+/// 
+/// It is essentially `Any` trait with an added `.clear()` method to flush the queue
+trait EventQueue{
+    /// Clear the underlying Queue
+    fn clear(&mut self);
+}
+impl<E: Event> EventQueue for VecDeque<E>{
+    fn clear(&mut self) {
+        self.clear();
+    }
+}
+impl dyn EventQueue{
+    /// Downcast to a reference of an event `T` queue
+    fn downcast_ref<T: Event>(&self) -> &VecDeque<T>{
+        unsafe{&*(self as *const dyn EventQueue as *const VecDeque<T>)}
+    }
+    /// Downcast to a mutable reference of an event `T` queue
+    fn downcast_mut<T: Event>(&mut self) -> &mut VecDeque<T>{
+        unsafe{&mut *(self as *mut dyn EventQueue as *mut VecDeque<T>)}
     }
 }
