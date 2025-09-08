@@ -33,16 +33,16 @@ impl<T: Event> EventWrapper for T{
 /// Buffers switch at the end of every Tick, clearing the previously Read-Only buffer
 pub struct EventBufferMap{
     registry: HashSet<&'static str>,
-    active_buffer: HashMap<&'static str, RefCell<Box<dyn EventQueue>>>,
-    alt_buffer: HashMap<&'static str, RefCell<Box<dyn EventQueue>>>,
+    read_buffer: HashMap<&'static str, RefCell<Box<dyn EventQueue>>>,
+    write_buffer: HashMap<&'static str, RefCell<Box<dyn EventQueue>>>,
 }
 impl EventBufferMap{
     /// Create a new, empty EventMap
     pub fn new() -> Self{
         Self{
             registry: HashSet::new(),
-            active_buffer: HashMap::new(),
-            alt_buffer: HashMap::new(),
+            read_buffer: HashMap::new(),
+            write_buffer: HashMap::new(),
         }
     }
 
@@ -54,6 +54,8 @@ impl EventBufferMap{
             panic!("ERROR: Conflicting Event IDs: {}", T::ID)
         }
         self.registry.insert(T::ID);
+        self.read_buffer.insert(T::ID, RefCell::new(Box::new(VecDeque::<T>::new())));
+        self.write_buffer.insert(T::ID, RefCell::new(Box::new(VecDeque::<T>::new())));
     }
     /// Deregister an event
     /// 
@@ -61,17 +63,17 @@ impl EventBufferMap{
     pub fn deregister<T: Event>(&mut self){
         self.registry.remove(T::ID);
         // Remove those events from the Map as they're no longer valid
-        self.active_buffer.remove(T::ID);
-        self.alt_buffer.remove(T::ID);
+        self.read_buffer.remove(T::ID);
+        self.write_buffer.remove(T::ID);
     }
 
     /// Switch buffers and clear the previous one
     pub(super) fn swap_buffers(&mut self){
         // Clear active buffer to (kinda) free up memory
-        for queue in self.active_buffer.values_mut(){
+        for queue in self.read_buffer.values_mut(){
             queue.borrow_mut().clear();
         }
-        std::mem::swap(&mut self.active_buffer, &mut self.alt_buffer);
+        std::mem::swap(&mut self.read_buffer, &mut self.write_buffer);
     }
     /// Get a Reader for an Event
     /// 
@@ -83,7 +85,7 @@ impl EventBufferMap{
         }
 
         // We have checks for valid ID and a backup Queue, so we can safely unwrap
-        let queue = self.alt_buffer.get(T::ID).unwrap();
+        let queue = self.write_buffer.get(T::ID).unwrap();
 
         Ref::map(
             queue.borrow(), 
@@ -99,7 +101,7 @@ impl EventBufferMap{
         }
 
         // We have checks for valid ID and a backup Queue, so we can safely unwrap
-        let queue = self.active_buffer.get(T::ID).unwrap();
+        let queue = self.read_buffer.get(T::ID).unwrap();
 
         RefMut::map(
             queue.borrow_mut(),
