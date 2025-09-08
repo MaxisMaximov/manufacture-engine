@@ -85,7 +85,7 @@ impl World{
         self.events.get_writer()
     }
 
-    pub fn get_trigger_writer(&self) -> RefMut<'_, Vec<&'static str>>{
+    pub fn get_trigger_writer(&self) -> TriggerWriter{
         self.triggers.borrow_mut()
     }
 

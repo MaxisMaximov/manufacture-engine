@@ -20,3 +20,4 @@ pub type EventReader<'a, E: Event> = Ref<'a, VecDeque<E>>;
 pub type EventWriter<'a, E: Event> = RefMut<'a, VecDeque<E>>;
 
 pub type CommandWriter<'a> = RefMut<'a, Vec<Box<dyn CommandWrapper>>>;
+pub type TriggerWriter<'a> = RefMut<'a, Vec<&'static str>>;
