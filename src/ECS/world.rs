@@ -225,4 +225,9 @@ impl World{
     pub fn get_entity_mut(&mut self, Id: &usize) -> Option<&mut Entity>{
         self.entities.get_mut(Id)
     }
+
+    /// Get the entities within the World
+    pub fn get_entities(&self) -> &BTreeMap<usize, Entity>{
+        &self.entities
+    }
 }

@@ -1,6 +1,7 @@
-use std::ops::{Deref, DerefMut};
+use std::{collections::BTreeMap, ops::{Deref, DerefMut}};
 
 use crate::ECS;
+use ECS::entity::Entity;
 use ECS::world::World;
 use ECS::comp::Component;
 use super::{Fetch, FetchMut};
@@ -21,11 +22,13 @@ pub trait QueryData{
 /// # World Query
 /// Struct that queries the World and fetches the specified `QueryData`
 pub struct Query<'a, D: QueryData>{
+    entities: &'a BTreeMap<usize, Entity>,
     data: D::Item<'a>
 }
 impl<'a, D: QueryData> Query<'a, D>{
     pub fn fetch(World: &'a World) -> Self{
         Self{
+            entities: World.get_entities(),
             data: D::fetch(World)
         }
     }
