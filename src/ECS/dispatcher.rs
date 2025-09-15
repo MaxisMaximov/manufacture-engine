@@ -22,6 +22,7 @@ pub struct Dispatcher{
     preproc: Vec<Stage>,
     singlefires: HashMap<&'static str, Box<dyn SystemWrapper>>,
     logic: Vec<Stage>,
+    event_responders: HashMap<&'static str, Vec<Box<dyn SystemWrapper>>>,
     postproc: Vec<Stage>
 }
 impl Dispatcher{
@@ -53,7 +54,11 @@ impl Dispatcher{
                     self.singlefires.get_mut(trigger).unwrap().execute(World);
                 }
                 // -- Event Responders --
-
+                for event in World.get_events().get_active_events(){
+                    for system in self.event_responders.get_mut(event).unwrap().iter_mut(){
+                        system.execute(World);
+                    }
+                }
                 // -- Commands --
                 for mut command in World.take_commands(){
                     command.execute(World);
@@ -82,6 +87,7 @@ pub struct DispatcherBuilder{
     preproc: StagesBuilder,
     logic: StagesBuilder,
     singlefires: HashMap<&'static str, Box<dyn SystemWrapper>>,
+    event_responders: HashMap<&'static str, Vec<Box<dyn SystemWrapper>>>,
     postproc: StagesBuilder,
 }
 impl DispatcherBuilder{
@@ -92,6 +98,7 @@ impl DispatcherBuilder{
             preproc: StagesBuilder::new(),
             logic: StagesBuilder::new(),
             singlefires: HashMap::new(),
+            event_responders: HashMap::new(),
             postproc: StagesBuilder::new(),            
         }
     }
@@ -110,6 +117,9 @@ impl DispatcherBuilder{
             SystemType::Singlefire => {
                 self.singlefires.insert(S::ID, Box::new(S::new()));
             },
+            SystemType::EventResponder(event_id) => {
+                self.event_responders.entry(event_id).or_insert(Vec::new()).push(Box::new(S::new()));
+            }
             SystemType::Postprocessor => self.postproc.add::<S>(),
         }
     }
@@ -133,6 +143,7 @@ impl DispatcherBuilder{
             preproc: self.preproc.build(),
             singlefires: self.singlefires,
             logic: self.logic.build(),
+            event_responders: self.event_responders,
             postproc: self.postproc.build(),
         }
     }
@@ -319,5 +330,6 @@ pub enum SystemType{
     Preprocessor,
     Logic,
     Singlefire,
+    EventResponder(&'static str),
     Postprocessor
 }
