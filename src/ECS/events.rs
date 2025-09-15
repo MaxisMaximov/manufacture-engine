@@ -107,6 +107,15 @@ impl EventBufferMap{
             queue.borrow_mut(),
             |x| x.downcast_mut::<T>())
     }
+    pub fn get_active_events(&self) -> Box<[&'static str]>{
+
+        self.read_buffer.iter()
+            .map_while(
+                |(id, queue)|
+                Some(*id).filter(|_| queue.borrow().is_empty())
+            )
+            .collect()
+    }
 }
 
 /// # Event queue trait
@@ -116,10 +125,15 @@ impl EventBufferMap{
 trait EventQueue{
     /// Clear the underlying Queue
     fn clear(&mut self);
+    /// Check if there are any events in this Queue
+    fn is_empty(&self) -> bool;
 }
 impl<E: Event> EventQueue for VecDeque<E>{
     fn clear(&mut self) {
         self.clear();
+    }
+    fn is_empty(&self) -> bool {
+        self.is_empty()
     }
 }
 impl dyn EventQueue{
