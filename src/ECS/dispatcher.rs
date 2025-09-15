@@ -32,7 +32,7 @@ impl Dispatcher{
     }
     /// Dispatch the systems
     pub fn dispatch(&mut self, World: &mut World){
-        let mut previous_tick = Instant::now();
+        let mut last_tick = Instant::now();
         loop{
             // -- PREPROCESSORS --
             for stage in self.preproc.iter_mut(){
@@ -42,7 +42,7 @@ impl Dispatcher{
             }
 
             // -- LOGIC LOOP --
-            if previous_tick.elapsed() >= TICKRATE{
+            if last_tick.elapsed() >= TICKRATE{
                 // -- Logic systems --
                 for stage in self.logic.iter_mut(){
                     for system in stage.iter_mut(){
@@ -63,7 +63,8 @@ impl Dispatcher{
                 for mut command in World.take_commands(){
                     command.execute(World);
                 }
-                World.swap_event_buffers();
+                // Update last tick
+                last_tick = Instant::now();
             }
 
             // -- POSTPROCESSORS --
@@ -72,7 +73,9 @@ impl Dispatcher{
                     system.execute(World);
                 }
             }
-            previous_tick = Instant::now();
+            
+            // Clear Events
+            World.swap_event_buffers();
         }
     }
 }
