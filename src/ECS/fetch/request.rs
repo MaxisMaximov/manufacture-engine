@@ -149,3 +149,65 @@ where
         (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World))
     }
 }
+impl<A, B, C, D, E> RequestData for (A, B, C, D, E)
+where 
+    A: RequestData,
+    B: RequestData,
+    C: RequestData,
+    D: RequestData,
+    E: RequestData
+{
+    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>);
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World))
+    }
+}
+impl<A, B, C, D, E, F> RequestData for (A, B, C, D, E, F)
+where 
+    A: RequestData,
+    B: RequestData,
+    C: RequestData,
+    D: RequestData,
+    E: RequestData,
+    F: RequestData
+{
+    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>, F::Item<'b>);
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World), F::fetch(World))
+    }
+}
+impl<A, B, C, D, E, F, G> RequestData for (A, B, C, D, E, F, G)
+where 
+    A: RequestData,
+    B: RequestData,
+    C: RequestData,
+    D: RequestData,
+    E: RequestData,
+    F: RequestData,
+    G: RequestData
+{
+    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>, F::Item<'b>, G::Item<'b>);
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World), F::fetch(World), G::fetch(World))
+    }
+}
+impl<A, B, C, D, E, F, G, H> RequestData for (A, B, C, D, E, F, G, H)
+where 
+    A: RequestData,
+    B: RequestData,
+    C: RequestData,
+    D: RequestData,
+    E: RequestData,
+    F: RequestData,
+    G: RequestData,
+    H: RequestData
+{
+    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>, F::Item<'b>, G::Item<'b>, H::Item<'b>);
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World), F::fetch(World), G::fetch(World), H::fetch(World))
+    }
+}

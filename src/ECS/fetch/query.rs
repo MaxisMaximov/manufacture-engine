@@ -110,3 +110,65 @@ where
         (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World))
     }
 }
+impl<A, B, C, D, E> QueryData for (A, B, C, D, E)
+where 
+    A: QueryData,
+    B: QueryData,
+    C: QueryData,
+    D: QueryData,
+    E: QueryData
+{
+    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>);
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World))
+    }
+}
+impl<A, B, C, D, E, F> QueryData for (A, B, C, D, E, F)
+where 
+    A: QueryData,
+    B: QueryData,
+    C: QueryData,
+    D: QueryData,
+    E: QueryData,
+    F: QueryData
+{
+    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>, F::Item<'b>);
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World), F::fetch(World))
+    }
+}
+impl<A, B, C, D, E, F, G> QueryData for (A, B, C, D, E, F, G)
+where 
+    A: QueryData,
+    B: QueryData,
+    C: QueryData,
+    D: QueryData,
+    E: QueryData,
+    F: QueryData,
+    G: QueryData
+{
+    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>, F::Item<'b>, G::Item<'b>);
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World), F::fetch(World), G::fetch(World))
+    }
+}
+impl<A, B, C, D, E, F, G, H> QueryData for (A, B, C, D, E, F, G, H)
+where 
+    A: QueryData,
+    B: QueryData,
+    C: QueryData,
+    D: QueryData,
+    E: QueryData,
+    F: QueryData,
+    G: QueryData,
+    H: QueryData
+{
+    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>, F::Item<'b>, G::Item<'b>, H::Item<'b>);
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World), F::fetch(World), G::fetch(World), H::fetch(World))
+    }
+}
