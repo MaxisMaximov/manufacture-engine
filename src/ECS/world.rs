@@ -167,15 +167,11 @@ impl World{
     /// Despawn the given Entity
     /// 
     /// This will drop all of the Entity's components
-    pub fn despawn(&mut self, Id: usize) -> Result<(), ()>{
-        match self.entities.remove(&Id){
-            Some(_) => {
+    pub fn despawn(&mut self, Id: usize){
+        if self.entities.remove(&Id).is_some(){
                 for storage in self.components.values_mut(){
                     storage.borrow_mut().as_mut().remove(Id);
-                }
-                return Ok(())
             }
-            None => {Err(())}
         }
     }
     
