@@ -20,7 +20,7 @@ pub trait QueryData{
 }
 
 /// # World Query
-/// Struct that queries the World and fetches the specified `QueryData`
+/// Struct that queries the World and fetches the specified `QueryData`, usually Components
 pub struct Query<'a, D: QueryData>{
     entities: &'a BTreeMap<usize, Entity>,
     data: D::Item<'a>
@@ -50,18 +50,18 @@ impl<'a, D: QueryData> DerefMut for Query<'a, D>{
 // Components
 ///////////////////////////////////////////////////////////////////////////////
 
-impl<T:Component> QueryData for &T{
-    type Item<'b> = Fetch<'b, T>;
+impl<C:Component> QueryData for &C{
+    type Item<'b> = Fetch<'b, C>;
 
     fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.fetch::<T>()
+        World.fetch::<C>()
     }
 }
-impl<T: Component> QueryData for &mut T{
-    type Item<'b> = FetchMut<'b, T>;
+impl<C: Component> QueryData for &mut C{
+    type Item<'b> = FetchMut<'b, C>;
 
     fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.fetch_mut::<T>()
+        World.fetch_mut::<C>()
     }
 }
 

@@ -13,14 +13,14 @@ pub trait Storage<T: Component>{
     fn remove(&mut self, Index: usize);
     /// Get a reference to the specified Entity's Component from this storage
     fn get(&self, Index: &usize) -> Option<&T>;
-    /// Get a mutable reference to the specified ENtity's Component from this storage
+    /// Get a mutable reference to the specified Entity's Component from this storage
     fn get_mut(&mut self, Index: &usize) -> Option<&mut T>;
 }
 
 /// # Storage trait Container
 /// Wraps a Component's `STORAGE` to safely store it within the world
 /// 
-/// It is required as compound generics *(`T: Trait<U>`)* aren't supported yet
+/// It is required as compound generics *(`U: Trait_A, T: Trait<U>)* aren't supported yet
 /// 
 /// To get the underlying `STORAGE`, use a dereference
 pub struct StorageContainer<T: Component>{
@@ -39,12 +39,13 @@ impl<T: Component> DerefMut for StorageContainer<T>{
     }
 }
 impl<T: Component> StorageContainer<T>{
+    /// Create a new wrapper for a Component's Storage
     pub fn new() -> Self{
         Self{
             inner: T::STORAGE::new()
         }
     }
-
+    /// Get the underlying Storage's Component ID
     pub fn comp_id(&self) -> &'static str{
         T::ID
     }

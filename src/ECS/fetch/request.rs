@@ -12,7 +12,7 @@ use super::{CommandWriter, TriggerWriter};
 /// Required for `Request` to know what system resources to fetch from the World
 /// 
 /// It is implemented by default on `&` and `&mut` Resource references, 
-/// Event Readers and Writers, the Command Writer, as well as Tuples up to 4 elements
+/// Event Readers and Writers, the Command and Trigger Writers, as well as Tuples up to 4 elements
 /// 
 /// The return type `Item` is typically the type the trait gets implemented on
 pub trait RequestData{
@@ -22,7 +22,8 @@ pub trait RequestData{
 }
 
 /// # System resource Request
-/// Struct that requests desired system resources from the World
+/// Struct that requests desired system resources from the World  
+/// Such as Resources, Event Readers/Writers and Trigger and Command Writers
 pub struct Request<'a, D: RequestData>{
     data: D::Item<'a>
 }
@@ -50,15 +51,15 @@ impl<'a, D: RequestData> DerefMut for Request<'a, D>{
 // Resources
 ///////////////////////////////////////////////////////////////////////////////
 
-impl<T: Resource> RequestData for &T{
-    type Item<'b> = FetchRes<'b, T>;
+impl<R: Resource> RequestData for &R{
+    type Item<'b> = FetchRes<'b, R>;
 
     fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
         World.fetch_res()
     }
 }
-impl<T: Resource> RequestData for &mut T{
-    type Item<'b> = FetchResMut<'b, T>;
+impl<R: Resource> RequestData for &mut R{
+    type Item<'b> = FetchResMut<'b, R>;
 
     fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
         World.fetch_res_mut()

@@ -79,7 +79,7 @@ impl World{
             self.resources.get(T::ID).unwrap().borrow(), 
             |idkfa| idkfa.downcast_ref::<T>().unwrap())
     }
-    /// Get a reference to `T` resource
+    /// Get a mutable reference to `T` resource
     pub fn fetch_res_mut<'a, T>(&'a self) -> FetchResMut<'a, T> where T: Resource{
         // Same as above
         if !self.resources.contains_key(T::ID){
@@ -169,8 +169,8 @@ impl World{
     /// This will drop all of the Entity's components
     pub fn despawn(&mut self, Id: usize){
         if self.entities.remove(&Id).is_some(){
-                for storage in self.components.values_mut(){
-                    storage.borrow_mut().as_mut().remove(Id);
+            for storage in self.components.values_mut(){
+                storage.borrow_mut().as_mut().remove(Id);
             }
         }
     }
@@ -214,11 +214,6 @@ impl World{
     pub fn get_entity(&self, Id: &usize) -> Option<&Entity>{
         self.entities.get(Id)
     }
-    /// Get quick info about a given entity to change it
-    pub fn get_entity_mut(&mut self, Id: &usize) -> Option<&mut Entity>{
-        self.entities.get_mut(Id)
-    }
-
     /// Get the entities within the World
     pub fn get_entities(&self) -> &BTreeMap<usize, Entity>{
         &self.entities
