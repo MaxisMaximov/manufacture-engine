@@ -32,6 +32,18 @@ impl<'a, D: QueryData> Query<'a, D>{
             data: D::fetch(World)
         }
     }
+
+    pub fn get(&self, Index: &usize) -> Option<D>{
+        if !self.entities.contains_key(Index){
+            return None
+        }
+        
+        todo!("Still figuring this out")
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = D>{
+        todo!("Still figuring this out")
+    }
 }
 impl<'a, D:QueryData> Deref for Query<'a, D>{
     type Target = D::Item<'a>;
