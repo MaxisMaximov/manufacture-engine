@@ -108,106 +108,27 @@ impl RequestData for TriggerWriter<'_>{
 // Tuples
 ///////////////////////////////////////////////////////////////////////////////
 
-impl RequestData for (){
-    type Item<'b> = ();
+#[macro_export]
+macro_rules! request_impl {
+    ($($x:ident), *) => {
+        impl<$($x: RequestData), *> RequestData for ($($x), *){
+            type Item<'b> = ($($x::Item<'b>), *);
 
-    fn fetch<'a>(_World: &'a World) -> Self::Item<'a>{}
-}
-impl<A, B> RequestData for (A, B)
-where 
-    A: RequestData, 
-    B: RequestData
-{
-    type Item<'b> = (A::Item<'b>, B::Item<'b>);
-
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        (A::fetch(World), B::fetch(World))
+            fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+                ($($x::fetch(World)), *)
+            }
+        }
     }
 }
-impl<A, B, C> RequestData for (A, B, C)
-where 
-    A: RequestData,
-    B: RequestData,
-    C: RequestData
-{
-    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>);
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        (A::fetch(World), B::fetch(World), C::fetch(World))
-    }
-}
-impl<A, B, C, D> RequestData for (A, B, C, D)
-where 
-    A: RequestData,
-    B: RequestData,
-    C: RequestData,
-    D: RequestData
-{
-    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>);
-
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World))
-    }
-}
-impl<A, B, C, D, E> RequestData for (A, B, C, D, E)
-where 
-    A: RequestData,
-    B: RequestData,
-    C: RequestData,
-    D: RequestData,
-    E: RequestData
-{
-    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>);
-
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World))
-    }
-}
-impl<A, B, C, D, E, F> RequestData for (A, B, C, D, E, F)
-where 
-    A: RequestData,
-    B: RequestData,
-    C: RequestData,
-    D: RequestData,
-    E: RequestData,
-    F: RequestData
-{
-    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>, F::Item<'b>);
-
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World), F::fetch(World))
-    }
-}
-impl<A, B, C, D, E, F, G> RequestData for (A, B, C, D, E, F, G)
-where 
-    A: RequestData,
-    B: RequestData,
-    C: RequestData,
-    D: RequestData,
-    E: RequestData,
-    F: RequestData,
-    G: RequestData
-{
-    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>, F::Item<'b>, G::Item<'b>);
-
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World), F::fetch(World), G::fetch(World))
-    }
-}
-impl<A, B, C, D, E, F, G, H> RequestData for (A, B, C, D, E, F, G, H)
-where 
-    A: RequestData,
-    B: RequestData,
-    C: RequestData,
-    D: RequestData,
-    E: RequestData,
-    F: RequestData,
-    G: RequestData,
-    H: RequestData
-{
-    type Item<'b> = (A::Item<'b>, B::Item<'b>, C::Item<'b>, D::Item<'b>, E::Item<'b>, F::Item<'b>, G::Item<'b>, H::Item<'b>);
-
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        (A::fetch(World), B::fetch(World), C::fetch(World), D::fetch(World), E::fetch(World), F::fetch(World), G::fetch(World), H::fetch(World))
-    }
-}
+request_impl!(A, B);
+request_impl!(A, B, C);
+request_impl!(A, B, C, D);
+request_impl!(A, B, C, D, E);
+request_impl!(A, B, C, D, E, F);
+request_impl!(A, B, C, D, E, F, G);
+request_impl!(A, B, C, D, E, F, G, H);
+request_impl!(A, B, C, D, E, F, G, H, I);
+request_impl!(A, B, C, D, E, F, G, H, I, J);
+request_impl!(A, B, C, D, E, F, G, H, I, J, K);
+request_impl!(A, B, C, D, E, F, G, H, I, J, K, L);
