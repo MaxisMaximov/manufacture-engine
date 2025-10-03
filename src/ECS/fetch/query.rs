@@ -46,7 +46,7 @@ impl<'a, D: QueryData> Query<'a, D>{
 
         D::get(&self.data, Index)
     }
-    pub fn get_from_token(&'a self, Token: entity::Token) -> Option<D::AccItem<'a>>{
+    pub fn get_from_token(&'a self, Token: &entity::Token) -> Option<D::AccItem<'a>>{
         let entity = self.entities.get(&Token.id())?;
         if entity.hash() != Token.hash(){
             return None
@@ -61,7 +61,7 @@ impl<'a, D: QueryData> Query<'a, D>{
         
         D::get_mut(&mut self.data, Index)
     }
-    pub fn get_from_token_mut(&'a mut self, Token: entity::Token) -> Option<D::MutAccItem<'a>>{
+    pub fn get_from_token_mut(&'a mut self, Token: &entity::Token) -> Option<D::MutAccItem<'a>>{
         let entity = self.entities.get(&Token.id())?;
         if entity.hash() != Token.hash(){
             return None
@@ -81,6 +81,14 @@ impl<'a, D: QueryData> Query<'a, D>{
         IterMut{
             data: &mut self.data,
             ent_iter: self.entities.keys(),
+        }
+    }
+
+    pub fn validate_token(&self, Token: &mut entity::Token) -> bool{
+        if let Some(entity) = self.entities.get(&Token.id()){
+            Token.validate(entity)
+        }else{
+            false
         }
     }
 }

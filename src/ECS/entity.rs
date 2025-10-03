@@ -67,8 +67,8 @@ impl Token{
     /// Check if the Token is still valid within the World
     /// 
     /// Updates it's own `valid` flag and returns it
-    pub fn validate(&mut self, World: &World) -> bool{
-        self.valid = World.validate_token(self);
+    pub fn validate(&mut self, Entity: &Entity) -> bool{
+        self.valid = self.hash == Entity.hash();
         self.valid
     }
 }
