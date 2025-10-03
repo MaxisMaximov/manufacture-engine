@@ -1,6 +1,8 @@
 use std::{collections::BTreeMap, ops::{Deref, DerefMut}};
 
-use crate::ECS::{self, storage::Storage};
+use crate::ECS;
+use ECS::entity;
+use ECS::storage::Storage;
 use ECS::entity::Entity;
 use ECS::world::World;
 use ECS::comp::Component;
@@ -44,12 +46,28 @@ impl<'a, D: QueryData> Query<'a, D>{
 
         D::get(&self.data, Index)
     }
+    pub fn get_from_token(&'a self, Token: entity::Token) -> Option<D::AccItem<'a>>{
+        let entity = self.entities.get(&Token.id())?;
+        if entity.hash() != Token.hash(){
+            return None
+        }
+
+        D::get(&self.data, &Token.id())
+    }
     pub fn get_mut(&'a mut self, Index: &usize) -> Option<D::MutAccItem<'a>>{
         if !self.entities.contains_key(Index){
             return None
         }
-
+        
         D::get_mut(&mut self.data, Index)
+    }
+    pub fn get_from_token_mut(&'a mut self, Token: entity::Token) -> Option<D::MutAccItem<'a>>{
+        let entity = self.entities.get(&Token.id())?;
+        if entity.hash() != Token.hash(){
+            return None
+        }
+
+        D::get_mut(&mut self.data, &Token.id())
     }
 
     pub fn iter(&'a self) -> Iter<'a, D>{
