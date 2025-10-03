@@ -60,7 +60,6 @@ impl<'a, D: QueryData> Query<'a, D>{
     }
 
     pub fn iter_mut(&'a mut self) -> IterMut<'a, D>{
-        unimplemented!("IterMut has a bunch of errors that prevent it from being used\nManually iterate over the Query mutably for now");
         IterMut{
             data: &mut self.data,
             ent_iter: self.entities.keys(),
@@ -79,6 +78,10 @@ impl<'a, D: QueryData> DerefMut for Query<'a, D>{
         &mut self.data
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Iterators
+///////////////////////////////////////////////////////////////////////////////
 
 use std::collections::btree_map::Keys;
 pub struct Iter<'a, D: QueryData>{
@@ -110,9 +113,32 @@ impl<'a, D: QueryData> Iterator for IterMut<'a, D>{
         loop{
             let index = *self.ent_iter.next()?;
 
-            // if let Some(fetched) = D::get_mut(self.data, &index){
-            //     return Some(fetched)
-            // }
+            if let Some(fetched) = 
+                D::get_mut(
+                    // SAFETY: I have no goddamn pecking idea
+                    // But this is what 
+                    // [this](stackoverflow.com/questions/61978903/how-do-i-create-mutable-iterator-over-struct-fields)
+                    // post's last comment suggests for a whole different problem
+
+                    // I PRESUME:
+                    // 1. We -grade (up or down??) `self.data`, which is a mutable 
+                    //    reference to Query's `data` field, into a mutable *pointer*
+                    // 2. We dereference that pointer to get to the original
+                    //    data, getting *it's* lifetime now instead of Query's
+                    // 3. We then pass that direct original data as a mutable reference into the Getter
+
+                    // I have no idea how it actually works, but the comment probably explains it better
+                    // I might redo this later, or this hotwire will still be here
+                    // Mark my words this will be unchanged since 3.10.2025
+                    // (10.3.2025 for you American Burger Per Freedom Mile Eagles people)
+
+                    // Unless I redo the engine 4th time in a row
+                    unsafe{&mut *(self.data as *mut D::Item<'a>)}, 
+                    &index
+                )
+            {
+                return Some(fetched)
+            }
         }
     }
 }
