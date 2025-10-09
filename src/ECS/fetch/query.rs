@@ -11,7 +11,9 @@ use super::{Fetch, FetchMut};
 /// # Query fetch trait
 /// Required for `Query` to know what to fetch from the World
 /// 
-/// It is implemented by default on `&` and `&mut` Component references, as well as Tuples up to 4 elements
+/// It is implemented by default on `&` and `&mut` Component references, 
+/// `Option<&Component>` and `Option<&mut Component>`, 
+/// as well as Tuples up to 12 elements
 /// 
 /// The return type `Item` is typically the type the trait gets implemented on
 /// 
@@ -266,6 +268,46 @@ impl<C: Component> QueryData for &mut C{
     }
     fn get_mut<'a>(Fetched: &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>> {
         Fetched.get_mut(Index)
+    }
+}
+
+impl<C: Component> QueryData for Option<&C>{
+    type Item<'b> = Fetch<'b, C>;
+    type AccItem<'b> = Option<&'b C>;
+    type MutAccItem<'b> = Option<&'b C>;
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        World.fetch::<C>()
+    }
+    
+    fn get<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> Option<Self::AccItem<'a>> {
+        // Why is it wrapped in `Some`:
+        // `Option` signifies an optional Component, so the return type is `Option`
+        // The systems handle the `Option`s themselves
+        //
+        // But we can't just use `get` like with normal Component references
+        // `Some` essentially ensures the Getter functions always return  
+        // a valid AccItem, and therefore a valid Component set
+        Some(Fetched.get(Index))
+    }
+    fn get_mut<'a>(Fetched: &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>> {
+        Some(Fetched.get(Index))
+    }
+}
+impl<C: Component> QueryData for Option<&mut C>{
+    type Item<'b> = FetchMut<'b, C>;
+    type AccItem<'b> = Option<&'b C>;
+    type MutAccItem<'b> = Option<&'b mut C>;
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        World.fetch_mut::<C>()
+    }
+    
+    fn get<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> Option<Self::AccItem<'a>> {
+        Some(Fetched.get(Index))
+    }
+    fn get_mut<'a>(Fetched: &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>> {
+        Some(Fetched.get_mut(Index))
     }
 }
 
