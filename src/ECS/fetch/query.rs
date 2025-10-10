@@ -182,15 +182,11 @@ impl<'a, D: QueryData, F: QueryFilter> Query<'a, D, F>{
     /// Updates Token's `valid` flag and returns boolean whether it's still valid or not
     pub fn validate_token(&self, Token: &mut entity::Token) -> bool{
         // If a Token is invalid, it can never again be valid
-        if !Token.valid(){
-            false
-        }else{
-            if let Some(entity) = self.entities.get(&Token.id()){
-                Token.validate(entity)
-            }else{
-                false
-            }
-        }
+        Token.valid() 
+            && 
+        // A check if the Entity exists and if the Token is still valid in one
+        // Bit of a mess, I know
+        self.entities.get(&Token.id()).is_some_and(|entity| Token.validate(entity))
     }
 }
 impl<'a, D:QueryData, F: QueryFilter> Deref for Query<'a, D, F>{
@@ -365,7 +361,8 @@ impl<C: Component> QueryData for Option<&mut C>{
 ///////////////////////////////////////////////////////////////////////////////
 
 macro_rules! query_impl {
-    ($($x:ident), *) => {
+    ($($x:tt), *) => {
+        #[allow(non_snake_case)]
         impl<$($x: QueryData), *> QueryData for ($($x), *){
             type Item<'b> = ($($x::Item<'b>), *);
 

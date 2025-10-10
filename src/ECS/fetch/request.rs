@@ -108,9 +108,9 @@ impl RequestData for TriggerWriter<'_>{
 // Tuples
 ///////////////////////////////////////////////////////////////////////////////
 
-#[macro_export]
 macro_rules! request_impl {
     ($($x:ident), *) => {
+        #[allow(non_snake_case)]
         impl<$($x: RequestData), *> RequestData for ($($x), *){
             type Item<'b> = ($($x::Item<'b>), *);
 
