@@ -1,3 +1,5 @@
+use crate::ECS::fetch::query::QueryFilter;
+
 use super::world::World;
 use super::dispatcher::{RunOrder, SystemType};
 use super::fetch::query::{QueryData, Query};
@@ -22,6 +24,7 @@ use super::fetch::request::{Request, RequestData};
 /// Make sure your System's ID does not collide with Systems fro other plugins
 pub trait System: 'static{
     type QUERY: QueryData;
+    type FILTERS: QueryFilter;
     type REQUEST: RequestData;
     const ID: &'static str;
     const DEPENDS: &'static [&'static str] = &[];
@@ -31,7 +34,7 @@ pub trait System: 'static{
     /// Create a new instance of this System
     fn new() -> Self;
     /// Run the System
-    fn execute(&mut self, Query: Query<'_, Self::QUERY>, Request: Request<'_, Self::REQUEST>);
+    fn execute(&mut self, Query: Query<'_, Self::QUERY, Self::FILTERS>, Request: Request<'_, Self::REQUEST>);
 }
 
 /// # System trait Wrapper
