@@ -34,6 +34,13 @@ pub trait QueryData{
     fn get_mut<'a>(Fetched: &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>>;
 }
 
+pub trait QueryFilter{
+    type Item<'b>;
+    /// Fetch the needed data from the World
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a>;
+    /// Check if the given entity passes this filter
+    fn filter<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> bool;
+}
 /// # World Query
 /// Struct that queries the World and fetches the specified `QueryData`, usually Components
 /// 
