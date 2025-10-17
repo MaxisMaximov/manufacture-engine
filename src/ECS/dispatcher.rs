@@ -274,14 +274,14 @@ impl StagesBuilder{
 
         final_graph
     }
-    /// Build the Stages for DIspatcher to use
+    /// Build the Stages for Dispatcher to use
     fn build(mut self) -> Vec<Stage>{
 
         let mut stages = Vec::new();
 
         let graph = self.build_run_order_graph();
 
-        // We don't need to use `.iter()` as the final graph will not be used for anything else, we also own it
+        // We don't need to use `.iter()` as the final graph will not be used for anything else, we also own it anyway
         for layer in graph{
             stages.push(Vec::new());
             for system_id in layer{

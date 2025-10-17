@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use super::comp::Component;
 use super::storage::Storage;
 use super::world::World;

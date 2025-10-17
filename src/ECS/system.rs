@@ -16,14 +16,14 @@ use super::fetch::request::{Request, RequestData};
 /// 
 /// `ID` is what the System will be identified by for future overrides
 /// 
-/// `DEPENDS` are the other Systems that must be run before the System can be
+/// `DEPENDS` are the Systems that must be registered for this System, the System has no dependencies by default
 /// 
-/// `RUNORD` specifies what Systems should this System be run before/after
+/// `RUNORD` specifies what Systems should this System be run before/after, the System has no Run Orders be default
 /// 
-/// `TYPE` defines where the System should be put within the Execution loop 
+/// `TYPE` defines where the System should be put within the Execution loop, it is `SystemType::Logic` by default
 /// 
 /// ## WARNING
-/// Make sure your System's ID does not collide with Systems fro other plugins
+/// Make sure your System's ID does not collide with IDs of Systems from other plugins
 pub trait System: 'static{
     type QUERY: QueryData;
     type FILTERS: QueryFilter;

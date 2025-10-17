@@ -19,17 +19,17 @@ pub trait Command: 'static{
 /// Provides ID method for identifying the command (if such ID was specified) 
 /// and execute method for executing the command on the specified World
 pub trait CommandWrapper{
+    /// Get the underlying Command's ID
     fn id(&self) -> &'static str;
+    /// Execute the Command on the specified World
     fn execute(&mut self, World: &mut World);
 }
 
 impl<T: Command> CommandWrapper for T{
-    /// Get the underlying Command's ID
     fn id(&self) -> &'static str {
         T::ID
     }
 
-    /// Execute the Command on the specified World
     fn execute(&mut self, World: &mut World) {
         Command::execute(self, World);
     }
