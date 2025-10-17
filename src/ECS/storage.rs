@@ -1,20 +1,54 @@
 use std::ops::{Deref, DerefMut};
 
+
 use super::comp::Component;
+use super::entity::Token;
 
 /// # Component Storage trait
 /// Specifies some basic functions for the storage to do
 pub trait Storage<T: Component>{
     /// Create a new specified Storage for this component
     fn new() -> Self;
-    /// Insert a Component for an entity into this storage
+
+    /// Insert a Component for the specified Entity into this Storage
     fn insert(&mut self, Index: usize, Comp: T);
-    /// Remove the specified Entity's Component from this storage
-    fn remove(&mut self, Index: usize);
+    /// Insert the Component for the Entity referenced by the Token into this Storage
+    fn insert_with_token(&mut self, Token: &Token, Comp: T){
+        if !Token.valid(){
+            return
+        }
+        self.insert(Token.id(), Comp);
+    }
+
+    /// Remove the specified Entity's Component from this Storage
+    fn remove(&mut self, Index: &usize);
+    /// Remove the Component from the Entity referenced by the Token from this Storage
+    fn remove_with_token(&mut self, Token: &Token){
+        if !Token.valid(){
+            return
+        }
+        self.remove(&Token.id());
+    }
+
     /// Get a reference to the specified Entity's Component from this storage
     fn get(&self, Index: &usize) -> Option<&T>;
+    /// Get a reference to the Component from this storage of the Entity refereced by the Token
+    fn get_from_token(&self,Token: &Token, Index: &usize) -> Option<&T>{
+        if !Token.valid(){
+            return None
+        }
+        self.get(&Token.id())
+    }
+    
     /// Get a mutable reference to the specified Entity's Component from this storage
     fn get_mut(&mut self, Index: &usize) -> Option<&mut T>;
+    /// Get a mutable reference to the Component from this storage of the Entity refereced by the Token
+    fn get_from_token_mut(&mut self, Token: &Token, Index: &usize) -> Option<&mut T>{
+        if !Token.valid(){
+            return None
+        }
+        self.get_mut(&Token.id())
+    }
 }
 
 /// # Storage trait Container
@@ -65,7 +99,7 @@ pub trait StorageWrapper{
 
 impl<T: Component> StorageWrapper for StorageContainer<T>{
     fn remove(&mut self, Index: usize){
-        Storage::remove(&mut self.inner, Index);
+        self.inner.remove(&Index);
     }
 
     fn comp_id(&self) -> &'static str {
