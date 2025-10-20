@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
 use crate::ECS;
@@ -70,14 +71,18 @@ impl<R: Resource> RequestData for &mut R{
 // Events
 ///////////////////////////////////////////////////////////////////////////////
 
-impl<E: Event> RequestData for EventReader<'_, E>{
-    type Item<'b> = EventReader<'b, E>;
+pub struct ReadEvent<E: Event>(PhantomData<E>);
 
+impl<E: Event> RequestData for ReadEvent<E>{
+    type Item<'b> = EventReader<'b, E>;
+    
     fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
         World.get_event_reader()
     }
 }
-impl<E: Event> RequestData for EventWriter<'_, E>{
+
+pub struct WriteEvent<E: Event>(PhantomData<E>);
+impl<E: Event> RequestData for WriteEvent<E>{
     type Item<'b> = EventWriter<'b, E>;
 
     fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
@@ -87,16 +92,19 @@ impl<E: Event> RequestData for EventWriter<'_, E>{
 
 ///////////////////////////////////////////////////////////////////////////////
 // Writers
-//////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-impl RequestData for CommandWriter<'_>{
+pub struct Commands;
+pub struct Triggers;
+
+impl RequestData for Commands{
     type Item<'b> = CommandWriter<'b>;
 
     fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
         World.get_command_writer()
     }
 }
-impl RequestData for TriggerWriter<'_>{
+impl RequestData for Triggers{
     type Item<'b> = TriggerWriter<'b>;
 
     fn fetch<'a>(World: &'a World) -> Self::Item<'a> {

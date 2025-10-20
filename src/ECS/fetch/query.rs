@@ -60,9 +60,7 @@ pub trait QueryFilter{
 /// 
 /// There is no need to include it in the filters if you fetch the component,  
 /// Query automatically checks whether the requested components exist for an Entity
-pub struct With<C: Component>{
-    _phantom: PhantomData<C>
-}
+pub struct With<C: Component>(PhantomData<C>);
 impl<C: Component> QueryFilter for With<C>{
     type Item<'b> = Fetch<'b, C>;
 
@@ -77,9 +75,7 @@ impl<C: Component> QueryFilter for With<C>{
 
 /// # Query Filter: Without
 /// Only allows Entities without the specified component to pass through
-pub struct Without<C: Component>{
-    _phantom: PhantomData<C>
-}
+pub struct Without<C: Component>(PhantomData<C>);
 impl<C: Component> QueryFilter for Without<C>{
     type Item<'b> = Fetch<'b, C>;
 
