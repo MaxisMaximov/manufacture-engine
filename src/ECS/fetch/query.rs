@@ -385,6 +385,33 @@ impl<C: Component> QueryData for Option<&mut C>{
 // Tuples
 ///////////////////////////////////////////////////////////////////////////////
 
+impl QueryData for (){
+    type Item<'b> = ();
+    type AccItem<'b> = ();
+    type MutAccItem<'b> = ();
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        ()
+    }
+    fn get<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> Option<Self::AccItem<'a>> {
+        Some(())
+    }
+    fn get_mut<'a>(Fetched: &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>> {
+        Some(())
+    }
+}
+
+impl QueryFilter for (){
+    type Item<'b> = ();
+
+    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+        ()
+    }
+    fn filter<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> bool {
+        true
+    }
+}
+
 macro_rules! query_impl {
     ($($x:tt), *) => {
         #[allow(non_snake_case)]
