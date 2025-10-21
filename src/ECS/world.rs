@@ -42,6 +42,10 @@ impl World{
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////////
+    // Fetches
+    ///////////////////////////////////////////////////////////////////////////////
+
     /// Get a reference to `T` component storage
     pub fn fetch<'a, T>(&'a self) -> Fetch<'a, T> where T: Component{
         // Check if we have such component in the first place
@@ -110,6 +114,10 @@ impl World{
         self.triggers.borrow_mut()
     }
 
+    ///////////////////////////////////////////////////////////////////////////////
+    // Register
+    ///////////////////////////////////////////////////////////////////////////////
+
     /// Register `T` component in this World
     pub fn register_comp<T>(&mut self) where T: Component{
         if self.components.contains_key(T::ID){
@@ -151,6 +159,10 @@ impl World{
         self.events.deregister::<T>();
     }
 
+    ///////////////////////////////////////////////////////////////////////////////
+    // Spawn/Despawn
+    ///////////////////////////////////////////////////////////////////////////////
+
     /// Spawn a new entity
     /// 
     /// Returns a Builder that monitors the construction of the Entity
@@ -174,6 +186,10 @@ impl World{
             }
         }
     }
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // System misc
+    ///////////////////////////////////////////////////////////////////////////////
     
     /// Get Writer for the Command Queue
     pub fn get_command_writer<'a>(&'a self) -> CommandWriter<'a>{
@@ -187,7 +203,7 @@ impl World{
         self.events.swap_buffers();
     }
 
-    /// Take the full Trigger queue
+    /// Take the Trigger queue
     /// 
     /// This will initialize a new queue in it's place
     pub fn take_triggers(&mut self) -> Vec<&'static str>{
