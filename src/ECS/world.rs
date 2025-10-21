@@ -216,20 +216,6 @@ impl World{
         self.commands.take()
     }
 
-    /// Validate an Entity Token
-    /// 
-    /// Returns False if the Entity no longer exists or the Hashes are not the same
-    pub fn validate_token(&self, Token: &mut Token) -> bool{
-        match self.entities.get(&Token.id()){
-            Some(entity) => entity.hash() == Token.hash(),
-            None => false,
-        }
-    }
-
-    /// Get quick info about a given Entity
-    pub fn get_entity(&self, Id: &usize) -> Option<&Entity>{
-        self.entities.get(Id)
-    }
     /// Get the entities within the World
     pub fn get_entities(&self) -> &BTreeMap<usize, Entity>{
         &self.entities
