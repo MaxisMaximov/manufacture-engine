@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::ECS;
 
 use ECS::storage::Storage;
@@ -35,5 +37,35 @@ impl<C: Component> Storage<C> for VecStorage<C>{
     }
     fn get_mut(&mut self, Index: &usize) -> Option<&mut C> {
         self.inner.iter_mut().find(|(id, _)| id == Index).map(|(_, comp)| comp)
+    }
+}
+
+/// # HashMap Storage
+/// 
+/// Essentially a wrapper over a HashMap
+/// 
+/// It's generally recommended to use it for components that are sparsely used across entities
+pub struct HashMapStorage<C: Component>{
+    inner: HashMap<usize, C>
+}
+impl<C: Component> Storage<C> for HashMapStorage<C>{
+    fn new() -> Self {
+        Self{
+            inner: HashMap::new(),
+        }
+    }
+
+    fn insert(&mut self, Index: usize, Comp: C) {
+        self.inner.insert(Index, Comp);
+    }
+    fn remove(&mut self, Index: &usize) {
+        self.inner.remove(Index);
+    }
+
+    fn get(&self, Index: &usize) -> Option<&C> {
+        self.inner.get(Index)
+    }
+    fn get_mut(&mut self, Index: &usize) -> Option<&mut C> {
+        self.inner.get_mut(Index)
     }
 }
