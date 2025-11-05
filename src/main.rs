@@ -2,6 +2,7 @@
 #![warn(unused_crate_dependencies)]
 
 pub mod ECS;
+pub mod core;
 // pub mod manufacture;
 
 // START HERE

@@ -16,7 +16,7 @@ type Stage = Vec<Box<dyn SystemWrapper>>;
 /// 
 /// Has 2 loops:
 /// - Staller Loop -- Runs every frame
-/// - Logic Loop - Runs at most N times per second, specified by the Tickrate
+/// - Logic Loop - Runs inside Staller Loop at most N times per second, specified by the Tickrate
 pub struct Dispatcher{
     registry: HashMap<&'static str, SystemInfo>,
     preproc: Vec<Stage>,
