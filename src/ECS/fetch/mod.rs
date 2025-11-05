@@ -4,7 +4,7 @@ use std::cell::{RefMut, Ref};
 use super::comp::Component;
 use super::events::Event;
 use super::resource::Resource;
-use super::commands::CommandWrapper;
+use super::commands::{Command, CommandWrapper};
 
 pub mod query;
 pub mod request;
@@ -19,22 +19,33 @@ pub struct EventReader<'a, E: Event>{
     pub(super) inner: Ref<'a, Vec<E>>
 }
 impl<E: Event> EventReader<'_, E>{
+    /// Iterate over events sent on the previous frame
     pub fn read_iter(&self) -> impl Iterator<Item = &E>{
         self.inner.iter()
+    }
+    /// Get the number events that were sent on the previous frame
     pub fn event_count(&self) -> usize{
         self.inner.len()
     }
-    }
+}
 pub struct EventWriter<'a, E: Event>{
     pub(super) inner: RefMut<'a, Vec<E>>
 }
 impl<E: Event> EventWriter<'_, E>{
+    /// Iterate over events sent on the current frame
+    /// 
+    /// TODO: Add support for previous frame events
     pub fn iter(&self) -> impl Iterator<Item = &E>{
         self.inner.iter()
     }
+    /// Get the number of events that are present on the current frame
+    /// 
+    /// TODO: Add support for previous frame events
     pub fn event_count(&self) -> usize{
         self.inner.len()
     }
+    // The only function exclusive to Writer
+    /// Send an event
     pub fn send(&mut self, Event: E){
         self.inner.push(Event);
     }
@@ -44,9 +55,11 @@ pub struct CommandWriter<'a>{
     pub(super) inner: RefMut<'a, Vec<Box<dyn CommandWrapper>>>
 }
 impl CommandWriter<'_>{
+    /// Get the number of Commands that are currently in the queue
     pub fn command_count(&self) -> usize{
         self.inner.len()
     }
+    /// Send a Command
     pub fn send<C: Command>(&mut self, Command: C){
         self.inner.push(Box::new(Command));
     }
@@ -55,13 +68,15 @@ pub struct TriggerWriter<'a>{
     pub(super) inner: RefMut<'a, Vec<&'static str>>
 }
 impl TriggerWriter<'_>{
+    /// Get the numebr of Triggers that are currently in the queue
     pub fn trigger_count(&self) -> usize{
         self.inner.len()
     }
+    /// Send a Trigger
     pub fn send(&mut self, Trigger: &'static str){
         self.inner.push(Trigger);
-}
     }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Reexports
