@@ -43,9 +43,23 @@ impl<E: Event> EventWriter<'_, E>{
 pub struct CommandWriter<'a>{
     pub(super) inner: RefMut<'a, Vec<Box<dyn CommandWrapper>>>
 }
+impl CommandWriter<'_>{
+    pub fn command_count(&self) -> usize{
+        self.inner.len()
+    }
+    pub fn send<C: Command>(&mut self, Command: C){
+        self.inner.push(Box::new(Command));
+    }
+}
 pub struct TriggerWriter<'a>{
     pub(super) inner: RefMut<'a, Vec<&'static str>>
 }
+impl TriggerWriter<'_>{
+    pub fn trigger_count(&self) -> usize{
+        self.inner.len()
+    }
+    pub fn send(&mut self, Trigger: &'static str){
+        self.inner.push(Trigger);
 }
     }
 
