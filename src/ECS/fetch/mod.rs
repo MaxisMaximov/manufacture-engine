@@ -15,11 +15,12 @@ pub type FetchMut<'a, C: Component> = RefMut<'a, C::STORAGE>;
 pub type FetchRes<'a, R: Resource> = Ref<'a, R>;
 pub type FetchResMut<'a, R: Resource> = RefMut<'a, R>;
 
-pub type EventReader<'a, E: Event> = Ref<'a, Vec<E>>;
-pub type EventWriter<'a, E: Event> = RefMut<'a, Vec<E>>;
-
-pub type CommandWriter<'a> = RefMut<'a, Vec<Box<dyn CommandWrapper>>>;
-pub type TriggerWriter<'a> = RefMut<'a, Vec<&'static str>>;
+pub struct EventReader<'a, E: Event>{
+    pub(super) inner: Ref<'a, Vec<E>>
+}
+pub struct EventWriter<'a, E: Event>{
+    pub(super) inner: RefMut<'a, Vec<E>>
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Reexports
