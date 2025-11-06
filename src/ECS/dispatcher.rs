@@ -3,6 +3,7 @@ use std::time::{Duration, Instant};
 
 use super::system::*;
 use super::world::World;
+use crate::core::resources::DeltaT;
 
 const MAX_SYS_PER_STAGE: usize = 5;
 const TICKS_PER_SECOND: u64 = 20;
@@ -32,8 +33,14 @@ impl Dispatcher{
     }
     /// Dispatch the systems
     pub fn dispatch(&mut self, World: &mut World){
+        
+        let mut last_frame = Instant::now();
         let mut last_tick = Instant::now();
+
         loop{
+            // Update Frame DeltaT
+            World.fetch_res_mut::<DeltaT>().set_delta_frame( last_frame.elapsed().as_millis());
+
             // -- PREPROCESSORS --
             for stage in self.preproc.iter_mut(){
                 for system in stage.iter_mut(){
@@ -43,6 +50,9 @@ impl Dispatcher{
 
             // -- LOGIC LOOP --
             if last_tick.elapsed() >= TICKRATE{
+                // Update Logic DeltaT
+                World.fetch_res_mut::<DeltaT>().set_delta_logic(last_tick.elapsed().as_millis());
+
                 // -- Logic systems --
                 for stage in self.logic.iter_mut(){
                     for system in stage.iter_mut(){
@@ -63,7 +73,8 @@ impl Dispatcher{
                 for mut command in World.take_commands(){
                     command.execute(World);
                 }
-                // Update last tick
+
+                // Update last Logic tick
                 last_tick = Instant::now();
             }
 
@@ -76,6 +87,9 @@ impl Dispatcher{
             
             // Clear Events
             World.swap_event_buffers();
+
+            // Update last Frame tick
+            last_frame = Instant::now();
         }
     }
 }
