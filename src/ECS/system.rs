@@ -1,5 +1,3 @@
-use crate::ECS::fetch::query::QueryFilter;
-
 use super::world::World;
 use super::dispatcher::{RunOrder, SystemType};
 use super::fetch::*;
@@ -24,9 +22,7 @@ use super::fetch::*;
 /// ## WARNING
 /// Make sure your System's ID does not collide with IDs of Systems from other plugins
 pub trait System: 'static{
-    type QUERY: QueryData;
-    type FILTERS: QueryFilter;
-    type REQUEST: RequestData;
+    type Data: RequestData;
     const ID: &'static str;
     const DEPENDS: &'static [&'static str] = &[];
     const RUNORD: &'static [RunOrder] = &[];
@@ -35,7 +31,7 @@ pub trait System: 'static{
     /// Create a new instance of this System
     fn new() -> Self;
     /// Run the System
-    fn execute(&mut self, Query: Query<'_, Self::QUERY, Self::FILTERS>, Request: Request<'_, Self::REQUEST>);
+    fn execute(&mut self, Data: Request<'_, Self::Data>);
 }
 
 /// # System trait Wrapper
@@ -70,6 +66,6 @@ impl<T: System> SystemWrapper for T{
         T::TYPE
     }
     fn execute<'a>(&mut self, World: &'a mut World) {
-        self.execute(Query::fetch(World), Request::fetch(World));
+        self.execute(Request::fetch(World));
     }
 }
