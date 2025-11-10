@@ -111,9 +111,7 @@ impl World{
 
     /// Get writer for System Triggers
     pub fn get_trigger_writer(&self) -> TriggerWriter{
-        TriggerWriter{
-            inner: self.triggers.borrow_mut()
-        }
+        TriggerWriter(self.triggers.borrow_mut())
     }
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -195,9 +193,7 @@ impl World{
     
     /// Get Writer for the Command Queue
     pub fn get_command_writer<'a>(&'a self) -> CommandWriter<'a>{
-        CommandWriter{
-            inner: self.commands.borrow_mut()
-        }
+        CommandWriter(self.commands.borrow_mut())
     }
 
     /// Swap buffers of EventMap
