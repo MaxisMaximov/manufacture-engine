@@ -4,14 +4,28 @@ pub use super::{
     system::System,
     world::World,
     resource::Resource,
-    dispatcher::Dispatcher,
+    dispatcher::{
+        Dispatcher,
+        RunOrder,
+        SystemType
+    },
     events::Event,
     commands::Command,
     entity::Token,
     fetch::{
-        EventReader,
-        EventWriter,
-        CommandWriter,
-        TriggerWriter,
+        // -- Query --
+        Query,
+        QueryData,
+        QueryFilter,
+        With,
+        Without,
+        // -- Events --
+        ReadEvent,
+        WriteEvent,
+        // -- Requests --
+        Request,
+        RequestData,
+        Triggers,
+        Commands,
     }
 };

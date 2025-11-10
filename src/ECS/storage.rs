@@ -54,7 +54,7 @@ pub trait Storage<T: Component>{
 /// # Storage trait Container
 /// Wraps a Component's `STORAGE` to safely store it within the world
 /// 
-/// It is required as compound generics *(`U: Trait_A, T: Trait<U>)* aren't supported yet
+/// It is required as compound generics *(`U: Trait_A, T: Trait<U>`)* aren't supported yet
 /// 
 /// To get the underlying `STORAGE`, use a dereference
 pub struct StorageContainer<T: Component>{
