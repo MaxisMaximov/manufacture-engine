@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use super::comp::Component;
 use super::storage::Storage;
 use super::world::World;
@@ -81,14 +83,18 @@ impl Token{
 #[must_use]
 pub struct EntityBuilder<'a>{
     pub(super) entity: usize,
-    pub(super) world_ref: &'a mut World
+    pub(super) world_ref: &'a mut World,
+    pub(super) components: HashSet<&'static str>
 }
 impl<'a> EntityBuilder<'a>{
     /// Add a specified component to the current Entity
-    pub fn with<T: Component>(self, Comp: T) -> Self{
+    pub fn with<T: Component>(mut self, Comp: T) -> Self{
         self.world_ref.fetch_mut::<T>().insert(self.entity, Comp);
+        self.components.insert(T::ID);
         self
     }
-
+    pub fn components(&self) -> &HashSet<&'static str>{
+        &self.components
+    }
     pub fn finish(self){}
 }

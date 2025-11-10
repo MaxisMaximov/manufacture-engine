@@ -87,11 +87,11 @@ impl EventBufferMap{
         // We have checks for valid ID and a backup Queue, so we can safely unwrap
         let queue = self.write_buffer.get(T::ID).unwrap();
 
-        EventReader{
-            inner: Ref::map(
+        EventReader(
+            Ref::map(
                 queue.borrow(), 
                 |x| x.downcast_ref::<T>())
-        }
+            )
     }
     /// Get a Writer for an Event
     /// 
@@ -105,11 +105,11 @@ impl EventBufferMap{
         // We have checks for valid ID and a backup Queue, so we can safely unwrap
         let queue = self.read_buffer.get(T::ID).unwrap();
 
-        EventWriter{
-            inner: RefMut::map(
+        EventWriter(
+            RefMut::map(
                 queue.borrow_mut(),
                 |x| x.downcast_mut::<T>())
-        }
+            )
     }
     pub fn get_active_events(&self) -> Box<[&'static str]>{
 

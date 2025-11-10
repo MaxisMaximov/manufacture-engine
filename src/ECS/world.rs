@@ -1,5 +1,5 @@
 use std::cell::{RefCell, Ref, RefMut};
-use std::collections::{HashMap, BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use super::events::*;
 use super::resource::*;
@@ -174,6 +174,7 @@ impl World{
                 next_id
             },
             world_ref: self,
+            components: HashSet::new()
         }
     }
     /// Despawn the given Entity
