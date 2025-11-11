@@ -4,12 +4,8 @@ use super::fetch::*;
 
 /// # System trait
 /// Defines a System that will be run on the World
-/// 
-/// `QUERY` is the query for components the System wants from the Word
-/// 
-/// `FILTERS` are filters for Query to use when fetching data
-/// 
-/// `REQUEST` are the System resources the System wants from the World, like Resources, Event Readers/Writers and Command Writer
+///
+/// `Data` is the Data the System wants from the World, like Components Query, Resources, Event Readers/Writers and Command Writer
 /// 
 /// `ID` is what the System will be identified by for future overrides
 /// 
@@ -35,7 +31,7 @@ pub trait System: 'static{
 }
 
 /// # System trait Wrapper
-/// A wrapper trait for Systems to safely dispatch them in the Dispatcher
+/// A wrapper trait for Systems to safely store and dispatch them in the Dispatcher
 /// 
 /// Provides methods for accessing the specifics of the underlying System
 pub trait SystemWrapper{

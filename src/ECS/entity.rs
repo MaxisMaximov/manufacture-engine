@@ -17,7 +17,7 @@ pub struct Entity{
 }
 impl Entity{
     /// Create a new Entity with given ID
-    pub fn new(Id: usize) -> Self{
+    pub(super) fn new(Id: usize) -> Self{
         Self{
             id: Id,
             hash: rand::random()
@@ -93,8 +93,10 @@ impl<'a> EntityBuilder<'a>{
         self.components.insert(T::ID);
         self
     }
+    /// Get the list of components added to the Entity
     pub fn components(&self) -> &HashSet<&'static str>{
         &self.components
     }
+    /// "Finish" the building process
     pub fn finish(self){}
 }

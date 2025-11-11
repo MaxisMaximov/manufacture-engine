@@ -13,6 +13,8 @@ pub trait Storage<T: Component>{
     /// Insert a Component for the specified Entity into this Storage
     fn insert(&mut self, Index: usize, Comp: T);
     /// Insert the Component for the Entity referenced by the Token into this Storage
+    /// 
+    /// It's recommended to ensure the Token is valid beforehand
     fn insert_with_token(&mut self, Token: &Token, Comp: T){
         if !Token.valid(){
             return
@@ -23,6 +25,8 @@ pub trait Storage<T: Component>{
     /// Remove the specified Entity's Component from this Storage
     fn remove(&mut self, Index: &usize);
     /// Remove the Component from the Entity referenced by the Token from this Storage
+    /// 
+    /// It's recommended to ensure the Token is valid beforehand
     fn remove_with_token(&mut self, Token: &Token){
         if !Token.valid(){
             return
@@ -33,7 +37,9 @@ pub trait Storage<T: Component>{
     /// Get a reference to the specified Entity's Component from this storage
     fn get(&self, Index: &usize) -> Option<&T>;
     /// Get a reference to the Component from this storage of the Entity refereced by the Token
-    fn get_from_token(&self,Token: &Token, Index: &usize) -> Option<&T>{
+    /// 
+    /// It's recommended to ensure the Token is valid beforehand
+    fn get_from_token(&self, Token: &Token) -> Option<&T>{
         if !Token.valid(){
             return None
         }
@@ -43,7 +49,9 @@ pub trait Storage<T: Component>{
     /// Get a mutable reference to the specified Entity's Component from this storage
     fn get_mut(&mut self, Index: &usize) -> Option<&mut T>;
     /// Get a mutable reference to the Component from this storage of the Entity refereced by the Token
-    fn get_from_token_mut(&mut self, Token: &Token, Index: &usize) -> Option<&mut T>{
+    /// 
+    /// It's recommended to ensure the Token is valid beforehand
+    fn get_from_token_mut(&mut self, Token: &Token) -> Option<&mut T>{
         if !Token.valid(){
             return None
         }

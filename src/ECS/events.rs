@@ -111,8 +111,11 @@ impl EventBufferMap{
                 |x| x.downcast_mut::<T>())
             )
     }
+    /// Get a list of events currently in the Read Buffer
+    /// 
+    /// Called "active" as they're the ones being read in the current frame
     pub fn get_active_events(&self) -> Box<[&'static str]>{
-
+        // Bit of a mess, but it works
         self.read_buffer.iter()
             .map_while(
                 |(id, queue)|

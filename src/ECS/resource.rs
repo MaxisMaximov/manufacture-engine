@@ -7,7 +7,7 @@
 /// Make sure your Resource ID does not collide with other IDs from other plugins
 pub trait Resource: 'static{
     const ID: &'static str;
-
+    /// Create a new instance of this Resource
     fn new() -> Self;
 }
 
@@ -16,11 +16,11 @@ pub trait Resource: 'static{
 /// 
 /// Provides ID method for identifying and Downcast methods to get the underlying Resource
 pub trait ResourceWrapper{
+    /// Get the underlying Resource's ID
     fn id(&self) -> &'static str;
 }
 
 impl<T: Resource> ResourceWrapper for T{
-    /// Get the underlying Resource's ID
     fn id(&self) -> &'static str {
         T::ID
     }

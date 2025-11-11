@@ -40,7 +40,7 @@ impl Dispatcher{
         let mut last_tick = Instant::now();
 
         loop{
-            // Update Frame DeltaT
+            // Update Frame Delta
             World.fetch_res_mut::<DeltaT>().set_delta_frame( last_frame.elapsed().as_millis());
 
             // -- PREPROCESSORS --
@@ -52,7 +52,7 @@ impl Dispatcher{
 
             // -- LOGIC LOOP --
             if last_tick.elapsed() >= TICKRATE{
-                // Update Logic DeltaT
+                // Update Logic Delta
                 World.fetch_res_mut::<DeltaT>().set_delta_logic(last_tick.elapsed().as_millis());
 
                 // -- Logic systems --
@@ -125,7 +125,7 @@ impl DispatcherBuilder{
     pub fn add<S: System>(&mut self){
 
         if self.registry.contains_key(S::ID){
-            panic!("ERROR: System {} already exists", S::ID)
+            panic!("ERROR: Conflicting system IDs {}", S::ID)
         }
 
         self.registry.insert(S::ID, SystemInfo::new::<S>());
@@ -263,11 +263,6 @@ impl StagesBuilder{
             if shifts.len() == layer.len(){
                 panic!("ERROR: There are circular run orders between {} systems:\n{:#?}\nPlease resolve them", layer.len(), layer.keys())
             }
-
-            // This is here to ensure the layer reference gets dropped
-            // The compiler doesn't complain that we're pushing to the graph while having
-            // a part of it borrowed in the later step, no idea why, usually it yells at me for that
-            drop(layer);
 
             // Push a new layer and move all the shifted systems from current layer to next layer
             graph.push(HashMap::new());
