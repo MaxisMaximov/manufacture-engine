@@ -114,6 +114,11 @@ impl World{
         TriggerWriter(self.triggers.borrow_mut())
     }
 
+    /// Get writer for the Command Queue
+    pub fn get_command_writer<'a>(&'a self) -> CommandWriter<'a>{
+        CommandWriter(self.commands.borrow_mut())
+    }
+
     ///////////////////////////////////////////////////////////////////////////////
     // Register
     ///////////////////////////////////////////////////////////////////////////////
@@ -179,7 +184,7 @@ impl World{
     }
     /// Despawn the given Entity
     /// 
-    /// This will drop all of the Entity's components
+    /// This drops all of the Entity's components from all Storages
     pub fn despawn(&mut self, Id: usize){
         if self.entities.remove(&Id).is_some(){
             for storage in self.components.values_mut(){
@@ -187,31 +192,48 @@ impl World{
             }
         }
     }
+    /// Despawn the given Entity via Token
+    /// 
+    /// This drops all of the Entity's components from all Storages
+    /// 
+    /// Note: This consumes the Token, whether valid or not. 
+    /// If you're holding the Token in a struct, get a new Token
+    pub fn despawn_with_token(&mut self, Token: Token){
+        if !Token.valid(){
+            return
+        }
+
+        if let Some(entity) = self.entities.get(&Token.id()){
+            if entity.hash() != Token.hash(){
+                return
+            }
+            
+            self.entities.remove(&Token.id());
+            for storage in self.components.values_mut(){
+                storage.borrow_mut().as_mut().remove(Token.id());
+            }
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////////
     // System misc
     ///////////////////////////////////////////////////////////////////////////////
-    
-    /// Get Writer for the Command Queue
-    pub fn get_command_writer<'a>(&'a self) -> CommandWriter<'a>{
-        CommandWriter(self.commands.borrow_mut())
-    }
 
     /// Swap buffers of EventMap
-    pub fn swap_event_buffers(&mut self){
+    pub(super) fn swap_event_buffers(&mut self){
         self.events.swap_buffers();
     }
 
     /// Take the Trigger queue
     /// 
     /// This will initialize a new queue in it's place
-    pub fn take_triggers(&mut self) -> Vec<&'static str>{
+    pub(super) fn take_triggers(&mut self) -> Vec<&'static str>{
         self.triggers.take()
     }
     /// Take the full Command queue
     /// 
     /// This will initialize a new queue in it's place
-    pub fn take_commands(&mut self) -> Vec<Box<dyn CommandWrapper>>{
+    pub(super) fn take_commands(&mut self) -> Vec<Box<dyn CommandWrapper>>{
         self.commands.take()
     }
 
