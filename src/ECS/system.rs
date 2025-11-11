@@ -10,7 +10,7 @@ use super::fetch::*;
 /// `ID` is what the System will be identified by for future overrides
 /// 
 /// `OVERRIDE` marks this system as an override of a system with same ID. 
-/// Note: If multiple systems are marked as overrides of the same system, only the first loaded plugin gets the go. Every system is nto an override by default. 
+/// Note: If multiple systems are marked as overrides of the same system, only the last loaded plugin gets the go. Every system is not an override by default. 
 /// TODO: Priority system for overrides? Multiple overrides at the same time?
 /// 
 /// `DEPENDS` are the Systems that must be registered for this System, the System has no dependencies by default

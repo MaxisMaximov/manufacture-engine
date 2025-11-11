@@ -123,11 +123,11 @@ impl DispatcherBuilder{
     }
     /// Add a system to the Dispatcher
     pub fn add<S: System>(&mut self){
-
-        if self.registry.contains_key(S::ID){
-            panic!("ERROR: Conflicting system IDs {}", S::ID)
+        // The system has the same ID but is not an override, we can't have it here
+        if self.registry.contains_key(S::ID) && !S::OVERRIDE{
+            panic!("ERROR: Conflicting system IDs {}\nDid you mean to override the system?", S::ID)
         }
-
+        // Also acts as an auto override for the registry, neat
         self.registry.insert(S::ID, SystemInfo::new::<S>());
 
         match S::TYPE{
@@ -176,7 +176,8 @@ struct SystemInfo{
     id: &'static str,
     depends: &'static [&'static str],
     run_ord: &'static [RunOrder],
-    sys_type: SystemType
+    sys_type: SystemType,
+    overr: bool
 }
 impl SystemInfo{
     fn new<S: System>() -> Self{
@@ -185,6 +186,7 @@ impl SystemInfo{
             depends: S::DEPENDS,
             run_ord: S::RUNORD,
             sys_type: S::TYPE,
+            overr: S::OVERRIDE
         }
     }
 }
@@ -193,24 +195,19 @@ impl SystemInfo{
 /// Builds a stage graph for Dispatcher to execute using provided Systems
 #[must_use]
 struct StagesBuilder{
-    systems: HashMap<&'static str, Box<dyn SystemWrapper>>,
-    overrides: Vec<Box<dyn SystemWrapper>>
+    systems: HashMap<&'static str, Box<dyn SystemWrapper>>
 }
 impl StagesBuilder{
     /// Start building a new collection of Stages
     fn new() -> Self{
         Self{
-            systems: HashMap::new(),
-            overrides: Vec::new()
+            systems: HashMap::new()
         }
     }
     /// Add a System to this builder
     fn add<S: System>(&mut self){
-        if S::OVERRIDE{
-            self.overrides.push(Box::new(S::new()));
-        }else{
-            self.systems.insert(S::ID, Box::new(S::new()));
-        }
+        // Realized there's no need to put overrides into a sepparate queue, we haven't started the build process yet, so we can safely override them right here
+        self.systems.insert(S::ID, Box::new(S::new()));
     }
     /// Build the graph
     fn build_run_order_graph(&self) -> Vec<Vec<&'static str>>{
@@ -293,12 +290,6 @@ impl StagesBuilder{
     }
     /// Build the Stages for Dispatcher to use
     fn build(mut self) -> Vec<Stage>{
-        // Override the systems, as at this point all of them should be registered
-        while let Some(overr) = self.overrides.pop(){
-            if let Some(system) = self.systems.get_mut(overr.id()){
-                *system = overr
-            }
-        }
 
         let mut stages = Vec::new();
 
