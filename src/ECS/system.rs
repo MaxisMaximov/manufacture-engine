@@ -9,6 +9,10 @@ use super::fetch::*;
 /// 
 /// `ID` is what the System will be identified by for future overrides
 /// 
+/// `OVERRIDE` marks this system as an override of a system with same ID. 
+/// Note: If multiple systems are marked as overrides of the same system, only the first loaded plugin gets the go. Every system is nto an override by default. 
+/// TODO: Priority system for overrides? Multiple overrides at the same time?
+/// 
 /// `DEPENDS` are the Systems that must be registered for this System, the System has no dependencies by default
 /// 
 /// `RUNORD` specifies what Systems should this System be run before/after, the System has no Run Orders be default
@@ -20,6 +24,7 @@ use super::fetch::*;
 pub trait System: 'static{
     type Data: RequestData;
     const ID: &'static str;
+    const OVERRIDE: bool = false;
     const DEPENDS: &'static [&'static str] = &[];
     const RUNORD: &'static [RunOrder] = &[];
     const TYPE: SystemType = SystemType::Logic;
