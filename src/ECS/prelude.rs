@@ -17,8 +17,6 @@ pub use super::{
         Query,
         QueryData,
         QueryFilter,
-        With,
-        Without,
         // -- Events --
         ReadEvent,
         WriteEvent,

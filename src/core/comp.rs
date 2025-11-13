@@ -1,8 +1,6 @@
 use std::collections::HashSet;
 
-use super::ECS;
-
-use ECS::comp::Component;
+use super::*;
 use crate::core::storage::*;
 
 /// A simple 2D Coordinate type

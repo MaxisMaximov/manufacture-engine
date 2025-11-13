@@ -1,6 +1,4 @@
-use super::ECS;
-
-use ECS::resource::Resource;
+use super::*;
 
 /// # Delta Time Resources
 /// Tracks milliseconds elapsed since last frame and last Logic run. Use provided `delta_frame` and `delta_logic` methods to get the time

@@ -1,4 +1,4 @@
-use super::ECS;
+use super::ECS::prelude::*;
 
 pub mod commands;
 pub mod comp;

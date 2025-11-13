@@ -1,9 +1,6 @@
 use std::collections::{BTreeMap, HashMap};
 
-use super::ECS;
-
-use ECS::storage::Storage;
-use ECS::comp::Component;
+use super::*;
 
 /// # Vec Storage
 /// The simplest component storage possible
