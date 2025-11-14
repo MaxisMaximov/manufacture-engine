@@ -3,29 +3,6 @@ use std::collections::HashSet;
 use super::*;
 use crate::core::storage::*;
 
-/// A simple 2D Coordinate type
-pub struct Vector2{
-    pub x: f32,
-    pub y: f32,
-}
-impl Component for Vector2{
-    type STORAGE = BTreeMapStorage<Self>;
-
-    const ID: &'static str = "Vector2";
-}
-
-/// A simple 3D coordinate type
-pub struct Vector3{
-    pub x: f32,
-    pub y: f32,
-    pub z: f32
-}
-impl Component for Vector3{
-    type STORAGE = BTreeMapStorage<Self>;
-
-    const ID: &'static str = "Vector3";
-}
-
 /// Holds tags for a given Entity
 pub struct Tags{
     pub inner: HashSet<&'static str>

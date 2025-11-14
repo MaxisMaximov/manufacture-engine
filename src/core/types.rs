@@ -35,3 +35,15 @@ impl<C: Component> QueryFilter for Without<C>{
         Fetched.get(Index).is_none()
     }
 }
+
+/// A simple 2D coordinate type
+pub struct Vector2{
+    pub x: f32,
+    pub y: f32
+}
+/// A simple 3D coordinate type
+pub struct Vector3{
+    pub x: f32,
+    pub y: f32,
+    pub z: f32
+}
