@@ -40,12 +40,67 @@ use std::ops::{
     Add,
     AddAssign,
     Sub,
-    SubAssign
+    SubAssign,
+    Mul,
+    MulAssign,
+    Div,
+    DivAssign
 };
 /// A simple 2D coordinate type
+#[derive(Clone, Copy)]
 pub struct Vector2{
     pub x: f32,
     pub y: f32
+}
+impl Vector2{
+    pub fn new(x: f32, y: f32) -> Self {
+        Self { x, y }
+    }
+    pub fn dot(&self, other: &Self) -> f32{
+        (self.x * other.x) + (self.y * other.y)
+    }
+    pub fn project(&self, other: &Self) -> Self{
+        let scalar = self.dot(other)/other.length().powi(2);
+        Self{
+            x: other.x * scalar,
+            y: other.y * scalar,
+        }
+    }
+    pub fn reflected(&self, other: &Self) -> Self{
+        self.project(other) * 2.0 - *self
+    }
+    pub fn distance(&self, other: &Self) -> f32{
+        (*self - *other).length()
+    }
+    pub fn reverse(&mut self){
+        self.x = -self.x;
+        self.y = -self.y;
+    }
+    pub fn reversed(&self) -> Self{
+        Self{
+            x: -self.x,
+            y: -self.y,
+        }
+    }
+    pub fn normalize(&mut self){
+        let len = self.length();
+        self.x /= len;
+        self.y /= len;
+    }
+    pub fn normalized(&self) -> Self{
+        let len = self.length();
+        Self{
+            x: self.x / len,
+            y: self.y / len,
+        }
+    }
+    pub fn angle_between(&self, other: &Self) -> f32{
+        (self.dot(&other) / (self.length() * other.length())).acos()
+    }
+    pub fn length(&self) -> f32{
+        (self.x.powi(2) + self.y.powi(2)).sqrt()
+    }
+
 }
 impl std::fmt::Display for Vector2{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
