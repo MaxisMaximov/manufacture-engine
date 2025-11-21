@@ -53,28 +53,42 @@ pub struct Vector2{
     pub y: f32
 }
 impl Vector2{
+    /// Create a new 2D Vector
     pub fn new(x: f32, y: f32) -> Self {
         Self{x, y}
     }
+    /// Returns the dot product of `self` and `other`
+    /// 
+    /// Simpler explanation: How similar the two Vectors are
+    /// - Sign defines direction, positive means same direction, negative means opposite direction
+    /// - Value defines how similar the magnitude is
     pub fn dot(self, other: Self) -> f32{
         (self.x * other.x) + (self.y * other.y)
     }
+    /// Returns a Vector that's a projection of `self` onto `other`
+    /// 
+    /// Simpler explanation: It flattens `self` onto `other`
     pub fn project(self, other: Self) -> Self{
         let scalar = self.dot(other)/other.magnitude().powi(2);
         self * scalar
     }
+    /// Returns a reflection of `self` around `other`
     pub fn reflect(self, other: Self) -> Self{
         self.project(other) * 2.0 - self
     }
+    /// Returns distance between endpoint of `self` and `other`
     pub fn distance(self, other: Self) -> f32{
         (self - other).magnitude()
     }
+    /// Returns self normalized to magnitude of 1
     pub fn normalize(self) -> Self{
         self / self.magnitude()
     }
+    /// Returns the angle between `self` and `other` in Radians
     pub fn angle_between(self, other: Self) -> f32{
         (self.dot(other) / (self.magnitude() * other.magnitude())).acos()
     }
+    /// Returns the length of `self`
     pub fn magnitude(self) -> f32{
         (self.x.powi(2) + self.y.powi(2)).sqrt()
     }
