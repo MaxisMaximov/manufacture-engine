@@ -54,50 +54,28 @@ pub struct Vector2{
 }
 impl Vector2{
     pub fn new(x: f32, y: f32) -> Self {
-        Self { x, y }
+        Self{x, y}
     }
-    pub fn dot(&self, other: &Self) -> f32{
+    pub fn dot(self, other: Self) -> f32{
         (self.x * other.x) + (self.y * other.y)
     }
-    pub fn project(&self, other: &Self) -> Self{
-        let scalar = self.dot(other)/other.length().powi(2);
-        Self{
-            x: other.x * scalar,
-            y: other.y * scalar,
-        }
+    pub fn project(self, other: Self) -> Self{
+        let scalar = self.dot(other)/other.magnitude().powi(2);
+        self * scalar
     }
-    pub fn reflected(&self, other: &Self) -> Self{
-        self.project(other) * 2.0 - *self
+    pub fn reflect(self, other: Self) -> Self{
+        self.project(other) * 2.0 - self
     }
-    pub fn distance(&self, other: &Self) -> f32{
-        (*self - *other).length()
+    pub fn distance(self, other: Self) -> f32{
+        (self - other).magnitude()
     }
-    pub fn reverse(&mut self){
-        self.x = -self.x;
-        self.y = -self.y;
+    pub fn normalize(self) -> Self{
+        self / self.magnitude()
     }
-    pub fn reversed(&self) -> Self{
-        Self{
-            x: -self.x,
-            y: -self.y,
-        }
+    pub fn angle_between(self, other: Self) -> f32{
+        (self.dot(other) / (self.magnitude() * other.magnitude())).acos()
     }
-    pub fn normalize(&mut self){
-        let len = self.length();
-        self.x /= len;
-        self.y /= len;
-    }
-    pub fn normalized(&self) -> Self{
-        let len = self.length();
-        Self{
-            x: self.x / len,
-            y: self.y / len,
-        }
-    }
-    pub fn angle_between(&self, other: &Self) -> f32{
-        (self.dot(&other) / (self.length() * other.length())).acos()
-    }
-    pub fn length(&self) -> f32{
+    pub fn magnitude(self) -> f32{
         (self.x.powi(2) + self.y.powi(2)).sqrt()
     }
 
