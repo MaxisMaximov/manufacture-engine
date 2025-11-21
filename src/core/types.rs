@@ -36,11 +36,87 @@ impl<C: Component> QueryFilter for Without<C>{
     }
 }
 
+use std::ops::{
+    Add,
+    AddAssign,
+    Sub,
+    SubAssign
+};
 /// A simple 2D coordinate type
 pub struct Vector2{
     pub x: f32,
     pub y: f32
 }
+impl std::fmt::Display for Vector2{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("({}, {})", self.x, self.y))
+    }
+}
+impl Add for Vector2{
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self{
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+impl AddAssign for Vector2{
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+    }
+}
+impl Sub for Vector2{
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self{
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+impl SubAssign for Vector2{
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y
+    }
+}
+impl Mul<f32> for Vector2{
+    type Output = Self;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        Self{
+            x: self.x * rhs,
+            y: self.y * rhs
+        }
+    }
+}
+impl MulAssign<f32> for Vector2{
+    fn mul_assign(&mut self, rhs: f32) {
+        self.x *= rhs;
+        self.y *= rhs;
+    }
+}
+impl Div<f32> for Vector2{
+    type Output = Self;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        Self{
+            x: self.x / rhs,
+            y: self.y / rhs,
+        }
+    }
+}
+impl DivAssign<f32> for Vector2 {
+    fn div_assign(&mut self, rhs: f32) {
+        self.x /= rhs;
+        self.y /= rhs;
+    }
+}
+
 /// A simple 3D coordinate type
 pub struct Vector3{
     pub x: f32,
