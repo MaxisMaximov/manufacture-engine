@@ -170,3 +170,80 @@ pub struct Vector3{
     pub y: f32,
     pub z: f32
 }
+impl std::fmt::Display for Vector3{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("({}, {})", self.x, self.y))
+    }
+}
+impl Add for Vector3{
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self{
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z
+        }
+    }
+}
+impl AddAssign for Vector3{
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z
+    }
+}
+impl Sub for Vector3{
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self{
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z
+        }
+    }
+}
+impl SubAssign for Vector3{
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+        self.z -= rhs.z
+    }
+}
+impl Mul<f32> for Vector3{
+    type Output = Self;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        Self{
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs
+        }
+    }
+}
+impl MulAssign<f32> for Vector3{
+    fn mul_assign(&mut self, rhs: f32) {
+        self.x *= rhs;
+        self.y *= rhs;
+        self.z *= rhs
+    }
+}
+impl Div<f32> for Vector3{
+    type Output = Self;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        Self{
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs
+        }
+    }
+}
+impl DivAssign<f32> for Vector3 {
+    fn div_assign(&mut self, rhs: f32) {
+        self.x /= rhs;
+        self.y /= rhs;
+        self.z /= rhs
+    }
+}
