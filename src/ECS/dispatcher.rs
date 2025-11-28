@@ -87,6 +87,19 @@ impl Dispatcher{
                 }
             }
             
+            // Check system-level events
+            {
+                use crate::core::events;
+                // Borrow for an extended period of time
+                let events = World.get_events();
+
+                // App exit
+                let event = events.get_reader::<events::ExitApp>();
+                if event.event_count() > 0{
+                    panic!("{} requests for shutdown have been sent with following error codes: {:?}", event.event_count(), event.iter().map(|event| event.0).collect::<Vec<i32>>())
+                }
+            }
+
             // Clear Events
             World.swap_event_buffers();
 
