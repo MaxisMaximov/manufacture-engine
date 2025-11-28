@@ -2,6 +2,35 @@ use std::collections::HashSet;
 
 use super::*;
 use crate::core::storage::*;
+use super::types::{Vector2, Vector3};
+
+/// 2D Transform component
+/// 
+/// Holds XY position, head-on rotation in Radians and XY scale
+pub struct Transform2D{
+    pub loc: Vector2,
+    pub rot: f32,
+    pub scale: Vector2
+}
+impl Component for Transform2D{
+    type STORAGE = BTreeMapStorage<Self>;
+
+    const ID: &'static str = "Transform2D";
+}
+
+/// 3D Transform component
+/// 
+/// Holds position in all 3 axis, XYZ Euler rotation in Radians and scale in all 3 axis
+pub struct Transform3D{
+    pub loc: Vector3,
+    pub rot: Vector3,
+    pub scale: Vector3
+}
+impl Component for Transform3D{
+    type STORAGE = BTreeMapStorage<Self>;
+
+    const ID: &'static str = "Transform3D";
+}
 
 /// Holds tags for a given Entity
 pub struct Tags{
@@ -16,6 +45,9 @@ impl Component for Tags{
 /// A Command-Line-exclusive sprite
 /// 
 /// Represents a 2D ASCII art image
+/// 
+/// Individual *"pixels"* are `(ch, fg, bg)` tuples: `ch`aracter, `f`ore`g`round color and `b`ack`g`round color.  
+/// FG and BG colors are `(R, G, B)` tuples that use `u8` as values
 pub struct CMDSprite{
     pub size_x: u8,
     pub size_y: u8,
