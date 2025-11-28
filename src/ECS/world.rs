@@ -176,7 +176,7 @@ impl World{
             entity: {
                 let next_id = self.next_free.pop_first().unwrap_or(self.entities.len());
                 self.entities.insert(next_id, Entity::new(next_id));
-                next_id
+                self.entities.get(&next_id).unwrap().get_token()
             },
             world_ref: self,
             components: HashSet::new()
@@ -184,35 +184,43 @@ impl World{
     }
     /// Despawn the given Entity
     /// 
+    /// Returns `true` if the entity was found and removed, otherwise `false`
+    /// 
     /// This drops all of the Entity's components from all Storages
-    pub fn despawn(&mut self, Id: usize){
+    pub fn despawn(&mut self, Id: usize) -> bool{
         if self.entities.remove(&Id).is_some(){
             for storage in self.components.values_mut(){
                 storage.borrow_mut().as_mut().remove(Id);
-            }
+            };
+            return true
         }
+        false
     }
     /// Despawn the given Entity via Token
     /// 
     /// This drops all of the Entity's components from all Storages
     /// 
+    /// Returns `true` if the entity was found and removed, otherwise `false`
+    /// 
     /// Note: This consumes the Token, whether valid or not. 
     /// If you're holding the Token in a struct, get a new Token
-    pub fn despawn_with_token(&mut self, Token: Token){
+    pub fn despawn_with_token(&mut self, Token: Token) -> bool{
         if !Token.valid(){
-            return
+            return false
         }
 
         if let Some(entity) = self.entities.get(&Token.id()){
             if entity.hash() != Token.hash(){
-                return
+                return false
             }
             
             self.entities.remove(&Token.id());
             for storage in self.components.values_mut(){
                 storage.borrow_mut().as_mut().remove(Token.id());
             }
+            return true
         }
+        false
     }
 
     ///////////////////////////////////////////////////////////////////////////////
