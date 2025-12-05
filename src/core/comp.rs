@@ -21,6 +21,8 @@ impl Component for Transform2D{
 /// 3D Transform component
 /// 
 /// Holds position in all 3 axis, XYZ Euler rotation in Radians and scale in all 3 axis
+/// 
+/// Note: Z is up in this engine
 pub struct Transform3D{
     pub loc: Vector3,
     pub rot: Vector3,
@@ -42,7 +44,7 @@ impl Component for Tags{
     const ID: &'static str = "Tags";
 }
 
-/// A Command-Line-exclusive sprite
+/// A Command-Line sprite
 /// 
 /// Represents a 2D ASCII art image
 /// 
@@ -51,6 +53,7 @@ impl Component for Tags{
 pub struct CMDSprite{
     pub size_x: u8,
     pub size_y: u8,
+    pub z_index: u16,
     pub data: Vec<(char, (u8, u8, u8), (u8, u8, u8))> // Symbol, Foreground RGB, Background RGB
 }
 impl Component for CMDSprite{
@@ -61,7 +64,7 @@ impl Component for CMDSprite{
 
 /// Identifies an Entity as being controlled by the player
 /// 
-/// Typically used to control player movement
+/// Typically used to direct player actions to a specific entity
 pub struct PlayerController{
     pub pid: u16,
     pub active: bool,
