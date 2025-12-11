@@ -2,6 +2,7 @@ use std::marker::PhantomData;
 
 use super::*;
 use crate::ECS::fetch::Fetch;
+use crate::ECS::entity::EntityBuilder;
 
 mod vector;
 pub use vector::*;
@@ -37,4 +38,8 @@ impl<C: Component> QueryFilter for Without<C>{
     fn filter<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> bool {
         Fetched.get(Index).is_none()
     }
+}
+pub trait EntityPrefab{
+    const ID: &'static str = "idkfa";
+    fn spawn(&self, Builder: EntityBuilder<'_>);
 }
