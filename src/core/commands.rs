@@ -36,8 +36,9 @@ impl<T: EntityPrefab + 'static> Command for SpawnPrefab<T>{
 pub struct DespawnID(pub usize);
 impl Command for DespawnID{
     fn execute(&mut self, World: &mut World) {
-        World.despawn(self.0);
-        World.get_event_writer::<EntityDespawned>().send(EntityDespawned(self.0));
+        if World.despawn(self.0){
+            World.get_event_writer::<EntityDespawned>().send(EntityDespawned(self.0));
+        }
     }
 }
 

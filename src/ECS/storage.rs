@@ -68,18 +68,6 @@ pub trait Storage<T: Component>{
 pub struct StorageContainer<T: Component>{
     inner: T::STORAGE
 }
-impl<T: Component> Deref for StorageContainer<T>{
-    type Target = T::STORAGE;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-} 
-impl<T: Component> DerefMut for StorageContainer<T>{
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
-    }
-}
 impl<T: Component> StorageContainer<T>{
     /// Create a new wrapper for a Component's Storage
     pub fn new() -> Self{
@@ -90,6 +78,18 @@ impl<T: Component> StorageContainer<T>{
     /// Get the underlying Storage's Component ID
     pub fn comp_id(&self) -> &'static str{
         T::ID
+    }
+}
+impl<T: Component> Deref for StorageContainer<T>{
+    type Target = T::STORAGE;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+} 
+impl<T: Component> DerefMut for StorageContainer<T>{
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
     }
 }
 

@@ -5,13 +5,13 @@ use super::fetch::*;
 /// # System trait
 /// Defines a System that will be run on the World
 ///
-/// `Data` is the Data the System wants from the World, like Components Query, Resources, Event Readers/Writers and Command Writer
+/// `Data` is the Data the System wants from the World, like Components Query, Resources, Event Readers/Writers, etc.
 /// 
-/// `ID` is what the System will be identified by for future overrides
+/// `ID` is what the System is identified by in the Dispatcher and in Overrides
 /// 
-/// `OVERRIDE` marks this system as an override of a system with same ID. 
-/// Note: If multiple systems are marked as overrides of the same system, only the last loaded plugin gets the go. Every system is not an override by default. 
-/// TODO: Priority system for overrides? Multiple overrides at the same time?
+/// `OVERRIDE` marks this System as an override of a System with same ID. 
+/// Note: If multiple Systems are marked as overrides of the same System, only the last loaded plugin gets the go. Every System is not an override by default. 
+/// TODO: Priority System for overrides? Multiple overrides at the same time?
 /// 
 /// `DEPENDS` are the Systems that must be registered for this System, the System has no dependencies by default
 /// 

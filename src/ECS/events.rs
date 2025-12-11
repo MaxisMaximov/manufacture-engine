@@ -1,5 +1,5 @@
 use std::cell::{Ref, RefCell, RefMut};
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, HashSet};
 
 use super::fetch::{EventReader, EventWriter};
 
@@ -103,14 +103,15 @@ impl EventBufferMap{
         }
 
         // We have checks for valid ID and a backup Queue, so we can safely unwrap
-        let queue = self.read_buffer.get(T::ID).unwrap();
+        let read_queue = self.read_buffer.get(T::ID).unwrap();
+        let write_queue = self.write_buffer.get(T::ID).unwrap();
 
         EventWriter{
             read: Ref::map(
-                queue.borrow(), 
+                read_queue.borrow(), 
                 |x| x.downcast_ref::<T>()),
             write: RefMut::map(
-                queue.borrow_mut(),
+                write_queue.borrow_mut(),
                 |x| x.downcast_mut::<T>())
         }
     }
