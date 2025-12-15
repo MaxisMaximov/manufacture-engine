@@ -16,6 +16,8 @@ impl System for CMDInputHandler{
 
     const ID: &'static str = "CMDInput";
 
+    const TYPE: SystemType = SystemType::Preprocessor;
+
     fn new() -> Self {
         Self
     }
@@ -25,10 +27,10 @@ impl System for CMDInputHandler{
         if poll(std::time::Duration::from_millis(0)).unwrap(){
             if let Event::Key(key) = read().unwrap(){
                 // Triple Deref, whoops
-                ***Data = key
+                Data.set(key)
             }
         }else{
-            ***Data = KeyEvent::new(KeyCode::Null, KeyModifiers::NONE)
+            Data.reset();
         }
     }
 }

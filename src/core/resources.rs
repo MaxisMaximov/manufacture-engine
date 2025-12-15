@@ -75,11 +75,25 @@ pub use crossterm::event::{KeyEvent, KeyCode, KeyModifiers};
 /// # User input -- CMD
 /// Stores the input provided by the Command Line
 /// 
-/// For more see `crossterm`'s `KeyEvent`
+/// See `crossterm`'s `KeyEvent` for more
 /// 
-/// TODO: Try to remove the triple deref needed
+/// TODO: Remove dependency on Crossterm
 pub struct CMDInput{
     key: KeyEvent
+}
+impl CMDInput{
+    /// Get the current key
+    pub fn get(&self) -> KeyEvent {
+        self.key
+    }
+    /// Set the current key
+    pub fn set(&mut self, key: KeyEvent){
+        self.key = key
+    }
+    /// Set key back to Null
+    pub fn reset(&mut self){
+        self.key = KeyEvent::new(KeyCode::Null, KeyModifiers::NONE)
+    }
 }
 impl Resource for CMDInput{
     const ID: &'static str = "CMDInputData";
@@ -88,17 +102,5 @@ impl Resource for CMDInput{
         Self{
             key: KeyEvent::new(KeyCode::Null, KeyModifiers::NONE),
         }
-    }
-}
-impl Deref for CMDInput{
-    type Target = KeyEvent;
-
-    fn deref(&self) -> &Self::Target {
-        &self.key
-    }
-}
-impl DerefMut for CMDInput{
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.key
     }
 }
