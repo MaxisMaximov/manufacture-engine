@@ -32,7 +32,7 @@ pub trait System: 'static{
     /// Create a new instance of this System
     fn new() -> Self;
     /// Run the System
-    fn execute(&mut self, Data: Request<'_, Self::Data>);
+    fn execute(&mut self, data: Request<'_, Self::Data>);
 }
 
 /// # System trait Wrapper
@@ -49,7 +49,7 @@ pub trait SystemWrapper{
     /// Get the type of the underlying System
     fn sys_type(&self) -> SystemType;
     /// Run the underlying System with specified World
-    fn execute<'a>(&mut self, World: &'a mut World);
+    fn execute<'a>(&mut self, world: &'a mut World);
     
 }
 
@@ -66,7 +66,7 @@ impl<T: System> SystemWrapper for T{
     fn sys_type(&self) -> SystemType {
         T::TYPE
     }
-    fn execute<'a>(&mut self, World: &'a mut World) {
-        self.execute(Request::fetch(World));
+    fn execute<'a>(&mut self, world: &'a mut World) {
+        self.execute(Request::fetch(world));
     }
 }

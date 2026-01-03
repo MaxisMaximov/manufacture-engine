@@ -1,6 +1,7 @@
 #![allow(unused_labels)]
 #![warn(unused_crate_dependencies)]
 
+#[allow(nonstandard_style)] // ONLY for the ECS crate
 pub mod ECS;
 pub mod core;
 // pub mod manufacture;

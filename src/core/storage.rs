@@ -18,22 +18,22 @@ impl<C: Component> Storage<C> for VecStorage<C>{
         }
     }
 
-    fn insert(&mut self, Index: usize, Comp: C) {
-        if self.inner.iter().find(|(id, _)|*id == Index).is_none(){
-            self.inner.push((Index, Comp));
+    fn insert(&mut self, id: usize, comp: C) {
+        if self.inner.iter().find(|(index, _)|*index == id).is_none(){
+            self.inner.push((id, comp));
         }
     }
-    fn remove(&mut self, Index: &usize) {
-        if let Some(id) = self.inner.iter().position(|(id, _)| id == Index){
-            self.inner.remove(id);
+    fn remove(&mut self, id: &usize) {
+        if let Some(index) = self.inner.iter().position(|(index, _)| index == id){
+            self.inner.remove(index);
         }
     }
 
-    fn get(&self, Index: &usize) -> Option<&C> {
-        self.inner.iter().find(|(id, _)| id == Index).map(|(_, comp)| comp)
+    fn get(&self, id: &usize) -> Option<&C> {
+        self.inner.iter().find(|(index, _)| index == id).map(|(_, comp)| comp)
     }
-    fn get_mut(&mut self, Index: &usize) -> Option<&mut C> {
-        self.inner.iter_mut().find(|(id, _)| id == Index).map(|(_, comp)| comp)
+    fn get_mut(&mut self, id: &usize) -> Option<&mut C> {
+        self.inner.iter_mut().find(|(index, _)| index == id).map(|(_, comp)| comp)
     }
 }
 
@@ -52,18 +52,18 @@ impl<C: Component> Storage<C> for HashMapStorage<C>{
         }
     }
 
-    fn insert(&mut self, Index: usize, Comp: C) {
-        self.inner.insert(Index, Comp);
+    fn insert(&mut self, id: usize, comp: C) {
+        self.inner.insert(id, comp);
     }
-    fn remove(&mut self, Index: &usize) {
-        self.inner.remove(Index);
+    fn remove(&mut self, id: &usize) {
+        self.inner.remove(id);
     }
 
-    fn get(&self, Index: &usize) -> Option<&C> {
-        self.inner.get(Index)
+    fn get(&self, id: &usize) -> Option<&C> {
+        self.inner.get(id)
     }
-    fn get_mut(&mut self, Index: &usize) -> Option<&mut C> {
-        self.inner.get_mut(Index)
+    fn get_mut(&mut self, id: &usize) -> Option<&mut C> {
+        self.inner.get_mut(id)
     }
 }
 
@@ -82,23 +82,23 @@ impl<C: Component> Storage<C> for BTreeMapStorage<C>{
         }
     }
 
-    fn insert(&mut self, Index: usize, Comp: C) {
-        self.inner.insert(Index, Comp);
+    fn insert(&mut self, id: usize, comp: C) {
+        self.inner.insert(id, comp);
     }
-    fn remove(&mut self, Index: &usize) {
-        self.inner.remove(Index);
+    fn remove(&mut self, id: &usize) {
+        self.inner.remove(id);
     }
 
-    fn get(&self, Index: &usize) -> Option<&C> {
-        self.inner.get(Index)
+    fn get(&self, id: &usize) -> Option<&C> {
+        self.inner.get(id)
     }
-    fn get_mut(&mut self, Index: &usize) -> Option<&mut C> {
-        self.inner.get_mut(Index)
+    fn get_mut(&mut self, id: &usize) -> Option<&mut C> {
+        self.inner.get_mut(id)
     }
 }
 
 /// # DenseVecStorage
-/// A Vec Storage that uses a Hashmap as fast index proxy
+/// A Vec Storage that uses a Hashmap as fast key proxy
 /// 
 /// Best of HashMap and Vec Storages, with the density of Vec and fast access time of HashMap
 /// 
@@ -115,34 +115,34 @@ impl<C: Component> Storage<C> for DenseVecStorage<C>{
         }
     }
 
-    fn insert(&mut self, Index: usize, Comp: C) {
-        if self.proxy.contains_key(&Index){
+    fn insert(&mut self, id: usize, comp: C) {
+        if self.proxy.contains_key(&id){
             return
         }
 
-        self.proxy.insert(Index, self.inner.len());
-        self.inner.push((Index, Comp));
+        self.proxy.insert(id, self.inner.len());
+        self.inner.push((id, comp));
     }
-    fn remove(&mut self, Index: &usize) {
-        if let Some(inner_index) = self.proxy.remove(Index){
-            self.inner.swap_remove(inner_index);
+    fn remove(&mut self, id: &usize) {
+        if let Some(index) = self.proxy.remove(id){
+            self.inner.swap_remove(index);
             // It was the only element in the Storage, we return early
             if self.inner.is_empty(){
                 return
             }
             // Now we update the proxy map value that linked to the last element
-            let to_update = self.inner[*Index].0;
-            *self.proxy.get_mut(&to_update).unwrap() = *Index;
+            let to_update = self.inner[*id].0;
+            *self.proxy.get_mut(&to_update).unwrap() = *id;
         }
     }
 
-    fn get(&self, Index: &usize) -> Option<&C> {
-        let index = self.proxy.get(Index)?;
+    fn get(&self, id: &usize) -> Option<&C> {
+        let index = self.proxy.get(id)?;
         // Bit of a mess here
         self.inner.get(*index).map(|(_, comp)| comp)
     }
-    fn get_mut(&mut self, Index: &usize) -> Option<&mut C> {
-        let index = self.proxy.get(Index)?;
+    fn get_mut(&mut self, id: &usize) -> Option<&mut C> {
+        let index = self.proxy.get(id)?;
         self.inner.get_mut(*index).map(|(_, comp)| comp)
     }
 }

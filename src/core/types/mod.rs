@@ -16,12 +16,12 @@ pub struct With<C: Component>(PhantomData<C>);
 impl<C: Component> QueryFilter for With<C>{
     type Item<'b> = Fetch<'b, C>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.fetch::<C>()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.fetch::<C>()
     }
 
-    fn filter<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> bool {
-        Fetched.get(Index).is_some()
+    fn filter<'a>(fetched: &'a Self::Item<'a>, index: &usize) -> bool {
+        fetched.get(index).is_some()
     }
 }
 
@@ -31,12 +31,12 @@ pub struct Without<C: Component>(PhantomData<C>);
 impl<C: Component> QueryFilter for Without<C>{
     type Item<'b> = Fetch<'b, C>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.fetch::<C>()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.fetch::<C>()
     }
 
-    fn filter<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> bool {
-        Fetched.get(Index).is_none()
+    fn filter<'a>(fetched: &'a Self::Item<'a>, index: &usize) -> bool {
+        fetched.get(index).is_none()
     }
 }
 
@@ -46,5 +46,5 @@ impl<C: Component> QueryFilter for Without<C>{
 /// `spawn` method takes `&self` so that you can send custom data for Prefab to have right away
 pub trait EntityPrefab{
     const ID: &'static str = "idkfa";
-    fn spawn(&self, Builder: EntityBuilder<'_>);
+    fn spawn(&self, builder: EntityBuilder<'_>);
 }

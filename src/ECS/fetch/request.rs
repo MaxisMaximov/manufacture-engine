@@ -20,7 +20,7 @@ use super::{CommandWriter, TriggerWriter};
 pub trait RequestData{
     type Item<'b>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a>;
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a>;
 }
 
 /// # System resource Request
@@ -30,9 +30,9 @@ pub struct Request<'a, D: RequestData>{
     data: D::Item<'a>
 }
 impl<'a, D: RequestData> Request<'a, D>{
-    pub fn fetch(World: &'a World) -> Self{
+    pub fn fetch(world: &'a World) -> Self{
         Self{
-            data: D::fetch(World),
+            data: D::fetch(world),
         }
     }
 }
@@ -73,8 +73,8 @@ pub struct Query<D: QueryData, F: QueryFilter>(PhantomData<(D, F)>);
 impl <D: QueryData, F: QueryFilter> RequestData for Query<D, F>{
     type Item<'b> = WorldQuery<'b, D, F>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        WorldQuery::fetch(World)
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        WorldQuery::fetch(world)
     }
 }
 
@@ -85,15 +85,15 @@ impl <D: QueryData, F: QueryFilter> RequestData for Query<D, F>{
 impl<R: Resource> RequestData for &R{
     type Item<'b> = FetchRes<'b, R>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.fetch_res()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.fetch_res()
     }
 }
 impl<R: Resource> RequestData for &mut R{
     type Item<'b> = FetchResMut<'b, R>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.fetch_res_mut()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.fetch_res_mut()
     }
 }
 
@@ -108,8 +108,8 @@ pub struct ReadEvent<E: Event>(PhantomData<E>);
 impl<E: Event> RequestData for ReadEvent<E>{
     type Item<'b> = EventReader<'b, E>;
     
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.get_event_reader()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.get_event_reader()
     }
 }
 
@@ -119,8 +119,8 @@ pub struct WriteEvent<E: Event>(PhantomData<E>);
 impl<E: Event> RequestData for WriteEvent<E>{
     type Item<'b> = EventWriter<'b, E>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.get_event_writer()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.get_event_writer()
     }
 }
 
@@ -138,15 +138,15 @@ pub struct Triggers;
 impl RequestData for Commands{
     type Item<'b> = CommandWriter<'b>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.get_command_writer()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.get_command_writer()
     }
 }
 impl RequestData for Triggers{
     type Item<'b> = TriggerWriter<'b>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.get_trigger_writer()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.get_trigger_writer()
     }
 }
 

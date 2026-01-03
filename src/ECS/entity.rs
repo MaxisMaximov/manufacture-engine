@@ -17,9 +17,9 @@ pub struct Entity{
 }
 impl Entity{
     /// Create a new Entity with given ID
-    pub(super) fn new(Id: usize) -> Self{
+    pub(super) fn new(id: usize) -> Self{
         Self{
-            id: Id,
+            id,
             hash: rand::random()
         }
     }
@@ -71,9 +71,9 @@ impl Token{
     /// 
     /// Updates it's own `valid` flag and returns it.  
     /// If the IDs don't match, it doesn't do anything
-    pub fn validate(&mut self, Entity: &Entity) -> bool{
-        if self.id == Entity.id(){
-            self.valid = self.hash == Entity.hash();
+    pub fn validate(&mut self, entity: &Entity) -> bool{
+        if self.id == entity.id(){
+            self.valid = self.hash == entity.hash();
         }
         self.valid
     }
@@ -89,8 +89,8 @@ pub struct EntityBuilder<'a>{
 }
 impl<'a> EntityBuilder<'a>{
     /// Add a specified Component to the current Entity
-    pub fn with<T: Component>(mut self, Comp: T) -> Self{
-        self.world_ref.fetch_mut::<T>().insert(self.entity.id(), Comp);
+    pub fn with<T: Component>(mut self, comp: T) -> Self{
+        self.world_ref.fetch_mut::<T>().insert(self.entity.id(), comp);
         self.components.insert(T::ID);
         self
     }

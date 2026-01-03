@@ -11,51 +11,51 @@ pub trait Storage<T: Component>{
     fn new() -> Self;
 
     /// Insert a Component for the specified Entity into this Storage
-    fn insert(&mut self, Index: usize, Comp: T);
+    fn insert(&mut self, id: usize, comp: T);
     /// Insert the Component for the Entity referenced by the Token into this Storage
     /// 
     /// It's recommended to ensure the Token is valid beforehand
-    fn insert_with_token(&mut self, Token: &Token, Comp: T){
-        if !Token.valid(){
+    fn insert_with_token(&mut self, token: &Token, comp: T){
+        if !token.valid(){
             return
         }
-        self.insert(Token.id(), Comp);
+        self.insert(token.id(), comp);
     }
 
     /// Remove the specified Entity's Component from this Storage
-    fn remove(&mut self, Index: &usize);
+    fn remove(&mut self, id: &usize);
     /// Remove the Component from the Entity referenced by the Token from this Storage
     /// 
     /// It's recommended to ensure the Token is valid beforehand
-    fn remove_with_token(&mut self, Token: &Token){
-        if !Token.valid(){
+    fn remove_with_token(&mut self, id: &Token){
+        if !id.valid(){
             return
         }
-        self.remove(&Token.id());
+        self.remove(&id.id());
     }
 
     /// Get a reference to the specified Entity's Component from this storage
-    fn get(&self, Index: &usize) -> Option<&T>;
+    fn get(&self, id: &usize) -> Option<&T>;
     /// Get a reference to the Component from this storage of the Entity refereced by the Token
     /// 
     /// It's recommended to ensure the Token is valid beforehand
-    fn get_from_token(&self, Token: &Token) -> Option<&T>{
-        if !Token.valid(){
+    fn get_from_token(&self, token: &Token) -> Option<&T>{
+        if !token.valid(){
             return None
         }
-        self.get(&Token.id())
+        self.get(&token.id())
     }
     
     /// Get a mutable reference to the specified Entity's Component from this storage
-    fn get_mut(&mut self, Index: &usize) -> Option<&mut T>;
+    fn get_mut(&mut self, id: &usize) -> Option<&mut T>;
     /// Get a mutable reference to the Component from this storage of the Entity refereced by the Token
     /// 
     /// It's recommended to ensure the Token is valid beforehand
-    fn get_from_token_mut(&mut self, Token: &Token) -> Option<&mut T>{
-        if !Token.valid(){
+    fn get_from_token_mut(&mut self, token: &Token) -> Option<&mut T>{
+        if !token.valid(){
             return None
         }
-        self.get_mut(&Token.id())
+        self.get_mut(&token.id())
     }
 }
 
@@ -100,14 +100,14 @@ impl<T: Component> DerefMut for StorageContainer<T>{
 /// as well as Downcast methods to get the underlying Containers
 pub trait StorageWrapper{
     /// Remove a specified Entity's Component from this storage
-    fn remove(&mut self, Index: usize);
+    fn remove(&mut self, id: usize);
     /// Get the underlying Container's Component ID
     fn comp_id(&self) -> &'static str;
 }
 
 impl<T: Component> StorageWrapper for StorageContainer<T>{
-    fn remove(&mut self, Index: usize){
-        self.inner.remove(&Index);
+    fn remove(&mut self, id: usize){
+        self.inner.remove(&id);
     }
 
     fn comp_id(&self) -> &'static str {

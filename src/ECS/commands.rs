@@ -10,7 +10,7 @@ use super::world::World;
 pub trait Command: 'static{
     const ID: &'static str = "idkfa";
     /// Execute the Command on specified World
-    fn execute(&mut self, World: &mut World);
+    fn execute(&mut self, world: &mut World);
 }
 
 /// # Command trait Wrapper
@@ -22,7 +22,7 @@ pub trait CommandWrapper{
     /// Get the underlying Command's ID
     fn id(&self) -> &'static str;
     /// Execute the Command on the specified World
-    fn execute(&mut self, World: &mut World);
+    fn execute(&mut self, world: &mut World);
 }
 
 impl<T: Command> CommandWrapper for T{
@@ -30,7 +30,7 @@ impl<T: Command> CommandWrapper for T{
         T::ID
     }
 
-    fn execute(&mut self, World: &mut World) {
-        Command::execute(self, World);
+    fn execute(&mut self, world: &mut World) {
+        Command::execute(self, world);
     }
 }

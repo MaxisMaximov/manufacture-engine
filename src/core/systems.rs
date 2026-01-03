@@ -1,8 +1,5 @@
 use super::*;
-use comp::*;
 use resources::*;
-use events::*;
-use commands::*;
 
 /// # Command Line Input getter
 /// Acquires the current pressed key from the Command Line
@@ -22,15 +19,15 @@ impl System for CMDInputHandler{
         Self
     }
 
-    fn execute(&mut self, mut Data: Request<'_, Self::Data>) {
+    fn execute(&mut self, mut data: Request<'_, Self::Data>) {
         use crossterm::event::{Event, read, poll};
         if poll(std::time::Duration::from_millis(0)).unwrap(){
             if let Event::Key(key) = read().unwrap(){
                 // Triple Deref, whoops
-                Data.set(key)
+                data.set(key)
             }
         }else{
-            Data.reset();
+            data.reset();
         }
     }
 }

@@ -37,58 +37,58 @@ impl Dispatcher{
         DispatcherBuilder::new()
     }
     /// Dispatch the Systems
-    pub fn dispatch(&mut self, World: &mut World){
+    pub fn dispatch(&mut self, world: &mut World){
         
         let mut last_frame = Instant::now();
         let mut last_tick = Instant::now();
 
         loop{
             // Update Frame Delta
-            World.fetch_res_mut::<DeltaT>().set_delta_frame( last_frame.elapsed().as_millis());
+            world.fetch_res_mut::<DeltaT>().set_delta_frame( last_frame.elapsed().as_millis());
 
             // -- PREPROCESSORS --
             for stage in self.preproc.iter_mut(){
                 for system in stage.iter_mut(){
-                    system.execute(World);
+                    system.execute(world);
                 }
             }
 
             // -- LOGIC LOOP --
             if last_tick.elapsed() >= TICKRATE + TICKRATE_EPS{
                 // Update Logic Delta
-                World.fetch_res_mut::<DeltaT>().set_delta_logic(last_tick.elapsed().as_millis());
+                world.fetch_res_mut::<DeltaT>().set_delta_logic(last_tick.elapsed().as_millis());
 
                 // -- Logic Systems --
                 for stage in self.logic.iter_mut(){
                     for system in stage.iter_mut(){
-                        system.execute(World);
+                        system.execute(world);
                     }
                 }
                 // -- Singlefires --
-                for trigger in World.take_triggers(){
-                    self.singlefires.get_mut(trigger).unwrap().execute(World);
+                for trigger in world.take_triggers(){
+                    self.singlefires.get_mut(trigger).unwrap().execute(world);
                 }
                 // -- Event Responders --
-                for event in World.get_events().get_active_events(){
+                for event in world.get_events().get_active_events(){
                     for system in self.event_responders.get_mut(event).unwrap().iter_mut(){
-                        system.execute(World);
+                        system.execute(world);
                     }
                 }
                 // -- Commands --
-                for mut command in World.take_commands(){
-                    command.execute(World);
+                for mut command in world.take_commands(){
+                    command.execute(world);
                 }
 
                 // Update last Logic Tick
                 last_tick = Instant::now();
 
-                World.fetch_res_mut::<DeltaT>().incr_logic_frame();
+                world.fetch_res_mut::<DeltaT>().incr_logic_frame();
             }
 
             // -- POSTPROCESSORS --
             for stage in self.postproc.iter_mut(){
                 for system in stage.iter_mut(){
-                    system.execute(World);
+                    system.execute(world);
                 }
             }
             
@@ -96,7 +96,7 @@ impl Dispatcher{
             {
                 use crate::core::events;
                 // Borrow for an extended period of time
-                let events = World.get_events();
+                let events = world.get_events();
 
                 // App exit
                 let event = events.get_reader::<events::ExitApp>();
@@ -106,12 +106,12 @@ impl Dispatcher{
             }
 
             // Clear Events
-            World.swap_event_buffers();
+            world.swap_event_buffers();
 
             // Update last Frame Tick
             last_frame = Instant::now();
 
-            World.fetch_res_mut::<DeltaT>().incr_frame();
+            world.fetch_res_mut::<DeltaT>().incr_frame();
         }
     }
 }

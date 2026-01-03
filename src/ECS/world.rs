@@ -110,7 +110,7 @@ impl World{
     }
 
     /// Get writer for System Triggers
-    pub fn get_trigger_writer(&self) -> TriggerWriter{
+    pub fn get_trigger_writer(&self) -> TriggerWriter<'_>{
         TriggerWriter(self.triggers.borrow_mut())
     }
 
@@ -171,7 +171,7 @@ impl World{
     /// Spawn a new entity
     /// 
     /// Returns a Builder that monitors the construction of the Entity
-    pub fn spawn(&mut self) -> EntityBuilder{
+    pub fn spawn(&mut self) -> EntityBuilder<'_>{
         EntityBuilder{
             entity: {
                 let next_id = self.next_free.pop_first().unwrap_or(self.entities.len());
@@ -187,10 +187,10 @@ impl World{
     /// Returns `true` if the entity was found and removed, otherwise `false`
     /// 
     /// This drops all of the Entity's Components from all Storages
-    pub fn despawn(&mut self, Id: usize) -> bool{
-        if self.entities.remove(&Id).is_some(){
+    pub fn despawn(&mut self, id: usize) -> bool{
+        if self.entities.remove(&id).is_some(){
             for storage in self.components.values_mut(){
-                storage.borrow_mut().as_mut().remove(Id);
+                storage.borrow_mut().as_mut().remove(id);
             };
             return true
         }
@@ -204,19 +204,19 @@ impl World{
     /// 
     /// Note: This consumes the Token, whether valid or not. 
     /// If you're holding the Token in a struct, get a new Token
-    pub fn despawn_with_token(&mut self, Token: Token) -> bool{
-        if !Token.valid(){
+    pub fn despawn_with_token(&mut self, mut token: Token) -> bool{
+        if !token.valid(){
             return false
         }
 
-        if let Some(entity) = self.entities.get(&Token.id()){
-            if entity.hash() != Token.hash(){
+        if let Some(entity) = self.entities.get(&token.id()){
+            if token.validate(entity){
                 return false
             }
             
-            self.entities.remove(&Token.id());
+            self.entities.remove(&token.id());
             for storage in self.components.values_mut(){
-                storage.borrow_mut().as_mut().remove(Token.id());
+                storage.borrow_mut().as_mut().remove(token.id());
             }
             return true
         }

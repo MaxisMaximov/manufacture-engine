@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, marker::PhantomData, ops::{Deref, DerefMut}};
+use std::{collections::BTreeMap, ops::{Deref, DerefMut}};
 
 use crate::ECS;
 use ECS::entity;
@@ -27,11 +27,11 @@ pub trait QueryData{
     type MutAccItem<'b>;
 
     /// Fetch the data from the World
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a>;
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a>;
     /// Access given Entity's data immutably
-    fn get<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> Option<Self::AccItem<'a>>;
+    fn get<'a>(fetched: &'a Self::Item<'a>, id: &usize) -> Option<Self::AccItem<'a>>;
     /// Access given Entity's data mutably
-    fn get_mut<'a>(Fetched: &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>>;
+    fn get_mut<'a>(fetched: &'a mut Self::Item<'a>, id: &usize) -> Option<Self::MutAccItem<'a>>;
 }
 
 /// # Query Filter trait
@@ -50,9 +50,9 @@ pub trait QueryData{
 pub trait QueryFilter{
     type Item<'b>;
     /// Fetch the needed data from the World
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a>;
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a>;
     /// Check if the given entity passes this filter
-    fn filter<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> bool;
+    fn filter<'a>(fetched: &'a Self::Item<'a>, id: &usize) -> bool;
 }
 
 /// # World Query
@@ -78,11 +78,11 @@ pub struct WorldQuery<'a, D: QueryData, F: QueryFilter>{
 }
 impl<'a, D: QueryData, F: QueryFilter> WorldQuery<'a, D, F>{
     /// Fetch `D`ata from the World
-    pub fn fetch(World: &'a World) -> Self{
+    pub fn fetch(world: &'a World) -> Self{
         Self{
-            entities: World.get_entities(),
-            filter_data: F::fetch(World),
-            data: D::fetch(World)
+            entities: world.get_entities(),
+            filter_data: F::fetch(world),
+            data: D::fetch(world)
         }
     }
 
@@ -93,9 +93,9 @@ impl<'a, D: QueryData, F: QueryFilter> WorldQuery<'a, D, F>{
     /// 
     /// Note that it returns `Some` only if the entity has *all* requested Components,  
     /// otherwise it returns `None`
-    pub fn get(&'a self, Index: &usize) -> Option<D::AccItem<'a>>{
-        if self.entities.contains_key(Index) && F::filter(&self.filter_data, Index){
-            D::get(&self.data, Index)
+    pub fn get(&'a self, id: &usize) -> Option<D::AccItem<'a>>{
+        if self.entities.contains_key(id) && F::filter(&self.filter_data, id){
+            D::get(&self.data, id)
         }else{
             None
         }
@@ -105,10 +105,10 @@ impl<'a, D: QueryData, F: QueryFilter> WorldQuery<'a, D, F>{
     /// 
     /// Note that it returns `Some` only if the entity has *all* requested Components,  
     /// otherwise it returns `None`
-    pub fn get_from_token(&'a self, Token: &mut entity::Token) -> Option<D::AccItem<'a>>{
+    pub fn get_from_token(&'a self, token: &mut entity::Token) -> Option<D::AccItem<'a>>{
         // We only accept valid Tokens
-        if self.validate_token(Token){
-            self.get(&Token.id())
+        if self.validate_token(token){
+            self.get(&token.id())
         }else{
             None
         }
@@ -122,24 +122,24 @@ impl<'a, D: QueryData, F: QueryFilter> WorldQuery<'a, D, F>{
     /// 
     /// Note that it returns `Some` only if the entity has *all* requested Components,  
     /// otherwise it returns `None`
-    pub fn get_mut(&'a mut self, Index: &usize) -> Option<D::MutAccItem<'a>>{
-        if !self.entities.contains_key(Index){
+    pub fn get_mut(&'a mut self, id: &usize) -> Option<D::MutAccItem<'a>>{
+        if !self.entities.contains_key(id){
             return None
         }
-        if !F::filter(&self.filter_data, Index){
+        if !F::filter(&self.filter_data, id){
             return None
         }
-        D::get_mut(&mut self.data, Index)
+        D::get_mut(&mut self.data, id)
     }
     /// Get a mutable set of Components for the Entity tracked by the Token.  
     /// It automatically validates the given Token as well
     /// 
     /// Note that it returns `Some` only if the entity has *all* requested Components,  
     /// otherwise it returns `None`
-    pub fn get_from_token_mut(&'a mut self, Token: &mut entity::Token) -> Option<D::MutAccItem<'a>>{
+    pub fn get_from_token_mut(&'a mut self, token: &mut entity::Token) -> Option<D::MutAccItem<'a>>{
         // We only accept valid Tokens
-        if self.validate_token(Token){
-            self.get_mut(&Token.id())
+        if self.validate_token(token){
+            self.get_mut(&token.id())
         }else{
             None
         }
@@ -169,13 +169,13 @@ impl<'a, D: QueryData, F: QueryFilter> WorldQuery<'a, D, F>{
     /// Validate an Entity Token  
     /// 
     /// Updates Token's `valid` flag and returns boolean whether it's still valid or not
-    pub fn validate_token(&self, Token: &mut entity::Token) -> bool{
+    pub fn validate_token(&self, token: &mut entity::Token) -> bool{
         // If a Token is invalid, it can never again be valid
-        Token.valid() 
+        token.valid() 
             && 
         // A check if the Entity exists and if the Token is still valid in one
         // Bit of a mess, I know
-        self.entities.get(&Token.id()).is_some_and(|entity| Token.validate(entity))
+        self.entities.get(&token.id()).is_some_and(|entity| token.validate(entity))
     }
 }
 impl<'a, D:QueryData, F: QueryFilter> Deref for WorldQuery<'a, D, F>{
@@ -273,35 +273,35 @@ impl<'a, D: QueryData, F: QueryFilter> Iterator for IterMut<'a, D, F>{
 impl<C:Component> QueryData for &C{
     type Item<'b> = Fetch<'b, C>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.fetch::<C>()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.fetch::<C>()
     }
     
     type AccItem<'b> = &'b C;
     type MutAccItem<'b> = &'b C;
     
-    fn get<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> Option<Self::AccItem<'a>> {
-        Fetched.get(Index)
+    fn get<'a>(fetched: &'a Self::Item<'a>, id: &usize) -> Option<Self::AccItem<'a>> {
+        fetched.get(id)
     }
-    fn get_mut<'a>(Fetched: &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>> {
-        Fetched.get(Index)
+    fn get_mut<'a>(fetched: &'a mut Self::Item<'a>, id: &usize) -> Option<Self::MutAccItem<'a>> {
+        fetched.get(id)
     }    
 }
 impl<C: Component> QueryData for &mut C{
     type Item<'b> = FetchMut<'b, C>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.fetch_mut::<C>()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.fetch_mut::<C>()
     }
     
     type AccItem<'b> = &'b C;
     type MutAccItem<'b> = &'b mut C;
     
-    fn get<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> Option<Self::AccItem<'a>> {
-        Fetched.get(Index)
+    fn get<'a>(fetched: &'a Self::Item<'a>, id: &usize) -> Option<Self::AccItem<'a>> {
+        fetched.get(id)
     }
-    fn get_mut<'a>(Fetched: &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>> {
-        Fetched.get_mut(Index)
+    fn get_mut<'a>(fetched: &'a mut Self::Item<'a>, id: &usize) -> Option<Self::MutAccItem<'a>> {
+        fetched.get_mut(id)
     }
 }
 
@@ -310,11 +310,11 @@ impl<C: Component> QueryData for Option<&C>{
     type AccItem<'b> = Option<&'b C>;
     type MutAccItem<'b> = Option<&'b C>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.fetch::<C>()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.fetch::<C>()
     }
     
-    fn get<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> Option<Self::AccItem<'a>> {
+    fn get<'a>(fetched: &'a Self::Item<'a>, id: &usize) -> Option<Self::AccItem<'a>> {
         // Why is it wrapped in `Some`:
         // `Option` signifies an optional Component, so the return type is `Option`
         // The Systems handle the `Option`s themselves
@@ -322,10 +322,10 @@ impl<C: Component> QueryData for Option<&C>{
         // But we can't just use `get` like with normal Component references
         // `Some` essentially ensures the Getter functions always return  
         // a valid AccItem, and therefore a valid Component set
-        Some(Fetched.get(Index))
+        Some(fetched.get(id))
     }
-    fn get_mut<'a>(Fetched: &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>> {
-        Some(Fetched.get(Index))
+    fn get_mut<'a>(fetched: &'a mut Self::Item<'a>, id: &usize) -> Option<Self::MutAccItem<'a>> {
+        Some(fetched.get(id))
     }
 }
 impl<C: Component> QueryData for Option<&mut C>{
@@ -333,15 +333,15 @@ impl<C: Component> QueryData for Option<&mut C>{
     type AccItem<'b> = Option<&'b C>;
     type MutAccItem<'b> = Option<&'b mut C>;
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
-        World.fetch_mut::<C>()
+    fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+        world.fetch_mut::<C>()
     }
     
-    fn get<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> Option<Self::AccItem<'a>> {
-        Some(Fetched.get(Index))
+    fn get<'a>(fetched: &'a Self::Item<'a>, id: &usize) -> Option<Self::AccItem<'a>> {
+        Some(fetched.get(id))
     }
-    fn get_mut<'a>(Fetched: &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>> {
-        Some(Fetched.get_mut(Index))
+    fn get_mut<'a>(fetched: &'a mut Self::Item<'a>, id: &usize) -> Option<Self::MutAccItem<'a>> {
+        Some(fetched.get_mut(id))
     }
 }
 
@@ -354,13 +354,13 @@ impl QueryData for (){
     type AccItem<'b> = ();
     type MutAccItem<'b> = ();
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+    fn fetch<'a>(_world: &'a World) -> Self::Item<'a> {
         ()
     }
-    fn get<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> Option<Self::AccItem<'a>> {
+    fn get<'a>(_fetched: &'a Self::Item<'a>, _id: &usize) -> Option<Self::AccItem<'a>> {
         Some(())
     }
-    fn get_mut<'a>(Fetched: &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>> {
+    fn get_mut<'a>(_fetched: &'a mut Self::Item<'a>, _id: &usize) -> Option<Self::MutAccItem<'a>> {
         Some(())
     }
 }
@@ -368,10 +368,10 @@ impl QueryData for (){
 impl QueryFilter for (){
     type Item<'b> = ();
 
-    fn fetch<'a>(World: &'a World) -> Self::Item<'a> {
+    fn fetch<'a>(_world: &'a World) -> Self::Item<'a> {
         ()
     }
-    fn filter<'a>(Fetched: &'a Self::Item<'a>, Index: &usize) -> bool {
+    fn filter<'a>(_fetched: &'a Self::Item<'a>, _index: &usize) -> bool {
         true
     }
 }

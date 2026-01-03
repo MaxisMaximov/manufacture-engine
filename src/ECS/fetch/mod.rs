@@ -53,8 +53,8 @@ impl<E: Event> EventWriter<'_, E>{
     }
     // The only function exclusive to Writer
     /// Send an Event
-    pub fn send(&mut self, Event: E){
-        self.write.push(Event);
+    pub fn send(&mut self, event: E){
+        self.write.push(event);
     }
 }
 
@@ -65,8 +65,8 @@ impl CommandWriter<'_>{
         self.0.len()
     }
     /// Send a Command
-    pub fn send<C: Command>(&mut self, Command: C){
-        self.0.push(Box::new(Command));
+    pub fn send<C: Command>(&mut self, command: C){
+        self.0.push(Box::new(command));
     }
 }
 pub struct TriggerWriter<'a>(pub(super) RefMut<'a, Vec<&'static str>>);
@@ -76,8 +76,8 @@ impl TriggerWriter<'_>{
         self.0.len()
     }
     /// Send a Trigger
-    pub fn send(&mut self, Trigger: &'static str){
-        self.0.push(Trigger);
+    pub fn send(&mut self, trigger: &'static str){
+        self.0.push(trigger);
     }
 }
 

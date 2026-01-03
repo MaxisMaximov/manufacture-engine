@@ -1,5 +1,3 @@
-use std::ops::{Deref, DerefMut};
-
 use super::*;
 
 /// # Delta Time Resources
@@ -33,15 +31,15 @@ impl DeltaT{
     /// Only the Dispatcher is allowed to modify the Delta
     /// 
     /// Set the new Delta Frame value
-    pub fn set_delta_frame(&mut self, Delta: u128){
-        self.delta_frame = Delta
+    pub fn set_delta_frame(&mut self, delta: u128){
+        self.delta_frame = delta
     }
     /// ## DO NOT USE THIS
     /// Only the Dispatcher is allowed to modify the Delta
     /// 
     /// Set the new Delta Logic value
-    pub fn set_delta_logic(&mut self, Delta: u128){
-        self.delta_logic = Delta
+    pub fn set_delta_logic(&mut self, delta: u128){
+        self.delta_logic = delta
     }
     /// ## DO NOT USE THIS
     /// Only the Dispatcher is allowed to increment Frame count
