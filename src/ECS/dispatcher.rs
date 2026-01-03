@@ -6,8 +6,11 @@ use super::world::World;
 use crate::core::resources::DeltaT;
 
 const MAX_SYS_PER_STAGE: usize = 5;
-const TICKS_PER_SECOND: u64 = 20;
+const TICKS_PER_SECOND: u64 = 20; // Default: 20, subject to change
+// Additional value to push the Tickrate that's *just* short of next loop
+const TICKRATE_EPS: Duration = Duration::from_millis(5);
 
+// DO NOT TOUCH
 const TICKRATE: Duration = Duration::from_millis(1000/TICKS_PER_SECOND);
 
 type Stage = Vec<Box<dyn SystemWrapper>>;
@@ -51,7 +54,7 @@ impl Dispatcher{
             }
 
             // -- LOGIC LOOP --
-            if last_tick.elapsed() >= TICKRATE{
+            if last_tick.elapsed() >= TICKRATE + TICKRATE_EPS{
                 // Update Logic Delta
                 World.fetch_res_mut::<DeltaT>().set_delta_logic(last_tick.elapsed().as_millis());
 
