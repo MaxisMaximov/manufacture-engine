@@ -68,7 +68,7 @@ impl EventBufferMap{
     }
 
     /// Switch buffers and clear the previous one
-    pub(super) fn swap_buffers(&mut self){
+    pub(crate) fn swap_buffers(&mut self){
         // Clear active buffer to (kinda) free up memory
         for queue in self.read_buffer.values_mut(){
             queue.borrow_mut().clear();

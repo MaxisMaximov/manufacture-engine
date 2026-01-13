@@ -24,7 +24,7 @@ type Stage = Vec<Box<dyn SystemWrapper>>;
 /// 
 /// TODO: Make Tickrate adjustable at runtime
 pub struct Dispatcher{
-    registry: HashMap<&'static str, SystemInfo>,
+    _registry: HashMap<&'static str, SystemInfo>,
     preproc: Vec<Stage>,
     singlefires: HashMap<&'static str, Box<dyn SystemWrapper>>,
     logic: Vec<Stage>,
@@ -178,7 +178,7 @@ impl DispatcherBuilder{
         self.verify_deps();
 
         Dispatcher{
-            registry: self.registry,
+            _registry: self.registry,
             preproc: self.preproc.build(),
             singlefires: self.singlefires,
             logic: self.logic.build(),
@@ -192,12 +192,12 @@ impl DispatcherBuilder{
 /// A collection of data for the Dispatcher's Registry to keep track of
 /// 
 /// Is typically only used as Metadata for debug purposes
-struct SystemInfo{
-    id: &'static str,
-    depends: &'static [&'static str],
-    run_ord: &'static [RunOrder],
-    sys_type: SystemType,
-    overr: bool
+pub struct SystemInfo{
+    pub id: &'static str,
+    pub depends: &'static [&'static str],
+    pub run_ord: &'static [RunOrder],
+    pub sys_type: SystemType,
+    pub overr: bool
 }
 impl SystemInfo{
     fn new<S: System>() -> Self{

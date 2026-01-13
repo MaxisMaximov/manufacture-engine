@@ -17,7 +17,7 @@ pub type FetchResMut<'a, R: Resource> = RefMut<'a, R>;
 
 /// # Event Reader
 /// Lets you read events that have been sent on the previous frame
-pub struct EventReader<'a, E: Event>(pub(super) Ref<'a, Vec<E>>);
+pub struct EventReader<'a, E: Event>(pub(crate) Ref<'a, Vec<E>>);
 impl<E: Event> EventReader<'_, E>{
     /// Iterate over events sent on the previous frame
     pub fn iter(&self) -> impl Iterator<Item = &E>{
@@ -31,8 +31,8 @@ impl<E: Event> EventReader<'_, E>{
 /// # Event Writer
 /// Lets you read events that have been sent on the previous frame, as well as send events for next frame
 pub struct EventWriter<'a, E: Event>{
-    pub(super) read: Ref<'a, Vec<E>>,
-    pub(super) write: RefMut<'a, Vec<E>>
+    pub(crate) read: Ref<'a, Vec<E>>,
+    pub(crate) write: RefMut<'a, Vec<E>>
 }
 impl<E: Event> EventWriter<'_, E>{
     /// Iterate over events sent on the current frame
@@ -58,7 +58,7 @@ impl<E: Event> EventWriter<'_, E>{
     }
 }
 
-pub struct CommandWriter<'a>(pub(super) RefMut<'a, Vec<Box<dyn CommandWrapper>>>);
+pub struct CommandWriter<'a>(pub(crate) RefMut<'a, Vec<Box<dyn CommandWrapper>>>);
 impl CommandWriter<'_>{
     /// Get the number of Commands that are currently in the queue
     pub fn command_count(&self) -> usize{
@@ -69,7 +69,7 @@ impl CommandWriter<'_>{
         self.0.push(Box::new(command));
     }
 }
-pub struct TriggerWriter<'a>(pub(super) RefMut<'a, Vec<&'static str>>);
+pub struct TriggerWriter<'a>(pub(crate) RefMut<'a, Vec<&'static str>>);
 impl TriggerWriter<'_>{
     /// Get the numebr of Triggers that are currently in the queue
     pub fn trigger_count(&self) -> usize{

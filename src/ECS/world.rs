@@ -228,20 +228,20 @@ impl World{
     ///////////////////////////////////////////////////////////////////////////////
 
     /// Swap buffers of EventMap
-    pub(super) fn swap_event_buffers(&mut self){
+    pub(crate) fn swap_event_buffers(&mut self){
         self.events.swap_buffers();
     }
 
     /// Take the Trigger queue
     /// 
     /// This will initialize a new queue in it's place
-    pub(super) fn take_triggers(&mut self) -> Vec<&'static str>{
+    pub(crate) fn take_triggers(&mut self) -> Vec<&'static str>{
         self.triggers.take()
     }
     /// Take the full Command queue
     /// 
     /// This will initialize a new queue in it's place
-    pub(super) fn take_commands(&mut self) -> Vec<Box<dyn CommandWrapper>>{
+    pub(crate) fn take_commands(&mut self) -> Vec<Box<dyn CommandWrapper>>{
         self.commands.take()
     }
 

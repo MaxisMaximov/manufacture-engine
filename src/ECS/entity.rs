@@ -17,7 +17,7 @@ pub struct Entity{
 }
 impl Entity{
     /// Create a new Entity with given ID
-    pub(super) fn new(id: usize) -> Self{
+    pub(crate) fn new(id: usize) -> Self{
         Self{
             id,
             hash: rand::random()
@@ -83,9 +83,9 @@ impl Token{
 /// A safe and easy way to contruct a new Entity in the World
 #[must_use]
 pub struct EntityBuilder<'a>{
-    pub(super) entity: Token,
-    pub(super) world_ref: &'a mut World,
-    pub(super) components: HashSet<&'static str>
+    pub(crate) entity: Token,
+    pub(crate) world_ref: &'a mut World,
+    pub(crate) components: HashSet<&'static str>
 }
 impl<'a> EntityBuilder<'a>{
     /// Add a specified Component to the current Entity
