@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 pub mod comp;
 pub mod storage;
 pub mod system;
