@@ -3,7 +3,7 @@ use std::time::{Duration, Instant};
 
 use super::system::*;
 use super::world::World;
-use crate::core::resources::DeltaT;
+use super::resource::DeltaT;
 
 const MAX_SYS_PER_STAGE: usize = 5;
 const TICKS_PER_SECOND: u64 = 20; // Default: 20, subject to change
@@ -94,7 +94,7 @@ impl Dispatcher{
             
             // Check system-level events
             {
-                use crate::core::events;
+                use super::events;
                 // Borrow for an extended period of time
                 let events = world.get_events();
 
