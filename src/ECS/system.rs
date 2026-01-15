@@ -32,7 +32,7 @@ pub trait System: 'static{
     /// Create a new instance of this System
     fn new() -> Self;
     /// Run the System
-    fn execute(&mut self, data: Request<'_, Self::Data>);
+    fn execute(&mut self, data: &mut Request<'_, Self::Data>);
 }
 
 /// # System trait Wrapper
@@ -67,6 +67,6 @@ impl<T: System> SystemWrapper for T{
         T::TYPE
     }
     fn execute<'a>(&mut self, world: &'a mut World) {
-        self.execute(Request::fetch(world));
+        self.execute(&mut Request::fetch(world));
     }
 }
