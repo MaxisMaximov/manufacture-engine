@@ -258,13 +258,39 @@ impl World{
 
 #[cfg(test)]
 mod tests{
+    use super::*;
+    use super::test::HashMapStorage;
     mod test_fetches{
+        use super::*;
         fn fetch_comp(){}
         fn fetch_res(){}
         fn fetch_event(){}
     }
     mod test_registers{
-        fn register_comp(){}
+        use super::*;
+        #[test]
+        fn register_comp(){
+            struct idkfa;
+            struct iddqd;
+
+            impl Component for idkfa{
+                type STORAGE = HashMapStorage<Self>;
+            
+                const ID: &'static str = "idkfa";
+            }
+            impl Component for iddqd{
+                type STORAGE = HashMapStorage<Self>;
+            
+                const ID: &'static str = "iddqd";
+            }
+
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+            world.register_comp::<iddqd>();
+
+            assert!(world.components.contains_key(idkfa::ID));
+            assert!(world.components.contains_key(iddqd::ID));
+        }
         fn register_res(){}
         fn register_event(){}
     }
