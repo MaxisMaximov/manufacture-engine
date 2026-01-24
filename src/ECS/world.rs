@@ -255,3 +255,19 @@ impl World{
         &self.events
     }
 }
+
+#[cfg(test)]
+mod tests{
+    mod test_fetches{
+        fn fetch_comp(){}
+        fn fetch_res(){}
+        fn fetch_event(){}
+    }
+    mod test_registers{
+        fn register_comp(){}
+        fn register_res(){}
+        fn register_event(){}
+    }
+    mod test_spawns{}
+    mod test_meta{}
+}
