@@ -70,3 +70,11 @@ impl<T: System> SystemWrapper for T{
         self.execute(&mut Request::fetch(world));
     }
 }
+
+#[cfg(test)]
+mod tests{
+    mod test_comp{}
+    mod test_resource{}
+    mod test_events{}
+    mod test_meta{}
+}
