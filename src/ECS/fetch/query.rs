@@ -444,3 +444,10 @@ filter_impl!(A, B, C, D, E, F, G, H, I);
 filter_impl!(A, B, C, D, E, F, G, H, I, J);
 filter_impl!(A, B, C, D, E, F, G, H, I, J, K);
 filter_impl!(A, B, C, D, E, F, G, H, I, J, K, L);
+
+#[cfg(test)]
+mod tests{
+    mod test_fetch{}
+    mod test_filter{}
+    mod test_tuples{}
+}
