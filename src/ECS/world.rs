@@ -291,7 +291,33 @@ mod tests{
             assert!(world.components.contains_key(idkfa::ID));
             assert!(world.components.contains_key(iddqd::ID));
         }
-        fn register_res(){}
+        #[test]
+        fn register_res(){
+            struct idkfa;
+            struct iddqd;
+
+            impl Resource for idkfa{
+                const ID: &'static str = "idkfa";
+            
+                fn new() -> Self {
+                    Self
+                }
+            }
+            impl Resource for iddqd{
+                const ID: &'static str = "iddqd";
+            
+                fn new() -> Self {
+                    Self
+                }
+            }
+
+            let mut world = World::new();
+            world.register_res::<idkfa>();
+            world.register_res::<iddqd>();
+
+            assert!(world.resources.contains_key(idkfa::ID));
+            assert!(world.resources.contains_key(iddqd::ID));
+        }
         fn register_event(){}
     }
     mod test_spawns{}
