@@ -178,3 +178,11 @@ request_impl!(A, B, C, D, E, F, G, H, I);
 request_impl!(A, B, C, D, E, F, G, H, I, J);
 request_impl!(A, B, C, D, E, F, G, H, I, J, K);
 request_impl!(A, B, C, D, E, F, G, H, I, J, K, L);
+
+#[cfg(test)]
+mod tests{
+    mod test_resource{}
+    mod test_query{}
+    mod test_event{}
+    mod test_meta{}
+}
