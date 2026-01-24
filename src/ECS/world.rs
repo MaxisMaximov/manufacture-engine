@@ -318,7 +318,25 @@ mod tests{
             assert!(world.resources.contains_key(idkfa::ID));
             assert!(world.resources.contains_key(iddqd::ID));
         }
-        fn register_event(){}
+        #[test]
+        fn register_event(){
+            struct idkfa;
+            struct iddqd;
+
+            impl Event for idkfa{
+                const ID: &'static str = "idkfa";
+            }
+            impl Event for iddqd{
+                const ID: &'static str = "iddqd";
+            }
+
+            let mut world = World::new();
+            world.register_event::<idkfa>();
+            world.register_event::<iddqd>();
+
+            assert!(world.events.get_registry().contains(idkfa::ID));
+            assert!(world.events.get_registry().contains(iddqd::ID));
+        }
     }
     mod test_spawns{}
     mod test_meta{}
