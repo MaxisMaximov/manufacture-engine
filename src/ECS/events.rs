@@ -127,6 +127,10 @@ impl EventBufferMap{
             )
             .collect()
     }
+    /// Get the Event registry 
+    pub fn get_registry(&self) -> &HashSet<&'static str>{
+        &self.registry
+    }
 }
 
 /// # Event queue trait
