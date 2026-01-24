@@ -143,3 +143,35 @@ impl dyn StorageWrapper{
         }
     }
 }
+
+#[cfg(test)]
+pub(crate) mod test{
+    #![allow(unused)]
+    use super::*;
+    use std::collections::HashMap;
+    /// COPIED FROM manufacture-core
+    pub struct HashMapStorage<C: Component>{
+        inner: HashMap<usize, C>
+    }
+    impl<C: Component> Storage<C> for HashMapStorage<C>{
+        fn new() -> Self {
+            Self{
+                inner: HashMap::new(),
+            }
+        }
+
+        fn insert(&mut self, id: usize, comp: C) {
+            self.inner.insert(id, comp);
+        }
+        fn remove(&mut self, id: &usize) {
+            self.inner.remove(id);
+        }
+
+        fn get(&self, id: &usize) -> Option<&C> {
+            self.inner.get(id)
+        }
+        fn get_mut(&mut self, id: &usize) -> Option<&mut C> {
+            self.inner.get_mut(id)
+        }
+    }
+}
