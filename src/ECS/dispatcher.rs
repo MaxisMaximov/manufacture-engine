@@ -390,3 +390,15 @@ pub enum SystemType{
     EventResponder(&'static str),
     Postprocessor
 }
+
+#[cfg(test)]
+mod tests{
+    mod preproc{}
+    mod logic{}
+    mod singlefire{}
+    mod event_responder{}
+    mod postproc{}
+    mod overrides{}
+    mod deps{}
+    mod full{}
+}
