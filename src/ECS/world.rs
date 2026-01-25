@@ -294,7 +294,42 @@ mod tests{
             world.fetch::<idkfa>();
             world.fetch_mut::<idkfa>();
         }
-        fn fetch_res(){}
+        #[test]
+        fn fetch_res(){
+            struct idkfa;
+            impl Resource for idkfa{
+                const ID: &'static str = "idkfa";
+            
+                fn new() -> Self {
+                    Self
+                }
+            }
+
+            let mut world = World::new();
+            world.register_res::<idkfa>();
+
+            // SHOULD NOT PANIC
+            world.fetch_res::<idkfa>();
+            world.fetch_res_mut::<idkfa>();
+        }
+        #[test]
+        #[should_panic]
+        fn fetch_res_invalid(){
+            struct idkfa;
+            impl Resource for idkfa{
+                const ID: &'static str = "idkfa";
+            
+                fn new() -> Self {
+                    Self
+                }
+            }
+
+            let world = World::new();
+
+            // SHOULD PANIC
+            world.fetch_res::<idkfa>();
+            world.fetch_res_mut::<idkfa>();
+        }
         fn fetch_event(){}
     }
     mod test_registers{
