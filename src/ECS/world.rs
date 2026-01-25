@@ -210,7 +210,7 @@ impl World{
         }
 
         if let Some(entity) = self.entities.get(&token.id()){
-            if token.validate(entity){
+            if !token.validate(entity){
                 return false
             }
             
@@ -459,5 +459,40 @@ mod tests{
             assert!(world.entities.len() == 1);
             assert!(world.fetch::<idkfa>().get(&0).is_some())
         }
+        #[test]
+        fn despawn_id(){
+            struct idkfa;
+            impl Component for idkfa{
+                type STORAGE = HashMapStorage<Self>;
+            
+                const ID: &'static str = "idkfa";
+            }
+
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+
+            let _ = world.spawn().with(idkfa);
+
+            assert!(world.despawn(0));
+            assert!(world.fetch::<idkfa>().get(&0).is_none());
+        }
+        #[test]
+        fn despawn_token(){
+            struct idkfa;
+            impl Component for idkfa{
+                type STORAGE = HashMapStorage<Self>;
+            
+                const ID: &'static str = "idkfa";
+            }
+
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+
+            let token = world.spawn().with(idkfa).get_token();
+
+            assert!(world.despawn_with_token(token.clone()));
+            assert!(world.fetch::<idkfa>().get_from_token(&token.clone()).is_none());
+        }
+    }
     mod test_meta{}
 }
