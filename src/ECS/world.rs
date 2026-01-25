@@ -330,7 +330,34 @@ mod tests{
             world.fetch_res::<idkfa>();
             world.fetch_res_mut::<idkfa>();
         }
-        fn fetch_event(){}
+        #[test]
+        fn fetch_event(){
+            struct idkfa;
+            impl Event for idkfa{
+                const ID: &'static str = "idkfa";
+            }
+
+            let mut world = World::new();
+            world.register_event::<idkfa>();
+
+            // SHOULD NOT PANIC
+            world.get_event_reader::<idkfa>();
+            world.get_event_writer::<idkfa>();
+        }
+        #[test]
+        #[should_panic]
+        fn fetch_event_invalid(){
+            struct idkfa;
+            impl Event for idkfa{
+                const ID: &'static str = "idkfa";
+            }
+
+            let world = World::new();
+
+            // SHOULD PANIC
+            world.get_event_reader::<idkfa>();
+            world.get_event_writer::<idkfa>();
+        }
     }
     mod test_registers{
         use super::*;
