@@ -431,6 +431,33 @@ mod tests{
             assert!(world.events.get_registry().contains(iddqd::ID));
         }
     }
-    mod test_spawns{}
+    mod test_spawns{
+        use super::*;
+
+        #[test]
+        fn spawn(){
+            let mut world = World::new();
+
+            let _ = world.spawn();
+
+            assert!(world.entities.len() == 1);
+        }
+        #[test]
+        fn spawn_build(){
+            struct idkfa;
+            impl Component for idkfa{
+                type STORAGE = HashMapStorage<Self>;
+            
+                const ID: &'static str = "idkfa";
+            }
+
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+
+            world.spawn().with(idkfa).finish();
+
+            assert!(world.entities.len() == 1);
+            assert!(world.fetch::<idkfa>().get(&0).is_some())
+        }
     mod test_meta{}
 }
