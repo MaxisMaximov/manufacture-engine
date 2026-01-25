@@ -262,7 +262,38 @@ mod tests{
     use super::test::HashMapStorage;
     mod test_fetches{
         use super::*;
-        fn fetch_comp(){}
+        #[test]
+        fn fetch_comp(){
+            struct idkfa;
+            impl Component for idkfa{
+                type STORAGE = HashMapStorage<Self>;
+            
+                const ID: &'static str = "idkfa";
+            }
+
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+
+            // SHOULD NOT PANIC
+            world.fetch::<idkfa>();
+            world.fetch_mut::<idkfa>();
+        }
+        #[test]
+        #[should_panic]
+        fn fetch_comp_invalid(){
+            struct idkfa;
+            impl Component for idkfa{
+                type STORAGE = HashMapStorage<Self>;
+            
+                const ID: &'static str = "idkfa";
+            }
+
+            let world = World::new();
+
+            // SHOULD PANIC
+            world.fetch::<idkfa>();
+            world.fetch_mut::<idkfa>();
+        }
         fn fetch_res(){}
         fn fetch_event(){}
     }
