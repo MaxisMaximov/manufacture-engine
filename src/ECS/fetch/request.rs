@@ -181,7 +181,40 @@ request_impl!(A, B, C, D, E, F, G, H, I, J, K, L);
 
 #[cfg(test)]
 mod tests{
-    mod test_resource{}
+    use super::*;
+    mod test_resource{
+        use super::*;
+
+        struct idkfa(u8);
+        struct iddqd(u8);
+        impl Resource for idkfa{
+            const ID: &'static str = "idkfa";
+        
+            fn new() -> Self {
+                Self(5)
+            }
+        }
+        impl Resource for iddqd{
+            const ID: &'static str = "iddqd";
+        
+            fn new() -> Self {
+                Self(5)
+            }
+        }
+
+        #[test]
+        fn test(){
+            let mut world = World::new();
+            world.register_res::<idkfa>();
+            world.register_res::<iddqd>();
+
+            let mut request: Request<'_, (&idkfa, &mut iddqd)> = Request::fetch(&world);
+            request.1.0 = 10;
+
+            assert!(request.0.0 == 5);
+            assert!(request.1.0 == 10);
+        }
+    }
     mod test_query{}
     mod test_event{}
     mod test_meta{}
