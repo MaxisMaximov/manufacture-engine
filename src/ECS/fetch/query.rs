@@ -447,7 +447,32 @@ filter_impl!(A, B, C, D, E, F, G, H, I, J, K, L);
 
 #[cfg(test)]
 mod tests{
-    mod test_fetch{}
+    use super::*;
+    mod test_fetch{
+        use super::*;
+        use crate::ECS::storage::test::HashMapStorage;
+
+        struct idkfa(u8);
+        struct iddqd(u8);
+        impl Component for idkfa{
+            type STORAGE = HashMapStorage<Self>;
+        
+            const ID: &'static str = "idkfa";
+        }
+        impl Component for iddqd{
+            type STORAGE = HashMapStorage<Self>;
+        
+            const ID: &'static str = "iddqd";
+        }
+
+        #[test]
+        fn test(){
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+            world.register_comp::<iddqd>();
+
+            let _query: WorldQuery<'_, (&idkfa, &mut iddqd), ()> = WorldQuery::fetch(&world);
+        }
+    }
     mod test_filter{}
-    mod test_tuples{}
 }
