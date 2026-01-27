@@ -473,6 +473,19 @@ mod tests{
 
             let _query: WorldQuery<'_, (&idkfa, &mut iddqd), ()> = WorldQuery::fetch(&world);
         }
+        #[test]
+        fn test_get(){
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+            world.register_comp::<iddqd>();
+
+            world.spawn().with(idkfa(5)).with(iddqd(10)).finish();
+
+            let mut query: WorldQuery<'_, (&idkfa, &mut iddqd), ()> = WorldQuery::fetch(&world);
+
+            assert!(query.0.get(&0).is_some());
+            assert!(query.1.get_mut(&0).is_some());
+        }
     }
     mod test_filter{}
 }
