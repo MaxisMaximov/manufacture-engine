@@ -494,5 +494,26 @@ mod tests{
             assert!(world.fetch::<idkfa>().get_from_token(&token.clone()).is_none());
         }
     }
-    mod test_meta{}
+    #[test]
+    fn test_meta(){
+        struct idkfa;
+        impl Command for idkfa{
+            fn execute(&mut self, world: &mut World) {
+                let _ = world.spawn();
+            }
+        }
+
+        let world = World::new();
+
+        { // Commands
+            let mut commands = world.get_command_writer();
+            commands.send(idkfa);
+            assert!(commands.command_count() == 1)
+        }
+        { // Triggers
+            let mut triggers = world.get_trigger_writer();
+            triggers.send("idkfa");
+            assert!(triggers.trigger_count() == 1)
+        }
+    }
 }
