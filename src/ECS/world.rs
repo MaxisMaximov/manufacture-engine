@@ -381,7 +381,7 @@ mod tests{
             world.register_comp::<idkfa>();
             world.register_comp::<iddqd>();
 
-            // CHeck registries
+            // Check registries
             assert!(world.components.contains_key(idkfa::ID));
             assert!(world.components.contains_key(iddqd::ID));
 
@@ -391,6 +391,28 @@ mod tests{
             // Check deregistries
             assert!(!world.components.contains_key(idkfa::ID));
             assert!(!world.components.contains_key(iddqd::ID));
+            
+        }
+        #[test]
+        #[should_panic]
+        fn register_comp_collision(){
+            struct idkfa;
+            struct iddqd;
+
+            impl Component for idkfa{
+                type STORAGE = HashMapStorage<Self>;
+            
+                const ID: &'static str = "idkfa";
+            }
+            impl Component for iddqd{
+                type STORAGE = HashMapStorage<Self>;
+            
+                const ID: &'static str = "idkfa";
+            }
+
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+            world.register_comp::<iddqd>();
         }
         #[test]
         fn register_res(){
@@ -430,6 +452,31 @@ mod tests{
             assert!(!world.resources.contains_key(iddqd::ID));
         }
         #[test]
+        #[should_panic]
+        fn register_res_collision(){
+            struct idkfa;
+            struct iddqd;
+
+            impl Resource for idkfa{
+                const ID: &'static str = "idkfa";
+            
+                fn new() -> Self {
+                    Self
+                }
+            }
+            impl Resource for iddqd{
+                const ID: &'static str = "idkfa";
+            
+                fn new() -> Self {
+                    Self
+                }
+            }
+
+            let mut world = World::new();
+            world.register_res::<idkfa>();
+            world.register_res::<iddqd>();
+        }
+        #[test]
         fn register_event(){
             struct idkfa;
             struct iddqd;
@@ -454,6 +501,23 @@ mod tests{
             // Check deregistries
             assert!(!world.events.get_registry().contains(idkfa::ID));
             assert!(!world.events.get_registry().contains(iddqd::ID));
+        }
+        #[test]
+        #[should_panic]
+        fn register_event_collision(){
+            struct idkfa;
+            struct iddqd;
+
+            impl Event for idkfa{
+                const ID: &'static str = "idkfa";
+            }
+            impl Event for iddqd{
+                const ID: &'static str = "idkfa";
+            }
+
+            let mut world = World::new();
+            world.register_event::<idkfa>();
+            world.register_event::<iddqd>();
         }
     }
     mod test_spawns{
