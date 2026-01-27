@@ -381,8 +381,16 @@ mod tests{
             world.register_comp::<idkfa>();
             world.register_comp::<iddqd>();
 
+            // CHeck registries
             assert!(world.components.contains_key(idkfa::ID));
             assert!(world.components.contains_key(iddqd::ID));
+
+            world.deregister_comp::<idkfa>();
+            world.deregister_comp::<iddqd>();
+
+            // Check deregistries
+            assert!(!world.components.contains_key(idkfa::ID));
+            assert!(!world.components.contains_key(iddqd::ID));
         }
         #[test]
         fn register_res(){
@@ -405,11 +413,21 @@ mod tests{
             }
 
             let mut world = World::new();
+
             world.register_res::<idkfa>();
             world.register_res::<iddqd>();
 
+            // Check registries
             assert!(world.resources.contains_key(idkfa::ID));
             assert!(world.resources.contains_key(iddqd::ID));
+
+
+            world.deregister_res::<idkfa>();
+            world.deregister_res::<iddqd>();
+
+            // Check deregistries
+            assert!(!world.resources.contains_key(idkfa::ID));
+            assert!(!world.resources.contains_key(iddqd::ID));
         }
         #[test]
         fn register_event(){
@@ -424,11 +442,18 @@ mod tests{
             }
 
             let mut world = World::new();
+
             world.register_event::<idkfa>();
             world.register_event::<iddqd>();
-
+            // Check registries
             assert!(world.events.get_registry().contains(idkfa::ID));
             assert!(world.events.get_registry().contains(iddqd::ID));
+
+            world.deregister_event::<idkfa>();
+            world.deregister_event::<iddqd>();
+            // Check deregistries
+            assert!(!world.events.get_registry().contains(idkfa::ID));
+            assert!(!world.events.get_registry().contains(iddqd::ID));
         }
     }
     mod test_spawns{
