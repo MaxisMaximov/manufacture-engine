@@ -510,5 +510,108 @@ mod tests{
             };
         }
     }
-    mod test_filter{}
+    mod test_filter{
+        use super::*;
+        use crate::ECS::storage::test::HashMapStorage;
+        use std::marker::PhantomData;
+
+        struct idkfa(u8);
+        struct iddqd(u8);
+        impl Component for idkfa{
+            type STORAGE = HashMapStorage<Self>;
+        
+            const ID: &'static str = "idkfa";
+        }
+        impl Component for iddqd{
+            type STORAGE = HashMapStorage<Self>;
+        
+            const ID: &'static str = "iddqd";
+        }
+
+        struct With<C: Component>(PhantomData<C>);
+        struct Without<C: Component>(PhantomData<C>);
+        impl<C: Component> QueryFilter for With<C>{
+            type Item<'b> = Fetch<'b, C>;
+        
+            fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+                world.fetch::<C>()
+            }
+        
+            fn filter<'qref, 'query: 'qref>(fetched: &'qref Self::Item<'query>, id: &usize) -> bool {
+                fetched.get(id).is_some()
+            }
+        }
+        impl<C: Component> QueryFilter for Without<C>{
+            type Item<'b> = Fetch<'b, C>;
+        
+            fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
+                world.fetch::<C>()
+            }
+        
+            fn filter<'qref, 'query: 'qref>(fetched: &'qref Self::Item<'query>, id: &usize) -> bool {
+                fetched.get(id).is_none()
+            }
+        }
+
+        #[test]
+        fn test(){
+            let mut world = World::new();
+
+            world.register_comp::<idkfa>();
+            world.register_comp::<iddqd>();
+
+            // (0, 0)
+            world.spawn().finish();
+            // (0, 1)
+            world.spawn().with(iddqd(10)).finish();
+            // (1, 0)
+            world.spawn().with(idkfa(5)).finish();
+            // (1, 1)
+            world.spawn().with(idkfa(5)).with(iddqd(10)).finish();
+
+            // No filters
+            {
+                let query: WorldQuery<(), ()> = WorldQuery::fetch(&world);
+                assert!(query.iter().count() == 4)
+            }
+
+            // With
+            {
+                let query: WorldQuery<(), With<idkfa>> = WorldQuery::fetch(&world);
+                assert!(query.iter().count() == 2)
+            }
+            {
+                let query: WorldQuery<(), With<iddqd>> = WorldQuery::fetch(&world);
+                assert!(query.iter().count() == 2)
+            }
+            {
+                let query: WorldQuery<(), (With<idkfa>, With<iddqd>)> = WorldQuery::fetch(&world);
+                assert!(query.iter().count() == 1)
+            }
+
+            // Without
+            {
+                let query: WorldQuery<(), Without<idkfa>> = WorldQuery::fetch(&world);
+                assert!(query.iter().count() == 2)
+            }
+            {
+                let query: WorldQuery<(), Without<iddqd>> = WorldQuery::fetch(&world);
+                assert!(query.iter().count() == 2)
+            }
+            {
+                let query: WorldQuery<(), (Without<idkfa>, Without<iddqd>)> = WorldQuery::fetch(&world);
+                assert!(query.iter().count() == 1)
+            }
+
+            // Mix-match
+            {
+                let query: WorldQuery<(), (With<idkfa>, Without<iddqd>)> = WorldQuery::fetch(&world);
+                assert!(query.iter().count() == 1)
+            }
+            {
+                let query: WorldQuery<(), (Without<idkfa>, With<iddqd>)> = WorldQuery::fetch(&world);
+                assert!(query.iter().count() == 1)
+            }
+        }
+    }
 }
