@@ -31,7 +31,7 @@ pub trait QueryData{
     /// Access given Entity's data immutably
     fn get<'a, 'b: 'a, 'c: 'b>(fetched: &'b Self::Item<'c>, id: &usize) -> Option<Self::AccItem<'a>>;
     /// Access given Entity's data mutably
-    fn get_mut<'a>(fetched: &'a mut Self::Item<'a>, id: &usize) -> Option<Self::MutAccItem<'a>>;
+    fn get_mut<'a, 'b: 'a, 'c: 'b>(fetched: &'b mut Self::Item<'c>, id: &usize) -> Option<Self::MutAccItem<'a>>;
 }
 
 /// # Query Filter trait
@@ -93,7 +93,7 @@ impl<'a, D: QueryData, F: QueryFilter> WorldQuery<'a, D, F>{
     /// 
     /// Note that it returns `Some` only if the entity has *all* requested Components,  
     /// otherwise it returns `None`
-    pub fn get(&'a self, id: &usize) -> Option<D::AccItem<'a>>{
+    pub fn get<'b, 'c: 'b>(&'c self, id: &usize) -> Option<D::AccItem<'b>>{
         if self.entities.contains_key(id) && F::filter(&self.filter_data, id){
             D::get(&self.data, id)
         }else{
@@ -148,7 +148,7 @@ impl<'a, D: QueryData, F: QueryFilter> WorldQuery<'a, D, F>{
     /// Iterate over all matching entities immutably  
     /// 
     /// Entities that don't have at least one matching Component will not be iterated over
-    pub fn iter<'iter>(&'iter self) -> Iter<'a, 'iter, D, F>{
+    pub fn iter<'b>(&'b self) -> Iter<'a, 'b, D, F>{
         Iter{
             data: &self.data,
             filters: &self.filter_data,
@@ -159,11 +159,15 @@ impl<'a, D: QueryData, F: QueryFilter> WorldQuery<'a, D, F>{
     /// Iterate over all matching entities mutably  
     /// 
     /// Entities that don't have at least one matching Component will not be iterated over
-    pub fn iter_mut(&'a mut self) -> IterMut<'a, D, F>{
+    pub fn iter_mut<'iter, 'query: 'iter>(&'query mut self) ->
+        // bool{
+        IterMut<'iter, 'a, D, F>{
+        // return true
         IterMut{
             data: &mut self.data,
             filters: &self.filter_data,
             ent_iter: self.entities.keys(),
+            _phantom: std::marker::PhantomData
         }
     }
 
@@ -199,14 +203,14 @@ impl<'a, D: QueryData, F: QueryFilter> DerefMut for WorldQuery<'a, D, F>{
 use std::collections::btree_map::Keys;
 /// # Query Iterator
 /// Iterates over entities that have all matching Components of `D`ata immutably
-pub struct Iter<'query: 'iter, 'iter, D: QueryData, F: QueryFilter>{
-    data: &'iter D::Item<'query>,
-    filters: &'iter F::Item<'query>,
-    ent_iter: Keys<'query, usize, Entity>,
+pub struct Iter<'b: 'a, 'a, D: QueryData, F: QueryFilter>{
+    data: &'a D::Item<'b>,
+    filters: &'a F::Item<'b>,
+    ent_iter: Keys<'b, usize, Entity>,
     // _phantom: std::marker::PhantomData<(&'query D, &'iter F)>
 }
-impl<'query: 'iter, 'iter, D: QueryData, F: QueryFilter> Iterator for Iter<'query, 'iter, D, F>{
-    type Item = D::AccItem<'iter>;
+impl<'b: 'a, 'a, D: QueryData, F: QueryFilter> Iterator for Iter<'b, 'a, D, F>{
+    type Item = D::AccItem<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         // return Some(true);
@@ -222,49 +226,52 @@ impl<'query: 'iter, 'iter, D: QueryData, F: QueryFilter> Iterator for Iter<'quer
 
 /// # Mutable Query Iterator
 /// Iterates over entities that have all matching Components of `D`ata mutably
-pub struct IterMut<'a, D: QueryData, F: QueryFilter>{
-    data: &'a mut D::Item<'a>,
-    filters: &'a F::Item<'a>,
-    ent_iter: Keys<'a, usize, Entity>
+pub struct IterMut<'iter, 'query: 'iter, D: QueryData, F: QueryFilter>{
+    data: &'iter mut D::Item<'query>,
+    filters: &'iter F::Item<'query>,
+    ent_iter: Keys<'query, usize, Entity>,
+    _phantom: std::marker::PhantomData<(&'iter D, &'query F)>
 }
-impl<'a, D: QueryData, F: QueryFilter> Iterator for IterMut<'a, D, F>{
-    type Item = D::MutAccItem<'a>;
+impl<'iter, 'query: 'iter, D: QueryData, F: QueryFilter> Iterator for IterMut<'iter, 'query, D, F>{
+    type Item = D::MutAccItem<'iter>;
+    // type Item = bool;
 
     fn next(&mut self) -> Option<Self::Item> {
         loop{
             let index = self.ent_iter.next()?;
+            // let index = &0;
 
-            if let Some(fetched) = 
-                D::get_mut(
-                    // SAFETY: I have no goddamn pecking idea
-                    // But this is what 
-                    // [this](stackoverflow.com/questions/61978903/how-do-i-create-mutable-iterator-over-struct-fields)
-                    // post's last comment suggests for a whole different problem
+            // return Some(F::filter(self.filters, index));
 
-                    // I PRESUME:
-                    // 1. We -grade (up or down??) `self.data` - which is a mutable 
-                    //    reference to Query's `data` field - into a mutable *pointer*
-                    // 2. We dereference that pointer to get to the original
-                    //    data, getting *it's* lifetime now instead of Query's
-                    // 3. We then pass that direct original data as a mutable reference into the Getter
+            if F::filter(self.filters, index){
+                return 
+                    D::get_mut(
+                        // SAFETY: I have no goddamn pecking idea
+                        // But this is what 
+                        // [this](stackoverflow.com/questions/61978903/how-do-i-create-mutable-iterator-over-struct-fields)
+                        // post's last comment suggests for a whole different problem
 
-                    // I have no idea how it actually works, but the comment probably explains it better
-                    // I might redo this later, or this hotwire will still be here
-                    // Mark my words this will be unchanged since 3.10.2025
-                    // (10.3.2025 for you American Burger Per Freedom Mile Eagles people)
+                        // I PRESUME:
+                        // 1. We -grade (up or down??) `self.data` - which is a mutable 
+                        //    reference to Query's `data` field - into a mutable *pointer*
+                        // 2. We dereference that pointer to get to the original
+                        //    data, getting *it's* lifetime now instead of Query's
+                        // 3. We then pass that direct original data as a mutable reference into the Getter
 
-                    // Unless I redo the engine 4th time in a row
-                    unsafe{&mut *(self.data as *mut D::Item<'a>)}, 
-                    index
-                )
-            {
-                if F::filter(self.filters, index){
-                    return Some(fetched)
-                }
+                        // I have no idea how it actually works, but the comment probably explains it better
+                        // I might redo this later, or this hotwire will still be here
+                        // Mark my words this will be unchanged since 3.10.2025
+                        // (10.3.2025 for you American Burger Per Freedom Mile Eagles people)
+
+                        // Unless I redo the engine 4th time in a row
+                        unsafe{&mut *(self.data as *mut D::Item<'query>)}, 
+                        index
+                    )
             }
         }
     }
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Components
@@ -283,7 +290,7 @@ impl<C:Component> QueryData for &C{
     fn get<'a, 'b: 'a, 'c: 'b>(fetched: &'b Self::Item<'c>, id: &usize) -> Option<Self::AccItem<'a>> {
         fetched.get(id)
     }
-    fn get_mut<'a>(fetched: &'a mut Self::Item<'a>, id: &usize) -> Option<Self::MutAccItem<'a>> {
+    fn get_mut<'a, 'b: 'a, 'c: 'b>(fetched: &'b mut Self::Item<'c>, id: &usize) -> Option<Self::MutAccItem<'a>> {
         fetched.get(id)
     }    
 }
@@ -300,7 +307,7 @@ impl<C: Component> QueryData for &mut C{
     fn get<'a, 'b: 'a, 'c: 'b>(fetched: &'b Self::Item<'c>, id: &usize) -> Option<Self::AccItem<'a>> {
         fetched.get(id)
     }
-    fn get_mut<'a>(fetched: &'a mut Self::Item<'a>, id: &usize) -> Option<Self::MutAccItem<'a>> {
+    fn get_mut<'a, 'b: 'a, 'c: 'b>(fetched: &'b mut Self::Item<'c>, id: &usize) -> Option<Self::MutAccItem<'a>> {
         fetched.get_mut(id)
     }
 }
@@ -324,7 +331,7 @@ impl<C: Component> QueryData for Option<&C>{
         // a valid AccItem, and therefore a valid Component set
         Some(fetched.get(id))
     }
-    fn get_mut<'a>(fetched: &'a mut Self::Item<'a>, id: &usize) -> Option<Self::MutAccItem<'a>> {
+    fn get_mut<'a, 'b: 'a, 'c: 'b>(fetched: &'b mut Self::Item<'c>, id: &usize) -> Option<Self::MutAccItem<'a>> {
         Some(fetched.get(id))
     }
 }
@@ -340,7 +347,7 @@ impl<C: Component> QueryData for Option<&mut C>{
     fn get<'a, 'b: 'a, 'c: 'b>(fetched: &'b Self::Item<'c>, id: &usize) -> Option<Self::AccItem<'a>> {
         Some(fetched.get(id))
     }
-    fn get_mut<'a>(fetched: &'a mut Self::Item<'a>, id: &usize) -> Option<Self::MutAccItem<'a>> {
+    fn get_mut<'a, 'b: 'a, 'c: 'b>(fetched: &'b mut Self::Item<'c>, id: &usize) -> Option<Self::MutAccItem<'a>> {
         Some(fetched.get_mut(id))
     }
 }
@@ -360,7 +367,7 @@ impl QueryData for (){
     fn get<'a, 'b: 'a, 'c: 'b>(_fetched: &'b Self::Item<'c>, _id: &usize) -> Option<Self::AccItem<'a>> {
         Some(())
     }
-    fn get_mut<'a>(_fetched: &'a mut Self::Item<'a>, _id: &usize) -> Option<Self::MutAccItem<'a>> {
+    fn get_mut<'a, 'b: 'a, 'c: 'b>(_fetched: &'b mut Self::Item<'c>, _id: &usize) -> Option<Self::MutAccItem<'a>> {
         Some(())
     }
 }
@@ -394,7 +401,7 @@ macro_rules! query_impl {
                     ($($x::get($x, Index)?), *)
                 )
             }
-            fn get_mut<'a>(($($x), *): &'a mut Self::Item<'a>, Index: &usize) -> Option<Self::MutAccItem<'a>> {
+            fn get_mut<'a, 'b: 'a, 'c: 'b>(($($x), *): &'b mut Self::Item<'c>, Index: &usize) -> Option<Self::MutAccItem<'a>> {
                 Some(
                     ($($x::get_mut($x, Index)?), *)
                 )
@@ -497,15 +504,16 @@ mod tests{
             {
                 let mut query: WorldQuery<'_, (&idkfa, &mut iddqd), ()> = WorldQuery::fetch(&world);
 
-                for comps in query.iter(){
-                    assert!(comps.0.0 == 5);
-                    assert!(comps.1.0 == 10);
+                for (kfa, dqd) in query.iter(){
+                    assert!(kfa.0 == 5);
+                    assert!(dqd.0 == 10);
                 }
 
-                // THIS DOES NOT YET WORK
-                // Comment it out to get it working
-                for comps in query.iter_mut(){
-                    
+                for (kfa, dqd) in query.iter_mut(){
+                    dqd.0 = 20;
+
+                    assert!(kfa.0 == 5);
+                    assert!(dqd.0 == 20);
                 }
             };
         }
