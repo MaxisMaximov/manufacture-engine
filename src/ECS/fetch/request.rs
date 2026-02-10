@@ -280,6 +280,31 @@ mod tests{
 
         }
     }
-    mod test_event{}
+    mod test_event{
+        use super::*;
+
+        struct idkfa;
+        struct iddqd;
+        impl Event for idkfa{
+            const ID: &'static str = "idkfa";
+        }
+        impl Event for iddqd{
+            const ID: &'static str = "iddqd";
+        }
+
+        #[test]
+        fn test(){
+            let mut world = World::new();
+            world.register_event::<idkfa>();
+            world.register_event::<iddqd>();
+
+            let mut request: Request<'_, (ReadEvent<idkfa>, WriteEvent<iddqd>)> = Request::fetch(&world);
+
+            request.1.send(iddqd);
+
+            assert!(request.0.event_count() == 0);
+            assert!(request.1.current_event_count() == 1);
+        }
+    }
     mod test_meta{}
 }
