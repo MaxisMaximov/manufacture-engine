@@ -331,5 +331,38 @@ mod tests{
             let _request_b: Request<'_, (ReadEvent<idkfa>, WriteEvent<iddqd>)> = Request::fetch(&world);
         }
     }
-    mod test_meta{}
+    mod test_commands{
+        use super::*;
+        use crate::ECS::commands::Command;
+
+        struct idkfa;
+        struct iddqd;
+        impl Command for idkfa{
+            fn execute(&mut self, _world: &mut World) {}
+        }
+        impl Command for iddqd{
+            fn execute(&mut self, _world: &mut World) {}
+        }
+
+        #[test]
+        fn test(){
+            let world = World::new();
+
+            let mut request: Request<'_, Commands> = Request::fetch(&world);
+
+            request.send(idkfa);
+            request.send(iddqd);
+
+            assert!(request.command_count() == 2)
+        }
+        #[test]
+        #[should_panic]
+        fn test_illegal_fetch(){
+            let world = World::new();
+
+            let _request_a: Request<'_, Commands> = Request::fetch(&world);
+            let _request_b: Request<'_, Commands> = Request::fetch(&world);
+        }
+    }
+    mod test_triggers{}
 }
