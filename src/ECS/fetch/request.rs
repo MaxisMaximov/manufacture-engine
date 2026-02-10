@@ -320,6 +320,16 @@ mod tests{
             assert!(request_a.1.current_event_count() == 1);
             assert!(request_b.event_count() == 0);
         }
+        #[test]
+        #[should_panic]
+        fn test_overlap_panic(){
+            let mut world = World::new();
+            world.register_event::<idkfa>();
+            world.register_event::<iddqd>();
+
+            let _request_a: Request<'_, (ReadEvent<idkfa>, WriteEvent<iddqd>)> = Request::fetch(&world);
+            let _request_b: Request<'_, (ReadEvent<idkfa>, WriteEvent<iddqd>)> = Request::fetch(&world);
+        }
     }
     mod test_meta{}
 }
