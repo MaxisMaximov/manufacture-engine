@@ -305,6 +305,21 @@ mod tests{
             assert!(request.0.event_count() == 0);
             assert!(request.1.current_event_count() == 1);
         }
+        #[test]
+        fn test_overlap_safe(){
+            let mut world = World::new();
+            world.register_event::<idkfa>();
+            world.register_event::<iddqd>();
+
+            let mut request_a: Request<'_, (ReadEvent<idkfa>, WriteEvent<iddqd>)> = Request::fetch(&world);
+            let request_b: Request<'_, ReadEvent<idkfa>> = Request::fetch(&world);
+
+            request_a.1.send(iddqd);
+
+            assert!(request_a.0.event_count() == 0);
+            assert!(request_a.1.current_event_count() == 1);
+            assert!(request_b.event_count() == 0);
+        }
     }
     mod test_meta{}
 }
