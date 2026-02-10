@@ -364,5 +364,27 @@ mod tests{
             let _request_b: Request<'_, Commands> = Request::fetch(&world);
         }
     }
-    mod test_triggers{}
+    mod test_triggers{
+        use super::*;
+
+        #[test]
+        fn test(){
+            let world = World::new();
+
+            let mut request: Request<'_, Triggers> = Request::fetch(&world);
+
+            request.send("idkfa");
+            request.send("iddqd");
+
+            assert!(request.trigger_count() == 2)
+        }
+        #[test]
+        #[should_panic]
+        fn test_illegal_fetch(){
+            let world = World::new();
+
+            let _request_a: Request<'_, Triggers> = Request::fetch(&world);
+            let _request_b: Request<'_, Triggers> = Request::fetch(&world);
+        }
+    }
 }
