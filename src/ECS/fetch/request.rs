@@ -248,6 +248,26 @@ mod tests{
             assert!(matches!(request.get_mut(&0).unwrap(), (&idkfa(5), &mut iddqd(15))))
             
         }
+        #[test]
+        fn test_overlap_safe(){
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+            world.register_comp::<iddqd>();
+
+            world.spawn().with(idkfa(5)).with(iddqd(10)).finish();
+
+            let mut request_a: Request<'_, Query<(&idkfa, &mut iddqd), ()>> = Request::fetch(&world);
+            let request_b: Request<'_, Query<&idkfa, ()>> = Request::fetch(&world);
+
+            let rq_a_ent = request_a.get_mut(&0).unwrap();
+            let rq_b_ent = request_b.get(&0).unwrap();
+
+            rq_a_ent.1.0 += 5;
+
+            assert!(rq_a_ent.0.0 == rq_b_ent.0);
+            assert!(rq_a_ent.1.0 == 15);
+
+        }
     }
     mod test_event{}
     mod test_meta{}
