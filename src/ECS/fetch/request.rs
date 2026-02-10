@@ -268,6 +268,17 @@ mod tests{
             assert!(rq_a_ent.1.0 == 15);
 
         }
+        #[test]
+        #[should_panic]
+        fn test_overlap_panic(){
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+            world.register_comp::<iddqd>();
+
+            let _request_a: Request<'_, Query<(&idkfa, &mut iddqd), ()>> = Request::fetch(&world);
+            let _request_b: Request<'_, Query<&mut idkfa, ()>> = Request::fetch(&world);
+
+        }
     }
     mod test_event{}
     mod test_meta{}
