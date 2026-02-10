@@ -511,6 +511,7 @@ mod tests{
         }
     }
     mod test_filter{
+        #![allow(unused)]
         use super::*;
         use crate::ECS::storage::test::HashMapStorage;
         use std::marker::PhantomData;

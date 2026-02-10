@@ -215,7 +215,40 @@ mod tests{
             assert!(request.1.0 == 10);
         }
     }
-    mod test_query{}
+    mod test_query{
+        use super::*;
+        use crate::ECS::comp::Component;
+        use crate::ECS::storage::test::HashMapStorage;
+
+        struct idkfa(u8);
+        struct iddqd(u8);
+        impl Component for idkfa{
+            type STORAGE = HashMapStorage<Self>;
+        
+            const ID: &'static str = "idkfa";
+        }
+        impl Component for iddqd{
+            type STORAGE = HashMapStorage<Self>;
+        
+            const ID: &'static str = "iddqd";
+        }
+
+        #[test]
+        fn test(){
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+            world.register_comp::<iddqd>();
+
+            world.spawn().with(idkfa(5)).with(iddqd(10)).finish();
+
+            let mut request: Request<'_, Query<(&idkfa, &mut iddqd), ()>> = Request::fetch(&world);
+
+            request.get_mut(&0).unwrap().1.0 += 5;
+
+            assert!(matches!(request.get_mut(&0).unwrap(), (&idkfa(5), &mut iddqd(15))))
+            
+        }
+    }
     mod test_event{}
     mod test_meta{}
 }
