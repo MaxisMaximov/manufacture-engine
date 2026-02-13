@@ -380,7 +380,7 @@ impl RunOrder{
 /// They're effectively Logic Systems that listen for Events only and declutter the main Logic loop
 /// 
 /// `Postprocessor` Systems are ran at the end of every frame  
-/// They are typically output Systems like Audio, Outgoing Netowkr and Rendering
+/// They are typically output Systems like Audio, Outgoing Network and Rendering
 #[derive(Default)]
 pub enum SystemType{
     Preprocessor,
