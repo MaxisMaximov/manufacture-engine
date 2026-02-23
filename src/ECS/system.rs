@@ -92,80 +92,30 @@ mod tests{
         
             const ID: &'static str = "iddqd";
         }
-
-        struct Get;
-        struct Iter;
-        /// PREREQUISTES:
-        /// IDs 1 and 2 have only idkfa and iddqd component respectively
-        struct AddRemove;
         
-        impl System for Get{
-            type Data<'a> = Query<(&'a idkfa, &'a mut iddqd), ()>;
-        
-            const ID: &'static str = "_test_Get";
-        
-            fn new() -> Self {
-                Self
-            }
-        
-            fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
-                let get = data.get(&0);
-                assert!(matches!(get, Some((&idkfa(5), &iddqd(10)))));
-
-                let get_mut = data.get_mut(&0);
-                assert!(matches!(get_mut, Some((&idkfa(5), &mut iddqd(10)))))
-            }
-        }
-        impl System for Iter{
-            type Data<'a> = Query<(&'a idkfa, &'a mut iddqd), ()>;
-        
-            const ID: &'static str = "_test_Iter";
-        
-            fn new() -> Self {
-                Self
-            }
-        
-            fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
-
-                for (kfa, dqd) in data.iter(){
-                    assert!(matches!(kfa, idkfa(5)));
-                    assert!(matches!(dqd, iddqd(10)))
-                }
-
-                for (kfa, dqd) in data.iter_mut(){
-                    dqd.0 = 20;
-                    assert!(matches!(kfa, idkfa(5)));
-                    assert!(matches!(dqd, iddqd(20)))
-                }
-            }
-        }
-        impl System for AddRemove{
-            type Data<'a> = Query<(&'a mut idkfa, &'a mut iddqd), ()>;
-        
-            const ID: &'static str = "_test_AddRemove";
-        
-            fn new() -> Self {
-                Self
-            }
-        
-            fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
-
-                data.1.insert(1, iddqd(20)); // Add iddqd to 1
-                data.0.insert(2, idkfa(10)); // Add idkfa to 2
-
-                assert!(data.1.get(&1).is_some());
-                assert!(data.0.get(&2).is_some());
-                
-                data.0.remove(&1); // Remove idkfa from 1
-                data.1.remove(&2); // Remove iddqd from 2
-                
-                assert!(data.0.get(&1).is_none());
-                assert!(data.1.get(&2).is_none());
-            }
-        }
 
         #[test]
-        fn test(){
+        fn test_get(){
+
+            struct Get;
+            impl System for Get{
+                type Data<'a> = Query<(&'a idkfa, &'a mut iddqd), ()>;
+            
+                const ID: &'static str = "_test_Get";
+            
+                fn new() -> Self {
+                    Self
+                }
+            
+                fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
+                    let get = data.get(&0);
+                    assert!(matches!(get, Some((&idkfa(5), &iddqd(10)))));
+
+                    let get_mut = data.get_mut(&0);
+                    assert!(matches!(get_mut, Some((&idkfa(5), &mut iddqd(10)))))
+                }
+            }
+
             let mut world = World::new();
             world.register_comp::<idkfa>();
             world.register_comp::<iddqd>();
@@ -175,11 +125,90 @@ mod tests{
             world.spawn().with(iddqd(10)).finish();
 
             let mut test_get = Get::new();
-            let mut test_iter = Iter::new();
-            let mut test_addremove = AddRemove::new();
+            
+            
 
             SystemWrapper::execute(&mut test_get, &mut world);
+        }
+        #[test]
+        fn test_iter(){
+
+            struct Iter;
+            impl System for Iter{
+                type Data<'a> = Query<(&'a idkfa, &'a mut iddqd), ()>;
+            
+                const ID: &'static str = "_test_Iter";
+            
+                fn new() -> Self {
+                    Self
+                }
+            
+                fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
+
+                    for (kfa, dqd) in data.iter(){
+                        assert!(matches!(kfa, idkfa(5)));
+                        assert!(matches!(dqd, iddqd(10)))
+                    }
+
+                    for (kfa, dqd) in data.iter_mut(){
+                        dqd.0 = 20;
+                        assert!(matches!(kfa, idkfa(5)));
+                        assert!(matches!(dqd, iddqd(20)))
+                    }
+                }
+            }
+
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+            world.register_comp::<iddqd>();
+
+            world.spawn().with(idkfa(5)).with(iddqd(10)).finish();
+            world.spawn().with(idkfa(5)).finish();
+            world.spawn().with(iddqd(10)).finish();
+
+            let mut test_iter = Iter::new();
             SystemWrapper::execute(&mut test_iter, &mut world);
+        }
+        #[test]
+        fn test_addremove(){
+
+            /// PREREQUISTES:
+            /// IDs 1 and 2 have only idkfa and iddqd component respectively
+            struct AddRemove;
+            impl System for AddRemove{
+                type Data<'a> = Query<(&'a mut idkfa, &'a mut iddqd), ()>;
+            
+                const ID: &'static str = "_test_AddRemove";
+            
+                fn new() -> Self {
+                    Self
+                }
+            
+                fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
+
+                    data.1.insert(1, iddqd(20)); // Add iddqd to 1
+                    data.0.insert(2, idkfa(10)); // Add idkfa to 2
+
+                    assert!(data.1.get(&1).is_some());
+                    assert!(data.0.get(&2).is_some());
+                    
+                    data.0.remove(&1); // Remove idkfa from 1
+                    data.1.remove(&2); // Remove iddqd from 2
+                    
+                    assert!(data.0.get(&1).is_none());
+                    assert!(data.1.get(&2).is_none());
+                }
+            }
+
+            let mut world = World::new();
+            world.register_comp::<idkfa>();
+            world.register_comp::<iddqd>();
+
+            world.spawn().with(idkfa(5)).with(iddqd(10)).finish();
+            world.spawn().with(idkfa(5)).finish();
+            world.spawn().with(iddqd(10)).finish();
+
+            let mut test_addremove = AddRemove::new();
             SystemWrapper::execute(&mut test_addremove, &mut world);
         }
     }
