@@ -209,7 +209,56 @@ mod tests{
             SystemWrapper::execute(&mut test_addremove, &mut world);
         }
     }
-    mod test_resources{}
+    mod test_resources{
+        use super::*;
+        use crate::ECS::resource::Resource;
+
+        struct idkfa(u8);
+        struct iddqd(u8);
+        impl Resource for idkfa{
+            const ID: &'static str = "idkfa";
+        
+            fn new() -> Self {
+                Self(5)
+            }
+        }
+        impl Resource for iddqd{
+            const ID: &'static str = "iddqd";
+        
+            fn new() -> Self {
+                Self(10)
+            }
+        }
+
+        struct TestSys;
+        impl System for TestSys{
+            type Data<'a> = (&'a idkfa, &'a mut iddqd);
+        
+            const ID: &'static str = "_test_TestSys";
+        
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
+                assert!(data.0.0 == 5);
+                assert!(data.1.0 == 10);
+
+                data.1.0 = 20;
+                assert!(data.1.0 == 20)
+            }
+        }
+        #[test]
+        fn test(){
+            let mut world = World::new();
+            world.register_res::<idkfa>();
+            world.register_res::<iddqd>();
+
+            let mut test_sys = TestSys::new();
+
+            SystemWrapper::execute(&mut test_sys, &mut world);
+        }
+    }
     mod test_events{
         use super::*;
         use crate::ECS::events::Event;
