@@ -153,6 +153,13 @@ impl RequestData for Triggers{
 ///////////////////////////////////////////////////////////////////////////////
 // Tuples
 ///////////////////////////////////////////////////////////////////////////////
+impl RequestData for (){
+    type Item<'b> = ();
+
+    fn fetch<'a>(_world: &'a World) -> Self::Item<'a> {
+        ()
+    }
+}
 
 macro_rules! request_impl {
     ($($x:ident), *) => {
