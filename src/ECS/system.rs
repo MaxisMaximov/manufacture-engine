@@ -263,8 +263,8 @@ mod tests{
         use super::*;
         use crate::ECS::events::Event;
 
-        struct idkfa(u8);
-        struct iddqd(u8);
+        struct idkfa;
+        struct iddqd;
         impl Event for idkfa{
             const ID: &'static str = "idkfa";
         }
@@ -301,8 +301,8 @@ mod tests{
                 assert!(data.0.current_event_count() == 0);
                 assert!(data.1.current_event_count() == 0);
 
-                data.0.send(idkfa(5));
-                data.1.send(iddqd(5));
+                data.0.send(idkfa);
+                data.1.send(iddqd);
 
                 assert!(data.0.current_event_count() == 1);
                 assert!(data.1.current_event_count() == 1);
@@ -324,5 +324,45 @@ mod tests{
 
         }
     }
-    mod test_meta{}
+    mod test_meta{
+        use super::*;
+        use crate::ECS::commands::Command;
+
+        struct idkfa;
+        impl Command for idkfa{
+            fn execute(&mut self, world: &mut World) {
+                world.spawn().finish();
+            }
+        }
+
+        struct TestSys;
+        impl System for TestSys{
+            type Data<'a> = (Commands, Triggers);
+        
+            const ID: &'static str = "_test_TestSys";
+        
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
+                assert!(data.0.command_count() == 0);
+                assert!(data.1.trigger_count() == 0);
+                
+                data.0.send(idkfa);
+                data.1.send("idkfa");
+
+                assert!(data.0.command_count() == 1);
+                assert!(data.1.trigger_count() == 1);
+            }
+        }
+        #[test]
+        fn test(){
+            let mut world = World::new();
+
+            let mut test_sys = TestSys::new();
+
+            SystemWrapper::execute(&mut test_sys, &mut world);
+        }
+    }
 }
