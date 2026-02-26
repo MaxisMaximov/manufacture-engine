@@ -85,7 +85,7 @@ impl EventBufferMap{
         }
 
         // We have checks for valid ID and a backup Queue, so we can safely unwrap
-        let queue = self.write_buffer.get(T::ID).unwrap();
+        let queue = self.read_buffer.get(T::ID).unwrap();
 
         EventReader(
             Ref::map(

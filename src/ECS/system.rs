@@ -125,9 +125,6 @@ mod tests{
             world.spawn().with(iddqd(10)).finish();
 
             let mut test_get = Get::new();
-            
-            
-
             SystemWrapper::execute(&mut test_get, &mut world);
         }
         #[test]
@@ -212,7 +209,71 @@ mod tests{
             SystemWrapper::execute(&mut test_addremove, &mut world);
         }
     }
-    mod test_resource{}
-    mod test_events{}
+    mod test_resources{}
+    mod test_events{
+        use super::*;
+        use crate::ECS::events::Event;
+
+        struct idkfa(u8);
+        struct iddqd(u8);
+        impl Event for idkfa{
+            const ID: &'static str = "idkfa";
+        }
+        impl Event for iddqd{
+            const ID: &'static str = "iddqd";
+        }
+
+        struct Read;
+        struct Send;
+        impl System for Read{
+            type Data<'a> = (ReadEvent<idkfa>, ReadEvent<iddqd>);
+        
+            const ID: &'static str = "_test_Read";
+        
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, data: Request<'_, Self::Data<'_>>) {
+                assert!(data.0.event_count() == 1);
+                assert!(data.1.event_count() == 1);
+            }
+        }
+        impl System for Send{
+            type Data<'a> = (WriteEvent<idkfa>, WriteEvent<iddqd>);
+        
+            const ID: &'static str = "_test_Write";
+        
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
+                assert!(data.0.current_event_count() == 0);
+                assert!(data.1.current_event_count() == 0);
+
+                data.0.send(idkfa(5));
+                data.1.send(iddqd(5));
+
+                assert!(data.0.current_event_count() == 1);
+                assert!(data.1.current_event_count() == 1);
+            }
+        }
+
+        #[test]
+        fn test(){
+            let mut world = World::new();
+            world.register_event::<idkfa>();
+            world.register_event::<iddqd>();
+            
+            let mut read = Read::new();
+            let mut send = Send::new();
+
+            SystemWrapper::execute(&mut send, &mut world);
+            world.swap_event_buffers();
+            SystemWrapper::execute(&mut read, &mut world);
+
+        }
+    }
     mod test_meta{}
 }
