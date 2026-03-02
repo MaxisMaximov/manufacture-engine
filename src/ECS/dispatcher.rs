@@ -66,7 +66,10 @@ impl Dispatcher{
                 }
                 // -- Singlefires --
                 for trigger in world.take_triggers(){
-                    self.singlefires.get_mut(trigger).unwrap().execute(world);
+                    // We have triggers for systems, but may not have any systems *to* trigger
+                    if let Some(system) = self.singlefires.get_mut(trigger){
+                        system.execute(world);
+                    }
                 }
                 // -- Event Responders --
                 for event in world.get_events().get_active_events(){
