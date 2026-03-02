@@ -621,4 +621,43 @@ mod tests{
             dispatcher.dispatch(&mut world);
         }
     }
+    mod collision{
+        use super::*;
+
+        struct Sys;
+        struct Collision;
+
+        impl System for Sys{
+            type Data<'a> = ();
+            const ID: &'static str = "System";
+        
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                
+            }
+        }
+        impl System for Collision{
+            type Data<'a> = ();
+            const ID: &'static str = "System";
+        
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                
+            }
+        }
+
+        #[test]
+        #[should_panic]
+        fn test(){
+            let mut builder = Dispatcher::new();
+            builder.add::<Sys>();
+            builder.add::<Collision>();
+        }
+    }
 }
