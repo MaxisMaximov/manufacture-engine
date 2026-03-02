@@ -404,12 +404,57 @@ pub enum SystemType{
 
 #[cfg(test)]
 mod tests{
-    mod preproc{}
-    mod logic{}
-    mod singlefire{}
-    mod event_responder{}
-    mod postproc{}
-    mod overrides{}
-    mod deps{}
-    mod full{}
+    use super::*;
+    mod loops{
+        use super::*;
+        use crate::ECS::resource::DeltaT;
+        use crate::ECS::fetch::WriteEvent;
+        use crate::ECS::events::ExitApp;
+
+        struct Staller;
+        struct Logic;
+
+        impl System for Staller{
+            type Data<'a> = (&'a DeltaT, WriteEvent<ExitApp>);
+            const ID: &'static str = "_Staller";
+            const TYPE: SystemType = SystemType::Preprocessor;
+        
+            fn new() -> Self {
+                Self
+            }
+            fn execute(&mut self, mut data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                assert!(data.0.frame() >= data.0.logic_frame());
+                if data.0.logic_frame() == 20{
+                    eprintln!("Frames: {}, Logic frames: {}", data.0.frame(), data.0.logic_frame());
+                    data.1.send(ExitApp(0));
+                }
+            }
+        }
+        impl System for Logic{
+            type Data<'a> = &'a DeltaT;
+            const ID: &'static str = "_Logic";
+            const TYPE: SystemType = SystemType::Logic;
+        
+            fn new() -> Self {
+                Self
+            }
+            fn execute(&mut self, data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                assert!(data.frame() >= data.logic_frame());
+            }
+        }
+
+        #[test]
+        fn test(){
+            let mut world = World::new();
+            world.register_res::<DeltaT>();
+            world.register_event::<ExitApp>();
+
+            let mut builder = Dispatcher::new();
+            builder.add::<Staller>();
+            builder.add::<Logic>();
+
+            let mut dispatcher = builder.build();
+            dispatcher.dispatch(&mut world);
+        }
+    }
 }
