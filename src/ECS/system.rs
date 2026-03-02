@@ -5,22 +5,23 @@ use super::fetch::*;
 /// # System trait
 /// Defines a System that will be run on the World
 ///
-/// `Data` is the Data the System wants from the World, like Components Query, Resources, Event Readers/Writers, etc.
+/// `Data` is the Data the System wants to request from the World, like Components Query, Resources, Event Readers/Writers, etc.
 /// 
 /// `ID` is what the System is identified by in the Dispatcher and in Overrides
 /// 
-/// `OVERRIDE` marks this System as an override of a System with same ID. 
-/// Note: If multiple Systems are marked as overrides of the same System, only the last loaded plugin gets the go. Every System is not an override by default. 
+/// `OVERRIDE` marks this System as an override of a System with the same ID, it is `false` by default
+/// 
+/// Note: If multiple Systems are marked as overrides of the same System, only the last loaded plugin gets the go
+/// 
 /// TODO: Priority System for overrides? Multiple overrides at the same time?
 /// 
 /// `DEPENDS` are the Systems that must be registered for this System, the System has no dependencies by default
 /// 
 /// `RUNORD` specifies what Systems should this System be run before/after, the System has no Run Orders be default
 /// 
-/// `TYPE` defines where the System should be put within the Execution loop, it is `SystemType::Logic` by default
+/// Note: `RUNORD` is only effective with Systems of the same `SystemType`
 /// 
-/// ## WARNING
-/// Make sure your System's ID does not collide with IDs of Systems from other plugins
+/// `TYPE` defines where the System should be put within the Execution loop, it is `SystemType::Logic` by default
 pub trait System: 'static{
     type Data<'a>: RequestData;
     const ID: &'static str;
