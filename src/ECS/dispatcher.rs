@@ -70,8 +70,12 @@ impl Dispatcher{
                 }
                 // -- Event Responders --
                 for event in world.get_events().get_active_events(){
-                    for system in self.event_responders.get_mut(event).unwrap().iter_mut(){
-                        system.execute(world);
+                    // We have events, but may not have any responders for them
+                    if let Some(responders) = self.event_responders.get_mut(event){
+                        for system in responders.iter_mut(){
+                            system.execute(world);
+                        }
+
                     }
                 }
                 // -- Commands --
