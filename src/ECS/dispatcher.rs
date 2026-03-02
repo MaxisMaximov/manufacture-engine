@@ -109,7 +109,7 @@ impl Dispatcher{
                 let event = events.get_reader::<events::ExitApp>();
                 if event.event_count() > 0{
                     let error_codes = event.iter().map(|event| event.0).collect::<Box<[i32]>>();
-                    
+
                     eprintln!("{} requests for shutdown have been sent with following error codes: {:?}", event.event_count(), error_codes);
 
                     return error_codes
@@ -658,6 +658,55 @@ mod tests{
             let mut builder = Dispatcher::new();
             builder.add::<Sys>();
             builder.add::<Collision>();
+        }
+    }
+    mod overrides{
+        use super::*;
+        use crate::ECS::resource::DeltaT;
+        use crate::ECS::events::ExitApp;
+        use crate::ECS::fetch::WriteEvent;
+
+        struct Sys;
+        struct Override;
+
+        impl System for Sys{
+            type Data<'a> = ();
+            const ID: &'static str = "System";
+        
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                panic!("Did not override!")
+            }
+        }
+        impl System for Override{
+            type Data<'a> = WriteEvent<ExitApp>;
+            const ID: &'static str = "System";
+            const OVERRIDE: bool = true;
+        
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, mut data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                data.send(ExitApp(0));
+            }
+        }
+
+        #[test]
+        fn test(){
+            let mut world = World::new();
+            world.register_res::<DeltaT>();
+            world.register_event::<ExitApp>();
+
+            let mut builder = Dispatcher::new();
+            builder.add::<Sys>();
+            builder.add::<Override>();
+
+            let mut dispatcher = builder.build();
+            dispatcher.dispatch(&mut world);
         }
     }
 }
