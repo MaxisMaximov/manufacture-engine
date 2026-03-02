@@ -457,4 +457,67 @@ mod tests{
             dispatcher.dispatch(&mut world);
         }
     }
+    mod deps{
+        use super::*;
+
+        struct BackDep;
+        struct Dependee;
+        struct ForwDep;
+
+        impl System for BackDep{
+            type Data<'a> = ();
+            const ID: &'static str = "BackDep";
+            const TYPE: SystemType = SystemType::Preprocessor;
+        
+            fn new() -> Self {
+                Self
+            }
+            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                
+            }
+        }
+        impl System for Dependee{
+            type Data<'a> = ();
+            const ID: &'static str = "Dependee";
+            const DEPENDS: &'static [&'static str] = &[BackDep::ID, ForwDep::ID];
+
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                
+            }
+        }
+        impl System for ForwDep{
+            type Data<'a> = ();
+            const ID: &'static str = "ForwDep";
+        
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                
+            }
+        }
+
+        #[test]
+        fn test_deps(){
+            let mut builder = Dispatcher::new();
+            builder.add::<Dependee>();
+            builder.add::<BackDep>();
+            builder.add::<ForwDep>();
+
+            let _dispatcher = builder.build();
+        }
+        #[test]
+        #[should_panic]
+        fn test_missing(){
+            let mut builder = Dispatcher::new();
+            builder.add::<Dependee>();
+
+            let _dispatcher = builder.build();
+        }
+    }
 }
