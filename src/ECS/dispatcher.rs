@@ -37,7 +37,7 @@ impl Dispatcher{
         DispatcherBuilder::new()
     }
     /// Dispatch the Systems
-    pub fn dispatch(&mut self, world: &mut World){
+    pub fn dispatch(&mut self, world: &mut World) -> Box<[i32]>{
         
         let mut last_frame = Instant::now();
         let mut last_tick = Instant::now();
@@ -108,7 +108,11 @@ impl Dispatcher{
                 // App exit
                 let event = events.get_reader::<events::ExitApp>();
                 if event.event_count() > 0{
-                    panic!("{} requests for shutdown have been sent with following error codes: {:?}", event.event_count(), event.iter().map(|event| event.0).collect::<Vec<i32>>())
+                    let error_codes = event.iter().map(|event| event.0).collect::<Box<[i32]>>();
+                    
+                    eprintln!("{} requests for shutdown have been sent with following error codes: {:?}", event.event_count(), error_codes);
+
+                    return error_codes
                 }
             }
 
