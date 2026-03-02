@@ -520,4 +520,105 @@ mod tests{
             let _dispatcher = builder.build();
         }
     }
+    mod run_ord{
+        use super::*;
+        use crate::ECS::resource::{Resource, DeltaT};
+        use crate::ECS::events::ExitApp;
+        use crate::ECS::fetch::WriteEvent;
+
+        struct SysA;
+        struct SysB;
+        struct SysC;
+
+        struct Runs{
+            a: bool,
+            b: bool,
+            c: bool
+        }
+
+        impl Resource for Runs{
+            const ID: &'static str = "Runs";
+        
+            fn new() -> Self {
+                Self{
+                    a: false,
+                    b: false,
+                    c: false,
+                }
+            }
+        }
+
+        impl System for SysA{
+            type Data<'a> = &'a mut Runs;
+            const ID: &'static str = "SysA";
+            const RUNORD: &'static [RunOrder] = &[RunOrder::Before(SysC::ID)];
+        
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, mut data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                data.a = true;
+
+                assert!(data.a);
+                assert!(!data.b);
+                assert!(!data.c);
+            }
+        }
+
+        impl System for SysB{
+            type Data<'a> = &'a mut Runs;
+            const ID: &'static str = "SysB";
+            const RUNORD: &'static [RunOrder] = &[RunOrder::After(SysA::ID)];
+        
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, mut data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                data.b = true;
+
+                assert!(data.a);
+                assert!(data.b);
+                assert!(!data.c);
+            }
+        }
+
+        impl System for SysC{
+            type Data<'a> = (&'a mut Runs, WriteEvent<ExitApp>);
+            const ID: &'static str = "SysC";
+            const RUNORD: &'static [RunOrder] = &[RunOrder::After(SysB::ID)];
+
+            fn new() -> Self {
+                Self
+            }
+        
+            fn execute(&mut self, mut data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+                data.0.c = true;
+
+                assert!(data.0.a);
+                assert!(data.0.b);
+                assert!(data.0.c);
+
+                data.1.send(ExitApp(0));
+            }
+        }
+
+        #[test]
+        fn test(){
+            let mut world = World::new();
+            world.register_res::<DeltaT>();
+            world.register_event::<ExitApp>();
+            world.register_res::<Runs>();
+
+            let mut builder = Dispatcher::new();
+            builder.add::<SysA>();
+            builder.add::<SysB>();
+            builder.add::<SysC>();
+
+            let mut dispatcher = builder.build();
+
+            dispatcher.dispatch(&mut world);
+        }
+    }
 }
