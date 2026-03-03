@@ -405,6 +405,7 @@ pub enum SystemType{
 #[cfg(test)]
 mod tests{
     use super::*;
+    use crate::ECS::fetch::Request;
     mod loops{
         use super::*;
         use crate::ECS::resource::DeltaT;
@@ -422,7 +423,7 @@ mod tests{
             fn new() -> Self {
                 Self
             }
-            fn execute(&mut self, mut data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
                 assert!(data.0.frame() >= data.0.logic_frame());
                 if data.0.logic_frame() == 20{
                     eprintln!("Frames: {}, Logic frames: {}", data.0.frame(), data.0.logic_frame());
@@ -438,7 +439,7 @@ mod tests{
             fn new() -> Self {
                 Self
             }
-            fn execute(&mut self, data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, data: Request<'_, Self::Data<'_>>) {
                 assert!(data.frame() >= data.logic_frame());
             }
         }
@@ -470,7 +471,7 @@ mod tests{
             fn new() -> Self {
                 Self
             }
-            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, _data: Request<'_, Self::Data<'_>>) {
                 
             }
         }
@@ -483,7 +484,7 @@ mod tests{
                 Self
             }
         
-            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, _data: Request<'_, Self::Data<'_>>) {
                 
             }
         }
@@ -495,7 +496,7 @@ mod tests{
                 Self
             }
         
-            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, _data: Request<'_, Self::Data<'_>>) {
                 
             }
         }
@@ -555,7 +556,7 @@ mod tests{
                 Self
             }
         
-            fn execute(&mut self, mut data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
                 data.a = true;
 
                 assert!(data.a);
@@ -573,7 +574,7 @@ mod tests{
                 Self
             }
         
-            fn execute(&mut self, mut data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
                 data.b = true;
 
                 assert!(data.a);
@@ -591,7 +592,7 @@ mod tests{
                 Self
             }
         
-            fn execute(&mut self, mut data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
                 data.0.c = true;
 
                 assert!(data.0.a);
@@ -631,7 +632,7 @@ mod tests{
                 Self
             }
         
-            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, _data: Request<'_, Self::Data<'_>>) {
                 
             }
         }
@@ -643,7 +644,7 @@ mod tests{
                 Self
             }
         
-            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, _data: Request<'_, Self::Data<'_>>) {
                 
             }
         }
@@ -672,7 +673,7 @@ mod tests{
                 Self
             }
         
-            fn execute(&mut self, _data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, _data: Request<'_, Self::Data<'_>>) {
                 panic!("Did not override!")
             }
         }
@@ -685,7 +686,7 @@ mod tests{
                 Self
             }
         
-            fn execute(&mut self, mut data: crate::ECS::prelude::Request<'_, Self::Data<'_>>) {
+            fn execute(&mut self, mut data: Request<'_, Self::Data<'_>>) {
                 data.send(ExitApp(0));
             }
         }

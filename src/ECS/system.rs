@@ -79,7 +79,7 @@ mod tests{
         use super::*;
         use crate::ECS::comp::Component;
         use crate::ECS::storage::test::HashMapStorage;
-        use crate::prelude::Storage;
+        use crate::ECS::storage::Storage;
 
         struct idkfa(u8);
         struct iddqd(u8);
