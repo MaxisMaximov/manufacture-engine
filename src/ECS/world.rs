@@ -31,7 +31,7 @@ pub struct World{
 impl World{
     /// Create a new, empty World
     pub fn new() -> Self{
-        Self{
+        let mut temp = Self{
             entities: BTreeMap::new(),
             next_free: BTreeSet::new(),
             components: HashMap::new(),
@@ -39,7 +39,12 @@ impl World{
             events: EventBufferMap::new(),
             triggers: RefCell::new(Vec::new()),
             commands: RefCell::new(Vec::new())
-        }
+        };
+
+        temp.register_event::<ExitApp>();
+        temp.register_res::<DeltaT>();
+
+        temp
     }
 
     ///////////////////////////////////////////////////////////////////////////////

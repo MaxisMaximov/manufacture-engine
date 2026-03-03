@@ -446,8 +446,6 @@ mod tests{
         #[test]
         fn test(){
             let mut world = World::new();
-            world.register_res::<DeltaT>();
-            world.register_event::<ExitApp>();
 
             let mut builder = Dispatcher::new();
             builder.add::<Staller>();
@@ -522,7 +520,7 @@ mod tests{
     }
     mod run_ord{
         use super::*;
-        use crate::ECS::resource::{Resource, DeltaT};
+        use crate::ECS::resource::Resource;
         use crate::ECS::events::ExitApp;
         use crate::ECS::fetch::WriteEvent;
 
@@ -607,8 +605,6 @@ mod tests{
         #[test]
         fn test(){
             let mut world = World::new();
-            world.register_res::<DeltaT>();
-            world.register_event::<ExitApp>();
             world.register_res::<Runs>();
 
             let mut builder = Dispatcher::new();
@@ -662,7 +658,6 @@ mod tests{
     }
     mod overrides{
         use super::*;
-        use crate::ECS::resource::DeltaT;
         use crate::ECS::events::ExitApp;
         use crate::ECS::fetch::WriteEvent;
 
@@ -698,8 +693,6 @@ mod tests{
         #[test]
         fn test(){
             let mut world = World::new();
-            world.register_res::<DeltaT>();
-            world.register_event::<ExitApp>();
 
             let mut builder = Dispatcher::new();
             builder.add::<Sys>();
