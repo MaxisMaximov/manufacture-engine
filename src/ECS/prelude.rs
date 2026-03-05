@@ -30,6 +30,6 @@ pub use super::{
         Request,
         RequestData,
         Triggers,
-        Commands,
+        Commands
     }
 };

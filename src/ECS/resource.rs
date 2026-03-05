@@ -15,7 +15,7 @@ pub trait Resource: 'static{
 /// A wrapper trait for Resources to safely store them in the World
 /// 
 /// Provides ID method for identifying and Downcast methods to get the underlying Resource
-pub trait ResourceWrapper{
+pub(crate) trait ResourceWrapper{
     /// Get the underlying Resource's ID
     fn id(&self) -> &'static str;
 }

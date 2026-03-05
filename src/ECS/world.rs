@@ -203,9 +203,9 @@ impl World{
     }
     /// Despawn the given Entity via Token
     /// 
-    /// This drops all of the Entity's Components from all Storages
-    /// 
     /// Returns `true` if the entity was found and removed, otherwise `false`
+    /// 
+    /// This drops all of the Entity's Components from all Storages
     /// 
     /// Note: This consumes the Token, whether valid or not. 
     /// If you're holding the Token in a struct, get a new Token
@@ -256,6 +256,7 @@ impl World{
     }
 
     /// Get the Event Map
+    #[allow(private_interfaces)]
     pub fn get_events(&self) -> &EventBufferMap{
         &self.events
     }

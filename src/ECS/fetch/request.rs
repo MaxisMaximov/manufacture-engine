@@ -2,13 +2,9 @@ use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
 use crate::ECS;
-use crate::ECS::fetch::{WorldQuery, QueryData, QueryFilter};
 use ECS::world::World;
 use ECS::resource::Resource;
 use ECS::events::Event;
-use super::{FetchRes, FetchResMut};
-use super::{EventReader, EventWriter};
-use super::{CommandWriter, TriggerWriter};
 
 /// # Request fetch trait
 /// Required for `Request` to know what System resources to fetch from the World
@@ -50,14 +46,14 @@ impl<'a, D: RequestData> DerefMut for Request<'a, D>{
 }
 
 /// # Query Request
-/// An identifier for `WorldQuery` to make data acquisition easier
+/// An identifier for `super::WorldQuery` to make data acquisition easier
 /// 
-/// **Below documentation for `WorldQuery`**
+/// **Below documentation for `super::WorldQuery`**
 /// 
-/// Struct that queries the World and fetches the specified `QueryData`, usually Components
+/// Struct that queries the World and fetches the specified `super::QueryData`, usually Components
 /// 
 /// You can specify filters for the Query to use when getting Entities, such as `With` and `Without`.  
-/// Any type implementing `QueryFilter` can be used
+/// Any type implementing `super::QueryFilter` can be used
 /// 
 /// To get a specific Entity's set of Components, use `get`, `get_mut`, and their Token variations.  
 /// Token variations of getters are preferred over normal getters
@@ -69,12 +65,12 @@ impl<'a, D: RequestData> DerefMut for Request<'a, D>{
 /// 
 /// Query automatically validates Tokens in Getter functions, they can also be  
 /// manually validated via `validate_token`
-pub struct Query<D: QueryData, F: QueryFilter>(PhantomData<(D, F)>);
-impl <D: QueryData, F: QueryFilter> RequestData for Query<D, F>{
-    type Item<'b> = WorldQuery<'b, D, F>;
+pub struct Query<D: super::QueryData, F: super::QueryFilter>(PhantomData<(D, F)>);
+impl <D: super::QueryData, F: super::QueryFilter> RequestData for Query<D, F>{
+    type Item<'b> = super::WorldQuery<'b, D, F>;
 
     fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
-        WorldQuery::fetch(world)
+        super::WorldQuery::fetch(world)
     }
 }
 
@@ -83,14 +79,14 @@ impl <D: QueryData, F: QueryFilter> RequestData for Query<D, F>{
 ///////////////////////////////////////////////////////////////////////////////
 
 impl<R: Resource> RequestData for &R{
-    type Item<'b> = FetchRes<'b, R>;
+    type Item<'b> = super::FetchRes<'b, R>;
 
     fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
         world.fetch_res()
     }
 }
 impl<R: Resource> RequestData for &mut R{
-    type Item<'b> = FetchResMut<'b, R>;
+    type Item<'b> = super::FetchResMut<'b, R>;
 
     fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
         world.fetch_res_mut()
@@ -102,11 +98,11 @@ impl<R: Resource> RequestData for &mut R{
 ///////////////////////////////////////////////////////////////////////////////
 
 /// # Event Reader Request
-/// An identifier for `EventReader` to make Event queue acquisition for reading events easier
+/// An identifier for `super::EventReader` to make Event queue acquisition for reading events easier
 pub struct ReadEvent<E: Event>(PhantomData<E>);
 
 impl<E: Event> RequestData for ReadEvent<E>{
-    type Item<'b> = EventReader<'b, E>;
+    type Item<'b> = super::EventReader<'b, E>;
     
     fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
         world.get_event_reader()
@@ -114,10 +110,10 @@ impl<E: Event> RequestData for ReadEvent<E>{
 }
 
 /// # Event Writer Request
-/// An identifier for `EventWriter` to make Event queue acquisition for reading and sending events easier
+/// An identifier for `super::EventWriter` to make Event queue acquisition for reading and sending events easier
 pub struct WriteEvent<E: Event>(PhantomData<E>);
 impl<E: Event> RequestData for WriteEvent<E>{
-    type Item<'b> = EventWriter<'b, E>;
+    type Item<'b> = super::EventWriter<'b, E>;
 
     fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
         world.get_event_writer()
@@ -129,21 +125,21 @@ impl<E: Event> RequestData for WriteEvent<E>{
 ///////////////////////////////////////////////////////////////////////////////
 
 /// # Commands Request
-/// An identifier for `CommandWriter` to make command queue acquisition easier
+/// An identifier for `super::CommandWriter` to make command queue acquisition easier
 pub struct Commands;
 /// # Triggers Request
-/// An identifier for `TriggerWriter` to make trigger queue acquisition easier
+/// An identifier for `super::TriggerWriter` to make trigger queue acquisition easier
 pub struct Triggers;
 
 impl RequestData for Commands{
-    type Item<'b> = CommandWriter<'b>;
+    type Item<'b> = super::CommandWriter<'b>;
 
     fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
         world.get_command_writer()
     }
 }
 impl RequestData for Triggers{
-    type Item<'b> = TriggerWriter<'b>;
+    type Item<'b> = super::TriggerWriter<'b>;
 
     fn fetch<'a>(world: &'a World) -> Self::Item<'a> {
         world.get_trigger_writer()

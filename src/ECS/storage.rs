@@ -56,6 +56,9 @@ pub trait Storage<T: Component>{
         }
         self.get_mut(&token.id())
     }
+
+    /// Get amount of components in this storage
+    fn len(&self) -> usize;
 }
 
 /// # Storage trait Container
@@ -64,7 +67,7 @@ pub trait Storage<T: Component>{
 /// It is required as compound generics *(`U: Trait_A, T: Trait<U>`)* aren't supported yet
 /// 
 /// To get the underlying `STORAGE`, use a dereference
-pub struct StorageContainer<T: Component>{
+pub(crate) struct StorageContainer<T: Component>{
     inner: T::STORAGE
 }
 impl<T: Component> StorageContainer<T>{
@@ -73,10 +76,6 @@ impl<T: Component> StorageContainer<T>{
         Self{
             inner: T::STORAGE::new()
         }
-    }
-    /// Get the underlying Storage's Component ID
-    pub fn comp_id(&self) -> &'static str{
-        T::ID
     }
 }
 impl<T: Component> Deref for StorageContainer<T>{
@@ -97,7 +96,7 @@ impl<T: Component> DerefMut for StorageContainer<T>{
 /// 
 /// Provides ability to remove a Component of the specified entity for easier cleanup,  
 /// as well as Downcast methods to get the underlying Containers
-pub trait StorageWrapper{
+pub(crate) trait StorageWrapper{
     /// Remove a specified Entity's Component from this storage
     fn remove(&mut self, id: usize);
     /// Get the underlying Container's Component ID
@@ -170,6 +169,9 @@ pub(crate) mod test{
         }
         fn get_mut(&mut self, id: &usize) -> Option<&mut C> {
             self.inner.get_mut(id)
+        }
+        fn len(&self) -> usize {
+            self.inner.len()
         }
     }
 

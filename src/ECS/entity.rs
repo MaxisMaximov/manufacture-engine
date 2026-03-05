@@ -4,7 +4,7 @@ use super::comp::Component;
 use super::storage::Storage;
 use super::world::World;
 
-type Hash = u32;
+type EntityHash = u32;
 
 /// # Entity struct
 /// Identifies a single Entity within the World
@@ -13,7 +13,7 @@ type Hash = u32;
 /// as well as what Components it has on the given frame
 pub struct Entity{
     id: usize,
-    hash: Hash
+    hash: EntityHash
 }
 impl Entity{
     /// Create a new Entity with given ID
@@ -36,7 +36,7 @@ impl Entity{
         self.id
     }
     /// Read this Entity's Hash
-    pub fn hash(&self) -> Hash{
+    pub fn hash(&self) -> EntityHash{
         self.hash
     }
 }
@@ -51,7 +51,7 @@ impl Entity{
 #[derive(Clone, Copy)]
 pub struct Token{
     id: usize,
-    hash: Hash,
+    hash: EntityHash,
     valid: bool
 }
 impl Token{
@@ -60,7 +60,7 @@ impl Token{
         self.id
     }
     /// Read the tracked Entity's Hash
-    pub fn hash(&self) -> Hash{
+    pub fn hash(&self) -> EntityHash{
         self.hash
     }
     /// Read if the Token is valid

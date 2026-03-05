@@ -15,7 +15,7 @@ use super::{Fetch, FetchMut};
 /// `Option<&Component>` and `Option<&mut Component>`, 
 /// as well as Tuples up to 12 elements
 /// 
-/// The return type `Item` is typically the type the trait gets implemented on
+/// The return type `Item` is typically the what serves as access to the data
 /// 
 /// `AccItem` is what gets returned when getting data immutably
 /// 

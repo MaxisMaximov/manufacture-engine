@@ -16,7 +16,7 @@ pub trait Event: 'static{
 /// A wrapper trait for Events to safely store them within the Event Map
 /// 
 /// Provides ID method for identifying the underlying Event
-pub trait EventWrapper{
+pub(crate) trait EventWrapper{
     fn id(&self) -> &'static str;
 }
 impl<T: Event> EventWrapper for T{
@@ -31,7 +31,7 @@ impl<T: Event> EventWrapper for T{
 /// Maintains a Registry of Events to prevent illegal overrides and reading/writing non-existent Events
 /// 
 /// Buffers switch at the end of every Tick, clearing the previously Read-Only buffer
-pub struct EventBufferMap{
+pub(crate) struct EventBufferMap{
     registry: HashSet<&'static str>,
     read_buffer: HashMap<&'static str, RefCell<Box<dyn EventQueue>>>,
     write_buffer: HashMap<&'static str, RefCell<Box<dyn EventQueue>>>,

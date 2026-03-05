@@ -17,7 +17,7 @@ use super::fetch::*;
 /// 
 /// `DEPENDS` are the Systems that must be registered for this System, the System has no dependencies by default
 /// 
-/// `RUNORD` specifies what Systems should this System be run before/after, the System has no Run Orders be default
+/// `RUNORD` specifies what Systems should this System be run before/after, the System has no Run Orders by default
 /// 
 /// Note: `RUNORD` is only effective with Systems of the same `SystemType`
 /// 
@@ -40,7 +40,7 @@ pub trait System: 'static{
 /// A wrapper trait for Systems to safely store and dispatch them in the Dispatcher
 /// 
 /// Provides methods for accessing the specifics of the underlying System
-pub trait SystemWrapper{
+pub(crate) trait SystemWrapper{
     /// Get the underlying System's ID
     fn id(&self) -> &'static str;
     /// Get the underlying System's dependencies

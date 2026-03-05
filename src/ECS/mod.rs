@@ -1,3 +1,5 @@
+#![allow(unused)] // Just to prevent compiler from whining
+
 pub mod comp;
 pub mod storage;
 pub mod system;
