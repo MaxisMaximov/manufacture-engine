@@ -264,14 +264,14 @@ impl World{
 #[cfg(test)]
 mod tests{
     use super::*;
-    use super::test::HashMapStorage;
+    use super::test::TestStorage;
     mod test_fetches{
         use super::*;
         #[test]
         fn fetch_comp(){
             struct idkfa;
             impl Component for idkfa{
-                type STORAGE = HashMapStorage<Self>;
+                type STORAGE = TestStorage<Self>;
             
                 const ID: &'static str = "idkfa";
             }
@@ -288,7 +288,7 @@ mod tests{
         fn fetch_comp_invalid(){
             struct idkfa;
             impl Component for idkfa{
-                type STORAGE = HashMapStorage<Self>;
+                type STORAGE = TestStorage<Self>;
             
                 const ID: &'static str = "idkfa";
             }
@@ -372,12 +372,12 @@ mod tests{
             struct iddqd;
 
             impl Component for idkfa{
-                type STORAGE = HashMapStorage<Self>;
+                type STORAGE = TestStorage<Self>;
             
                 const ID: &'static str = "idkfa";
             }
             impl Component for iddqd{
-                type STORAGE = HashMapStorage<Self>;
+                type STORAGE = TestStorage<Self>;
             
                 const ID: &'static str = "iddqd";
             }
@@ -405,12 +405,12 @@ mod tests{
             struct iddqd;
 
             impl Component for idkfa{
-                type STORAGE = HashMapStorage<Self>;
+                type STORAGE = TestStorage<Self>;
             
                 const ID: &'static str = "idkfa";
             }
             impl Component for iddqd{
-                type STORAGE = HashMapStorage<Self>;
+                type STORAGE = TestStorage<Self>;
             
                 const ID: &'static str = "idkfa";
             }
@@ -540,7 +540,7 @@ mod tests{
         fn spawn_build(){
             struct idkfa;
             impl Component for idkfa{
-                type STORAGE = HashMapStorage<Self>;
+                type STORAGE = TestStorage<Self>;
             
                 const ID: &'static str = "idkfa";
             }
@@ -557,7 +557,7 @@ mod tests{
         fn despawn_id(){
             struct idkfa;
             impl Component for idkfa{
-                type STORAGE = HashMapStorage<Self>;
+                type STORAGE = TestStorage<Self>;
             
                 const ID: &'static str = "idkfa";
             }
@@ -574,7 +574,7 @@ mod tests{
         fn despawn_token(){
             struct idkfa;
             impl Component for idkfa{
-                type STORAGE = HashMapStorage<Self>;
+                type STORAGE = TestStorage<Self>;
             
                 const ID: &'static str = "idkfa";
             }

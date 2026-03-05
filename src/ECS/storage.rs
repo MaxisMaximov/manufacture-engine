@@ -1,6 +1,5 @@
 use std::ops::{Deref, DerefMut};
 
-
 use super::comp::Component;
 use super::entity::Token;
 
@@ -27,11 +26,11 @@ pub trait Storage<T: Component>{
     /// Remove the Component from the Entity referenced by the Token from this Storage
     /// 
     /// It's recommended to ensure the Token is valid beforehand
-    fn remove_with_token(&mut self, id: &Token){
-        if !id.valid(){
+    fn remove_with_token(&mut self, token: &Token){
+        if !token.valid(){
             return
         }
-        self.remove(&id.id());
+        self.remove(&token.id());
     }
 
     /// Get a reference to the specified Entity's Component from this storage
@@ -146,14 +145,13 @@ impl dyn StorageWrapper{
 
 #[cfg(test)]
 pub(crate) mod test{
-    #![allow(unused)]
     use super::*;
     use std::collections::HashMap;
-    /// COPIED FROM manufacture-core
-    pub struct HashMapStorage<C: Component>{
+
+    pub struct TestStorage<C: Component>{
         inner: HashMap<usize, C>
     }
-    impl<C: Component> Storage<C> for HashMapStorage<C>{
+    impl<C: Component> Storage<C> for TestStorage<C>{
         fn new() -> Self {
             Self{
                 inner: HashMap::new(),
@@ -173,5 +171,43 @@ pub(crate) mod test{
         fn get_mut(&mut self, id: &usize) -> Option<&mut C> {
             self.inner.get_mut(id)
         }
+    }
+
+    struct idkfa(u8);
+    impl Component for idkfa{
+        type STORAGE = TestStorage<Self>;
+    
+        const ID: &'static str = "idkfa";
+    }
+
+    #[test]
+    fn test_addremove(){
+        let mut storage = TestStorage::new();
+
+        storage.insert(0, idkfa(5));
+        assert!(storage.inner.len() == 1);
+        storage.remove(&0);
+        assert!(storage.inner.len() == 0);
+    }
+    #[test]
+    fn test_get(){
+        let mut storage = TestStorage::new();
+
+        storage.insert(0, idkfa(5));
+
+        assert!(storage.get(&0).is_some());
+        storage.get_mut(&0).unwrap().0 = 10;
+        assert!(storage.get(&0).unwrap().0 == 10)
+    }
+    #[test]
+    fn test_get_token(){
+        let mut storage = TestStorage::new();
+        let token = crate::ECS::entity::Entity::new(0).get_token();
+
+        storage.insert(0, idkfa(5));
+
+        assert!(storage.get_from_token(&token).is_some());
+        storage.get_from_token_mut(&token).unwrap().0 = 10;
+        assert!(storage.get_from_token(&token).unwrap().0 == 10)
     }
 }

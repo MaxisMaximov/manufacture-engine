@@ -449,17 +449,17 @@ mod tests{
     use super::*;
     mod test_fetch{
         use super::*;
-        use crate::ECS::storage::test::HashMapStorage;
+        use crate::ECS::storage::test::TestStorage;
 
         struct idkfa(u8);
         struct iddqd(u8);
         impl Component for idkfa{
-            type STORAGE = HashMapStorage<Self>;
+            type STORAGE = TestStorage<Self>;
         
             const ID: &'static str = "idkfa";
         }
         impl Component for iddqd{
-            type STORAGE = HashMapStorage<Self>;
+            type STORAGE = TestStorage<Self>;
         
             const ID: &'static str = "iddqd";
         }
@@ -513,18 +513,18 @@ mod tests{
     mod test_filter{
         #![allow(unused)]
         use super::*;
-        use crate::ECS::storage::test::HashMapStorage;
+        use crate::ECS::storage::test::TestStorage;
         use std::marker::PhantomData;
 
         struct idkfa(u8);
         struct iddqd(u8);
         impl Component for idkfa{
-            type STORAGE = HashMapStorage<Self>;
+            type STORAGE = TestStorage<Self>;
         
             const ID: &'static str = "idkfa";
         }
         impl Component for iddqd{
-            type STORAGE = HashMapStorage<Self>;
+            type STORAGE = TestStorage<Self>;
         
             const ID: &'static str = "iddqd";
         }

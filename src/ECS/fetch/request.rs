@@ -225,17 +225,17 @@ mod tests{
     mod test_query{
         use super::*;
         use crate::ECS::comp::Component;
-        use crate::ECS::storage::test::HashMapStorage;
+        use crate::ECS::storage::test::TestStorage;
 
         struct idkfa(u8);
         struct iddqd(u8);
         impl Component for idkfa{
-            type STORAGE = HashMapStorage<Self>;
+            type STORAGE = TestStorage<Self>;
         
             const ID: &'static str = "idkfa";
         }
         impl Component for iddqd{
-            type STORAGE = HashMapStorage<Self>;
+            type STORAGE = TestStorage<Self>;
         
             const ID: &'static str = "iddqd";
         }
