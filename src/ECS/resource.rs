@@ -64,11 +64,11 @@ pub struct DeltaT{
     logic_frame: u64
 }
 impl DeltaT{
-    /// Get milliseconds elapsed since last frame
+    /// Get microseconds elapsed since last frame
     pub fn delta_frame(&self) -> u128{
         self.delta_frame
     }
-    /// Get milliseconds elapsed since last time Logic ran
+    /// Get microseconds elapsed since last Logic frame
     pub fn delta_logic(&self) -> u128{
         self.delta_logic
     }
