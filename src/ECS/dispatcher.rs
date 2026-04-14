@@ -44,7 +44,10 @@ impl Dispatcher{
 
         loop{
             // Update Frame Delta
-            world.fetch_res_mut::<DeltaT>().set_delta_frame( last_frame.elapsed().as_micros());
+            {
+                let elapsed = last_frame.elapsed();
+                world.fetch_res_mut::<DeltaT>().set_delta_frame( elapsed.as_micros(), elapsed.as_secs_f32());
+            }
 
             // -- PREPROCESSORS --
             for stage in self.preproc.iter_mut(){
@@ -56,7 +59,10 @@ impl Dispatcher{
             // -- LOGIC LOOP --
             if last_tick.elapsed() >= TICKRATE + TICKRATE_EPS{
                 // Update Logic Delta
-                world.fetch_res_mut::<DeltaT>().set_delta_logic(last_tick.elapsed().as_micros());
+                {
+                    let elapsed = last_tick.elapsed();
+                    world.fetch_res_mut::<DeltaT>().set_delta_logic(elapsed.as_micros(), elapsed.as_secs_f32());
+                }
 
                 // -- Logic Systems --
                 for stage in self.logic.iter_mut(){

@@ -59,7 +59,9 @@ impl dyn ResourceWrapper{
 /// Tracks milliseconds elapsed since last frame and last Logic run. Use provided `delta_frame` and `delta_logic` methods to get the time
 pub struct DeltaT{
     delta_frame: u128,
+    delta_frame_f32: f32,
     delta_logic: u128,
+    delta_logic_f32: f32,
     frame: u64,
     logic_frame: u64
 }
@@ -72,6 +74,12 @@ impl DeltaT{
     pub fn delta_logic(&self) -> u128{
         self.delta_logic
     }
+    pub fn delta_frame_f32(&self) -> f32{
+        self.delta_frame_f32
+    }
+    pub fn delta_logic_f32(&self) -> f32{
+        self.delta_logic_f32
+    }
     /// Get the number of frames elapsed since the app started
     pub fn frame(&self) -> u64{
         self.frame
@@ -80,13 +88,15 @@ impl DeltaT{
     pub fn logic_frame(&self) -> u64{
         self.logic_frame
     }
-    /// Set the new Delta Frame value
-    pub(crate) fn set_delta_frame(&mut self, delta: u128){
-        self.delta_frame = delta
+    /// Set the new Delta Frame values
+    pub(crate) fn set_delta_frame(&mut self, delta_u128: u128, delta_f32: f32){
+        self.delta_frame = delta_u128;
+        self.delta_frame_f32 = delta_f32;
     }
-    /// Set the new Delta Logic value
-    pub(crate) fn set_delta_logic(&mut self, delta: u128){
-        self.delta_logic = delta
+    /// Set the new Delta Logic values
+    pub(crate) fn set_delta_logic(&mut self, delta_u128: u128, delta_f32: f32){
+        self.delta_logic = delta_u128;
+        self.delta_logic_f32 = delta_f32;
     }
     /// Increment Staller loop count
     pub(crate) fn incr_frame(&mut self){
@@ -103,7 +113,9 @@ impl Resource for DeltaT{
     fn new() -> Self {
         Self{
             delta_frame: 0,
+            delta_frame_f32: 0.0,
             delta_logic: 0,
+            delta_logic_f32: 0.0,
             frame: 0,
             logic_frame: 0
         }
