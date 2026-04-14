@@ -56,7 +56,11 @@ impl dyn ResourceWrapper{
 }
 
 /// # Delta Time Resources
-/// Tracks milliseconds elapsed since last frame and last Logic run. Use provided `delta_frame` and `delta_logic` methods to get the time
+/// Tracks statistics pertaining to app runtime:
+/// - Time since last frame/Logic frame
+/// - Number of times Staller and Logic loops have ran
+/// - Time since the app has started
+/// Provides methods to get the Time Deltas in Microseconds as `u128` and Seconds as `f32`
 pub struct DeltaT{
     delta_frame: u128,
     delta_frame_f32: f32,
@@ -75,9 +79,11 @@ impl DeltaT{
     pub fn delta_logic(&self) -> u128{
         self.delta_logic
     }
+    /// Get microseconds elapsed since last frame as a 32-bit float
     pub fn delta_frame_f32(&self) -> f32{
         self.delta_frame_f32
     }
+    /// Get microseconds elapsed since last Logic frame as a 32-bit float
     pub fn delta_logic_f32(&self) -> f32{
         self.delta_logic_f32
     }
@@ -85,13 +91,15 @@ impl DeltaT{
     pub fn frame(&self) -> u64{
         self.frame
     }
-    /// Get the number of logic loops that were ran since the app started
+    /// Get the number of Logic frames elapsed since the app started
     pub fn logic_frame(&self) -> u64{
         self.logic_frame
     }
+    /// Get microseconds elapsed since the app has started
     pub fn delta_app_start(&self) -> u128{
         self.app_start.elapsed().as_micros()
     }
+    /// Get microseconds elapsed since the app has started as a 32-bit float
     pub fn delta_app_start_f32(&self) -> f32{
         self.app_start.elapsed().as_secs_f32()
     }
