@@ -63,7 +63,8 @@ pub struct DeltaT{
     delta_logic: u128,
     delta_logic_f32: f32,
     frame: u64,
-    logic_frame: u64
+    logic_frame: u64,
+    app_start: std::time::Instant
 }
 impl DeltaT{
     /// Get microseconds elapsed since last frame
@@ -87,6 +88,12 @@ impl DeltaT{
     /// Get the number of logic loops that were ran since the app started
     pub fn logic_frame(&self) -> u64{
         self.logic_frame
+    }
+    pub fn delta_app_start(&self) -> u128{
+        self.app_start.elapsed().as_micros()
+    }
+    pub fn delta_app_start_f32(&self) -> f32{
+        self.app_start.elapsed().as_secs_f32()
     }
     /// Set the new Delta Frame values
     pub(crate) fn set_delta_frame(&mut self, delta_u128: u128, delta_f32: f32){
@@ -117,7 +124,8 @@ impl Resource for DeltaT{
             delta_logic: 0,
             delta_logic_f32: 0.0,
             frame: 0,
-            logic_frame: 0
+            logic_frame: 0,
+            app_start: std::time::Instant::now()
         }
     }
 }
