@@ -31,6 +31,10 @@ impl<'a, D: RequestData> Request<'a, D>{
             data: D::fetch(world),
         }
     }
+    /// Consumes `Request`, returning it's inner data for easier destructuring
+    pub fn into_raw(self) -> D::Item<'a>{
+        self.data
+    }
 }
 impl<'a, D: RequestData> Deref for Request<'a, D>{
     type Target = D::Item<'a>;
@@ -388,6 +392,42 @@ mod tests{
 
             let _request_a: Request<'_, Triggers> = Request::fetch(&world);
             let _request_b: Request<'_, Triggers> = Request::fetch(&world);
+        }
+    }
+    mod test_destruct{
+        use super::*;
+
+        struct idkfa(u8);
+        struct iddqd(u8);
+        impl Resource for idkfa{
+            const ID: &'static str = "idkfa";
+        
+            fn new() -> Self {
+                Self(5)
+            }
+        }
+        impl Resource for iddqd{
+            const ID: &'static str = "iddqd";
+        
+            fn new() -> Self {
+                Self(5)
+            }
+        }
+
+        #[test]
+        fn test(){
+            let mut world = World::new();
+
+            world.register_res::<idkfa>();
+            world.register_res::<iddqd>();
+
+            let mut request: Request<'_, (&idkfa, &mut iddqd)> = Request::fetch(&world);
+
+            // Should not fail
+            let (idkfa_ref, iddqd_ref) = request.into_raw();
+
+            assert!(idkfa_ref.0 == 5);
+            assert!(iddqd_ref.0 == 5);
         }
     }
 }
